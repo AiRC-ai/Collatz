@@ -98,34 +98,18 @@ void on_signal(int) {
     g_stop = 1;
 }
 
+std::string compact_object_from_json(const std::string &json, const std::vector<std::string> &keys);
+
 std::string latest_progress_json(const Options &options) {
     const auto line = collatz::read_last_nonempty_line(options.progress);
     if (line.empty()) {
         return "{\"status\":\"waiting\",\"message\":\"no scanner progress yet\"}";
     }
-    return line;
-}
-
-std::string ledger_json(const Options &options) {
-    const auto lines = collatz::read_last_lines(options.ledger, 8);
-    std::ostringstream out;
-    out << '[';
-    for (std::size_t i = 0; i < lines.size(); ++i) {
-        if (i != 0) {
-            out << ',';
-        }
-        out << '"' << collatz::json_escape(lines[i]) << '"';
-    }
-    out << ']';
-    return out.str();
-}
-
-std::string latest_ledger_event_json(const Options &options) {
-    const auto line = collatz::read_last_nonempty_line(options.ledger);
-    if (line.empty()) {
-        return "null";
-    }
-    return "\"" + collatz::json_escape(line) + "\"";
+    const std::string compact = compact_object_from_json(
+        line,
+        {"type", "timestamp", "mode", "threads", "format", "range_start", "range_end", "current", "processed",
+         "throughput_per_sec", "max_total_steps_n", "max_total_steps", "max_peak_n", "max_peak_log2"});
+    return compact == "null" ? "{\"status\":\"waiting\"}" : compact;
 }
 
 std::string read_file(const std::string &path) {
@@ -299,8 +283,8 @@ std::string compact_graph_manifest_json(const Options &options) {
         return "null";
     }
     const std::string preview = json_value_for_key(json, "preview");
-    const std::string nodes = limited_json_array(json_value_for_key(preview, "nodes"), 128);
-    const std::string edges = limited_json_array(json_value_for_key(preview, "edges"), 192);
+    const std::string nodes = limited_json_array(json_value_for_key(preview, "nodes"), 64);
+    const std::string edges = limited_json_array(json_value_for_key(preview, "edges"), 96);
     std::ostringstream out;
     out << "{\"node_count\":" << json_value_or(json, "node_count", "0")
         << ",\"edge_count\":" << json_value_or(json, "edge_count", "0")
@@ -361,7 +345,6 @@ std::string dashboard_progress_json(const Options &options) {
     const std::string scan = read_file(options.scan_metadata);
     const std::string gnn = read_file(options.gnn_metadata);
     return "{\"progress\":" + latest_progress_json(options) +
-           ",\"latest_event\":" + latest_ledger_event_json(options) +
            ",\"scan_metadata\":" + compact_object_from_json(scan, {"dataset_records_observed", "completed_utc"}) +
            ",\"graph_manifest\":" + compact_graph_manifest_json(options) +
            ",\"topology_manifest\":" + compact_topology_manifest_json(options) +
