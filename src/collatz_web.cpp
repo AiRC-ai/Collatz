@@ -300,7 +300,7 @@ std::string compact_topology_manifest_json(const Options &options) {
     std::ostringstream out;
     out << "{\"point_count\":" << json_value_or(json, "point_count", "0")
         << ",\"cluster_count\":" << json_value_or(json, "cluster_count", "0")
-        << ",\"preview_points\":" << limited_json_array(json_value_for_key(json, "preview_points"), 128)
+        << ",\"preview_points\":" << limited_json_array(json_value_for_key(json, "preview_points"), 64)
         << "}";
     return out.str();
 }
