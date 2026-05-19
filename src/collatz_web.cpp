@@ -33,6 +33,7 @@ struct Options {
     std::string insights_manifest = "data/generated/insights/insights.json";
     std::string gnn_metadata = "data/generated/gnn/metrics.json";
     std::string hypothesis_summary = "data/generated/hypotheses/summary.json";
+    std::string runner_status = "data/generated/runner/status.json";
 };
 
 void usage(std::ostream &out) {
@@ -41,7 +42,7 @@ void usage(std::ostream &out) {
         << "                   [--image-manifest FILE] [--graph-manifest FILE]\n"
         << "                   [--topology-manifest FILE] [--neighborhood-manifest FILE]\n"
         << "                   [--insights-manifest FILE] [--gnn-metadata FILE]\n"
-        << "                   [--hypothesis-summary FILE]\n";
+        << "                   [--hypothesis-summary FILE] [--runner-status FILE]\n";
 }
 
 Options parse_args(int argc, char **argv) {
@@ -84,6 +85,8 @@ Options parse_args(int argc, char **argv) {
             options.gnn_metadata = need_value("--gnn-metadata");
         } else if (arg == "--hypothesis-summary") {
             options.hypothesis_summary = need_value("--hypothesis-summary");
+        } else if (arg == "--runner-status") {
+            options.runner_status = need_value("--runner-status");
         } else if (arg == "--help" || arg == "-h") {
             usage(std::cout);
             std::exit(0);
@@ -341,6 +344,42 @@ std::string compact_hypothesis_summary_json(const Options &options) {
     return out.str();
 }
 
+bool unsafe_public_value(const std::string &value) {
+    return value.find("/Users/") != std::string::npos || value.find("/home/") != std::string::npos ||
+           value.find("10.") != std::string::npos || value.find("192.168.") != std::string::npos ||
+           value.find("172.16.") != std::string::npos || value.find("172.17.") != std::string::npos ||
+           value.find("172.18.") != std::string::npos || value.find("http://") != std::string::npos ||
+           value.find("https://") != std::string::npos || value.find("ssh ") != std::string::npos;
+}
+
+std::string safe_runner_value_or(const std::string &json, const std::string &key, const std::string &fallback) {
+    const std::string value = json_value_for_key(json, key);
+    if (value.empty()) {
+        return fallback;
+    }
+    return unsafe_public_value(value) ? fallback : value;
+}
+
+std::string compact_runner_status_json(const Options &options) {
+    const std::string json = read_file(options.runner_status);
+    if (json.empty()) {
+        return "{\"state\":\"idle\",\"current_stage\":\"not configured\",\"last_started_utc\":\"\",\"last_finished_utc\":\"\",\"last_success\":false,\"last_error_summary\":\"\",\"active_experiment\":\"source alignment\",\"source_target_count\":0,\"matched_source_targets\":0,\"next_stage\":\"run evidence cycle\"}";
+    }
+    std::ostringstream out;
+    out << "{\"state\":" << safe_runner_value_or(json, "state", "\"idle\"")
+        << ",\"current_stage\":" << safe_runner_value_or(json, "current_stage", "\"idle\"")
+        << ",\"last_started_utc\":" << safe_runner_value_or(json, "last_started_utc", "\"\"")
+        << ",\"last_finished_utc\":" << safe_runner_value_or(json, "last_finished_utc", "\"\"")
+        << ",\"last_success\":" << safe_runner_value_or(json, "last_success", "false")
+        << ",\"last_error_summary\":" << safe_runner_value_or(json, "last_error_summary", "\"\"")
+        << ",\"active_experiment\":" << safe_runner_value_or(json, "active_experiment", "\"source alignment\"")
+        << ",\"source_target_count\":" << safe_runner_value_or(json, "source_target_count", "0")
+        << ",\"matched_source_targets\":" << safe_runner_value_or(json, "matched_source_targets", "0")
+        << ",\"next_stage\":" << safe_runner_value_or(json, "next_stage", "\"run evidence cycle\"")
+        << "}";
+    return out.str();
+}
+
 std::string dashboard_progress_json(const Options &options) {
     const std::string scan = read_file(options.scan_metadata);
     const std::string gnn = read_file(options.gnn_metadata);
@@ -353,6 +392,7 @@ std::string dashboard_progress_json(const Options &options) {
            ",\"insights_manifest\":" + compact_insights_manifest_json(options) +
            ",\"hypothesis_summary\":" + compact_hypothesis_summary_json(options) +
            ",\"gnn_metadata\":" + compact_object_from_json(gnn, {"status", "device", "epochs", "loss_final"}) +
+           ",\"runner_status\":" + compact_runner_status_json(options) +
            "}";
 }
 
@@ -413,7 +453,7 @@ std::string html_page() {
     <div class="panel"><div class="label">Dataset</div><div id="records" class="value">0</div></div>
     <div class="panel"><div class="label">Scan Peak</div><div id="maxsteps" class="value">0</div></div>
     <div class="panel"><div class="label">Topology</div><div id="topology" class="value">0 / 0</div></div>
-    <div class="panel"><div class="label">Neighborhoods</div><div id="neighborhoods" class="value">0</div></div>
+    <div class="panel"><div class="label">Automation</div><div id="automation" class="value">idle</div></div>
     <div class="panel"><div class="label">GNN Graph</div><div id="graph" class="value">0 / 0</div></div>
     <div class="panel"><div class="label">Confidence</div><div id="aiConfidence" class="value">pending</div></div>
   </section>
@@ -483,6 +523,7 @@ async function refresh() {
   const insights = data.insights_manifest || {};
   const hypotheses = data.hypothesis_summary || {};
   const gnn = data.gnn_metadata || {};
+  const runner = data.runner_status || {};
   const mode = progress.mode || progress.status || gnn.status || 'waiting';
   const processed = progress.processed ? `, ${compact(progress.processed)} processed` : '';
   const throughput = progress.throughput_per_sec ? ` at ${compact(progress.throughput_per_sec)}/s` : '';
@@ -490,7 +531,9 @@ async function refresh() {
   document.getElementById('records').textContent = compact(scan.dataset_records_observed);
   document.getElementById('maxsteps').textContent = `${progress.max_total_steps ?? 0}@${compact(progress.max_total_steps_n)}`;
   document.getElementById('topology').textContent = `${compact(topology.point_count)} / ${compact(topology.cluster_count)} clusters`;
-  document.getElementById('neighborhoods').textContent = neighborhoods.neighborhood_count ? `${compact(neighborhoods.neighborhood_count)} x ${compact(neighborhoods.neighbors_per_center)}` : 'pending';
+  const stage = runner.current_stage || runner.next_stage || 'idle';
+  const sourceCount = runner.source_target_count ? ` ${compact(runner.matched_source_targets)}/${compact(runner.source_target_count)}` : '';
+  document.getElementById('automation').textContent = `${runner.state || 'idle'}: ${stage}${sourceCount}`;
   document.getElementById('graph').textContent = `${compact(graph.node_count)} / ${compact(graph.edge_count)} edges`;
   document.getElementById('aiConfidence').textContent = hypotheses.confidence_level || insights.confidence || 'pending';
   document.getElementById('aiConclusion').textContent = hypotheses.conclusion || insights.conclusion || 'waiting for insights';

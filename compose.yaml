@@ -360,14 +360,26 @@ services:
       - /work/data/imported/b006577.txt
       - --oeis-path-records
       - /work/data/imported/b006884.txt
+      - --roosendaal-path-records
+      - /work/data/imported/roosendaal_pathrecs.html
+      - --roosendaal-delay-records
+      - /work/data/imported/roosendaal_delrecs.html
+      - --barina-path-records
+      - /work/data/imported/barina_path_records.html
+      - --oliveira-max-excursion-records
+      - /work/data/imported/oliveira_max_excursion.txt
+      - --oliveira-stopping-records
+      - /work/data/imported/oliveira_stopping.txt
       - --output
-      - /work/data/source_validation/public_source_targets.csv
+      - ${SOURCE_TARGET_OUTPUT:-/work/data/generated/source_validation/public_source_targets.csv}
       - --max-n
-      - ${SOURCE_TARGET_MAX_N:-100000}
+      - ${SOURCE_TARGET_MAX_N:-100000000}
       - --stopping-limit
       - ${SOURCE_TARGET_STOPPING_LIMIT:-5000}
       - --path-record-limit
       - ${SOURCE_TARGET_PATH_RECORD_LIMIT:-100}
+      - --generic-record-limit
+      - ${SOURCE_TARGET_GENERIC_LIMIT:-250}
     volumes:
       - ./data:/work/data
       - ./logs:/work/logs
@@ -383,7 +395,7 @@ services:
       - --projection
       - /work/data/generated/topology/projection.csv
       - --source-samples
-      - ${SOURCE_SAMPLES:-/work/data/source_validation/public_source_targets.csv}
+      - ${SOURCE_SAMPLES:-/work/data/generated/source_validation/public_source_targets.csv}
       - --output-dir
       - /work/data/generated/source_alignment
       - --neighbors
@@ -478,6 +490,8 @@ services:
       - /work/data/generated/gnn/metrics.json
       - --hypothesis-summary
       - /work/data/generated/hypotheses/summary.json
+      - --runner-status
+      - /work/data/generated/runner/status.json
     ports:
       - "${WEB_PORT:-8080}:8080"
     volumes:

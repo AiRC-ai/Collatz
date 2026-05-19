@@ -76,6 +76,48 @@ target_link_libraries(collatz_selftest PRIVATE collatz_core)
 enable_testing()
 add_test(NAME collatz_selftest COMMAND collatz_selftest)
 
+set(COLLATZ_SOURCE_FIXTURES "${CMAKE_SOURCE_DIR}/tests/fixtures/source_records")
+add_test(NAME collatz_source_targets_fixtures
+    COMMAND collatz_source_targets
+        --oeis-stopping "${COLLATZ_SOURCE_FIXTURES}/b006577_fixture.txt"
+        --oeis-path-records "${COLLATZ_SOURCE_FIXTURES}/b006884_fixture.txt"
+        --roosendaal-path-records "${COLLATZ_SOURCE_FIXTURES}/roosendaal_path_records_fixture.html"
+        --roosendaal-delay-records "${COLLATZ_SOURCE_FIXTURES}/roosendaal_delay_records_fixture.html"
+        --barina-path-records "${COLLATZ_SOURCE_FIXTURES}/barina_path_records_fixture.html"
+        --oliveira-max-excursion-records "${COLLATZ_SOURCE_FIXTURES}/oliveira_max_excursion_fixture.txt"
+        --oliveira-stopping-records "${COLLATZ_SOURCE_FIXTURES}/oliveira_stopping_fixture.txt"
+        --output "${CMAKE_BINARY_DIR}/source_targets_fixture.csv"
+        --metadata "${CMAKE_BINARY_DIR}/source_targets_fixture.metadata.json"
+        --max-n 100000000
+        --stopping-limit 10
+        --path-record-limit 10
+        --generic-record-limit 10
+)
+
+add_test(NAME collatz_source_align_extended_fixture
+    COMMAND collatz_source_align
+        --projection "${COLLATZ_SOURCE_FIXTURES}/projection_fixture.csv"
+        --source-samples "${CMAKE_BINARY_DIR}/source_targets_fixture.csv"
+        --output-dir "${CMAKE_BINARY_DIR}/source_alignment_extended_fixture"
+        --neighbors 3
+)
+set_tests_properties(collatz_source_align_extended_fixture PROPERTIES DEPENDS collatz_source_targets_fixtures)
+
+add_test(NAME collatz_source_align_old_header_fixture
+    COMMAND collatz_source_align
+        --projection "${COLLATZ_SOURCE_FIXTURES}/projection_fixture.csv"
+        --source-samples "${COLLATZ_SOURCE_FIXTURES}/source_targets_old_header_fixture.csv"
+        --output-dir "${CMAKE_BINARY_DIR}/source_alignment_old_header_fixture"
+        --neighbors 3
+)
+
+add_test(NAME collatz_hypothesis_multi_source_fixture
+    COMMAND collatz_hypothesis_analyze
+        --validation-metrics "${COLLATZ_SOURCE_FIXTURES}/validation_metrics_fixture.json"
+        --source-alignment "${COLLATZ_SOURCE_FIXTURES}/source_alignment_multi_fixture.json"
+        --output-dir "${CMAKE_BINARY_DIR}/hypothesis_multi_source_fixture"
+)
+
 if(COLLATZ_ENABLE_TORCH)
     find_package(Torch REQUIRED)
     target_compile_definitions(collatz_train PRIVATE COLLATZ_WITH_TORCH=1)

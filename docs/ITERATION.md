@@ -18,10 +18,19 @@ Each stable cycle should record:
 - weakest limitation
 - next experiment
 
-The web dashboard reads recent entries from `logs/iteration-ledger.jsonl`.
+The private evidence runner appends sanitized entries to
+`logs/iteration-ledger.jsonl`. The web dashboard does not expose raw ledger
+lines. It reads public-safe automation state from
+`data/generated/runner/status.json`.
+
 The AI conclusion dashboard reads generated research claims from
 `data/generated/hypotheses/summary.json` and detailed entries from
 `data/generated/hypotheses/hypotheses.jsonl`.
+
+The background evidence cycle lives in `ops/collatz-evidence-cycle.sh`.
+It is idempotent, lock-protected, and intended for a user-level timer. It
+refreshes public source imports, source-neighborhood alignment, hypotheses, and
+runner status without committing or pushing public Git changes.
 
 Example line:
 

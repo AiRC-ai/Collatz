@@ -46,18 +46,26 @@ are used for feature ideas, not proof.
 The first file is small by design: it proves that source validation is wired
 into the build before large imports are added.
 
-`collatz_source_targets` builds the expanded public target table
-`data/source_validation/public_source_targets.csv` from:
+`collatz_source_targets` can build an expanded public target table from:
 
 - `https://oeis.org/A006577/b006577.txt`
 - `https://oeis.org/A006884/b006884.txt`
+- `https://www.ericr.nl/wondrous/pathrecs.html`
+- `https://www.ericr.nl/wondrous/delrecs.html`
+- `https://pcbarina.fit.vutbr.cz/path-records.htm`
+- Oliveira e Silva record files linked from `https://sweet.ua.pt/tos/3x%2B1.html`
 
-The current checked target table contains 5,019 rows: 5,000 total
-stopping-time rows and 19 path-record rows with starts `<= 100000`. In a local
-100K embedded topology check, all 5,019 targets matched and covered all 16
-topology clusters. This is enough to call the current dashboard state a
-source-aligned candidate, but it is still not a proof and still needs larger
-Roosendaal, Oliveira e Silva, and Barina imports.
+The generated table keeps the compatibility header
+`source,n,total_steps,peak_low`, followed by provenance columns:
+`source_kind,source_rank,source_url,retrieved_utc,parser`.
+
+The current checked public state remains a source-aligned candidate from the
+expanded OEIS target table: 5,019 rows matched in a 100K embedded topology
+check and covered all 16 topology clusters. The next stronger gate requires
+agreement from at least three independent source families: OEIS plus at least
+two of Roosendaal, Oliveira e Silva, and Barina. If any imported target is
+missing from the current topology, the dashboard must keep the lower confidence
+and report the missing count as the next falsification target.
 
 Large imports should be named with source and retrieval date, for example:
 

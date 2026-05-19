@@ -1,0 +1,15 @@
+{
+  "dataset_type": "collatz_source_alignment",
+  "tool": "collatz_source_align",
+  "alignment_status": "multi-source-aligned",
+  "target_count": 30,
+  "matched_targets": 30,
+  "missing_targets": 0,
+  "source_count": 4,
+  "source_family_count": 4,
+  "matched_cluster_count": 6,
+  "source_smoke_only": false,
+  "mean_neighbor_distance": 0.1,
+  "limit": "Multiple independent public source families agree with the current topology sample; this remains evidence, not proof.",
+  "next_action": "Run source-anchored topology, path-image, and GNN ablations before promoting any stronger research candidate."
+}

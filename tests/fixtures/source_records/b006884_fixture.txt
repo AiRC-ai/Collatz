@@ -1,0 +1,6 @@
+# OEIS A006884-style smoke rows: index path_record_start
+1 2
+2 3
+3 7
+4 15
+5 27

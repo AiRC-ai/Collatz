@@ -40,6 +40,9 @@ Latest checked state:
   agree before the claim gets stronger.
 - Next experiment: expand source-record imports beyond OEIS, then rerun
   source-neighborhood, path-image, and GNN ablations.
+- Automation: a private-safe evidence runner can refresh generated source
+  targets, source alignment, hypotheses, and dashboard status on a timer. The
+  runner writes public-safe state only; it does not auto-commit or auto-push.
 
 The dashboard is intentionally compact: it should answer what the AI currently
 believes, how confident it is, what evidence supports that, what limits the
@@ -83,6 +86,7 @@ This builds:
 - `build/collatz_insight_analyze`
 - `build/collatz_hypothesis_analyze`
 - `build/collatz_source_targets`
+- `build/collatz_source_align`
 
 Run validation:
 
@@ -90,24 +94,40 @@ Run validation:
 make test
 ```
 
-Build an expanded public source-validation target table from OEIS b-files:
+Build an expanded public source-validation target table from OEIS and public
+record-holder files:
 
 ```sh
 mkdir -p data/imported
 curl -L -o data/imported/b006577.txt https://oeis.org/A006577/b006577.txt
 curl -L -o data/imported/b006884.txt https://oeis.org/A006884/b006884.txt
+curl -L -o data/imported/roosendaal_pathrecs.html https://www.ericr.nl/wondrous/pathrecs.html
+curl -L -o data/imported/roosendaal_delrecs.html https://www.ericr.nl/wondrous/delrecs.html
+curl -L -o data/imported/barina_path_records.html https://pcbarina.fit.vutbr.cz/path-records.htm
+curl -L -o data/imported/oliveira_max_excursion.txt.gz https://sweet.ua.pt/tos/3x%2B1/t0.txt.gz
+curl -L -o data/imported/oliveira_stopping.txt.gz https://sweet.ua.pt/tos/3x%2B1/t1.txt.gz
+gzip -dk data/imported/oliveira_max_excursion.txt.gz
+gzip -dk data/imported/oliveira_stopping.txt.gz
 ./build/collatz_source_targets \
   --oeis-stopping data/imported/b006577.txt \
   --oeis-path-records data/imported/b006884.txt \
-  --output data/source_validation/public_source_targets.csv \
-  --max-n 100000 \
+  --roosendaal-path-records data/imported/roosendaal_pathrecs.html \
+  --roosendaal-delay-records data/imported/roosendaal_delrecs.html \
+  --barina-path-records data/imported/barina_path_records.html \
+  --oliveira-max-excursion-records data/imported/oliveira_max_excursion.txt \
+  --oliveira-stopping-records data/imported/oliveira_stopping.txt \
+  --output data/generated/source_validation/public_source_targets.csv \
+  --max-n 100000000 \
   --stopping-limit 5000 \
-  --path-record-limit 100
+  --path-record-limit 100 \
+  --generic-record-limit 250
 ```
 
-The current public target table contains `5,000` OEIS A006577 total
-stopping-time rows and `19` OEIS A006884 path-record rows scoped to the
-100K embedded topology window.
+The first four CSV columns remain compatible with the source-alignment tool:
+`source,n,total_steps,peak_low`. Extra provenance columns record source kind,
+rank, URL, retrieval timestamp, and parser. Starts above the active scan range
+are counted as future source targets instead of being used for dashboard
+confidence.
 
 ## Run
 
@@ -317,7 +337,7 @@ Compare public source-validation starts against topology neighborhoods:
 ```sh
 ./build/collatz_source_align \
   --projection data/generated/topology/projection.csv \
-  --source-samples data/source_validation/public_source_targets.csv \
+  --source-samples data/generated/source_validation/public_source_targets.csv \
   --output-dir data/generated/source_alignment
 ```
 
@@ -326,6 +346,16 @@ public source target table expands the source check from a smoke test to 5,019
 OEIS-derived validation starts. It can support a `source-aligned candidate`,
 but it still needs larger Roosendaal, Oliveira e Silva, and Barina imports
 before the claim gets stronger.
+
+The stronger confidence gate is deliberately conservative:
+
+- `source-aligned candidate`: range-stable model evidence plus public source
+  alignment from fewer than three independent source families.
+- `multi-source-aligned candidate`: range-stable model evidence plus full
+  agreement from OEIS and at least two of Roosendaal, Oliveira e Silva, and
+  Barina.
+- Any missing imported source target keeps the conclusion at the lower current
+  confidence and reports the missing count as the next falsification target.
 
 Generate the AI hypothesis ledger and dashboard summary:
 
@@ -358,12 +388,60 @@ dashboard.
 Start the progress web server:
 
 ```sh
-./build/collatz_web --host 127.0.0.1 --port 8080
+./build/collatz_web \
+  --host 127.0.0.1 \
+  --port 8080 \
+  --runner-status data/generated/runner/status.json
 ```
 
 Then open `http://127.0.0.1:8080`.
-The dashboard reads compact scanner, topology, neighborhood, graph, and GNN
-status fields when those files exist.
+The dashboard reads compact scanner, topology, graph, GNN, hypothesis, and
+automation status fields when those files exist. The API intentionally returns
+only public-safe runner fields such as state, stage, source target count,
+matched source count, and next stage.
+
+## Background Evidence Runner
+
+Run one idempotent evidence cycle manually:
+
+```sh
+ops/collatz-evidence-cycle.sh --once
+```
+
+Preview the stages without writing generated artifacts:
+
+```sh
+ops/collatz-evidence-cycle.sh --dry-run
+```
+
+The cycle:
+
+1. Acquires a lock so only one evidence cycle runs at a time.
+2. Downloads public source files into ignored `data/imported/`.
+3. Generates expanded source targets under ignored `data/generated/`.
+4. Aligns source targets against the current topology.
+5. Regenerates the hypothesis summary used by the dashboard.
+6. Optionally runs a reviewed neural stage only when configured and GPU policy
+   allows it.
+7. Runs the public privacy scan over tracked source/docs/templates.
+8. Appends a sanitized private ledger entry.
+9. Writes `data/generated/runner/status.json` for the Automation dashboard card.
+
+Example user-level systemd templates are in `ops/`:
+
+- `ops/collatz-evidence-cycle.env.example`
+- `ops/collatz-evidence-cycle.service.example`
+- `ops/collatz-evidence-cycle.timer.example`
+
+The example timer runs every 30 minutes. The environment file is meant to be
+copied to an untracked private location and adjusted there. The runner does not
+auto-commit or auto-push public Git changes.
+
+Run the public privacy scan directly:
+
+```sh
+ops/privacy-scan.sh
+```
 
 ## Docker Compose
 

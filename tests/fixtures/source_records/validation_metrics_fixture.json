@@ -1,0 +1,15 @@
+{
+  "status": "complete",
+  "confidence_level": "range-stable signal",
+  "contrastive_lift": 0.2,
+  "contrastive_minus_numeric": 0.07,
+  "range_holdout_count": 3,
+  "range_min_lift": 0.14,
+  "residue_holdout_count": 4,
+  "residue_mean_lift": 0.08,
+  "fold_count": 3,
+  "fold_min_lift": 0.13,
+  "ablation_count": 2,
+  "best_ablation": "metrics",
+  "best_lift": 0.21
+}

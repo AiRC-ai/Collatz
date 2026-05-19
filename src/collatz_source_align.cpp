@@ -136,7 +136,12 @@ std::vector<SourceTarget> read_source_targets(const std::string &path) {
         throw std::runtime_error("failed to open source samples: " + path);
     }
     std::string line;
-    if (!std::getline(in, line) || line != "source,n,total_steps,peak_low") {
+    if (!std::getline(in, line)) {
+        throw std::runtime_error("source sample input is empty");
+    }
+    const auto header = split_csv_line(line);
+    if (header.size() < 4 || header[0] != "source" || header[1] != "n" ||
+        header[2] != "total_steps" || header[3] != "peak_low") {
         throw std::runtime_error("source sample input must start with source,n,total_steps,peak_low");
     }
     std::vector<SourceTarget> targets;
@@ -186,6 +191,22 @@ std::vector<Neighbor> nearest_neighbors(const std::vector<Point> &points, const 
     return neighbors;
 }
 
+std::string source_family_for(const std::string &source) {
+    if (source.rfind("OEIS_", 0) == 0) {
+        return "OEIS";
+    }
+    if (source.rfind("Roosendaal_", 0) == 0) {
+        return "Roosendaal";
+    }
+    if (source.rfind("Oliveira_e_Silva_", 0) == 0) {
+        return "Oliveira_e_Silva";
+    }
+    if (source.rfind("Barina_", 0) == 0) {
+        return "Barina";
+    }
+    return source;
+}
+
 void write_alignment(const Options &options, const std::vector<Point> &points, const std::vector<SourceTarget> &targets) {
     const std::string summary_path = path_join(options.output_dir, "source_alignment.json");
     const std::string detail_path = path_join(options.output_dir, "source_targets.csv");
@@ -207,6 +228,7 @@ void write_alignment(const Options &options, const std::vector<Point> &points, c
     std::size_t matched = 0;
     std::size_t missing = 0;
     std::set<std::string> sources;
+    std::set<std::string> source_families;
     std::set<std::size_t> matched_clusters;
     std::map<std::size_t, std::size_t> matched_by_cluster;
     std::uint64_t max_source_n = 0;
@@ -215,6 +237,7 @@ void write_alignment(const Options &options, const std::vector<Point> &points, c
 
     for (const auto &target : targets) {
         sources.insert(target.source);
+        source_families.insert(source_family_for(target.source));
         max_source_n = std::max(max_source_n, target.n);
         const auto found = point_by_n.find(target.n);
         if (found == point_by_n.end()) {
@@ -266,15 +289,25 @@ void write_alignment(const Options &options, const std::vector<Point> &points, c
         all_mean_distance /= static_cast<double>(matched);
     }
     const bool source_smoke_only = max_source_n <= 1000 || targets.size() < 25;
-    const std::string alignment_status = matched == targets.size()
-                                             ? (source_smoke_only ? "source-smoke-aligned" : "public-source-aligned")
+    const bool all_matched = matched == targets.size();
+    const std::size_t supplemental_families =
+        (source_families.count("Roosendaal") != 0 ? 1 : 0) +
+        (source_families.count("Oliveira_e_Silva") != 0 ? 1 : 0) +
+        (source_families.count("Barina") != 0 ? 1 : 0);
+    const bool multi_source = source_families.count("OEIS") != 0 && supplemental_families >= 2;
+    const std::string alignment_status = all_matched
+                                             ? (source_smoke_only ? "source-smoke-aligned"
+                                                                  : multi_source ? "multi-source-aligned"
+                                                                                 : "public-source-aligned")
                                              : matched > 0 ? "partial-source-match"
                                                            : "missing-source-targets";
     const std::string limit = source_smoke_only
                                   ? "Current source target set is a smoke check, not a large public import."
-                                  : matched == targets.size()
-                                        ? "Current source alignment uses public imported targets; Roosendaal, Oliveira e Silva, and Barina imports remain the next confidence gate."
-                                        : "Some public source targets were not present in the current topology sample; either expand topology coverage or use a source target file scoped to embedded starts.";
+                                  : all_matched && multi_source
+                                        ? "Multiple independent public source families agree with the current topology sample; this remains evidence, not proof."
+                                        : all_matched
+                                              ? "Current source alignment uses public imported targets from fewer than three source families; add at least two of Roosendaal, Oliveira e Silva, and Barina before stronger promotion."
+                                              : "Some public source targets were not present in the current topology sample; the missing count is the next falsification target.";
 
     std::ofstream out(summary_path);
     if (!out) {
@@ -292,13 +325,18 @@ void write_alignment(const Options &options, const std::vector<Point> &points, c
         << "  \"matched_targets\": " << matched << ",\n"
         << "  \"missing_targets\": " << missing << ",\n"
         << "  \"source_count\": " << sources.size() << ",\n"
+        << "  \"source_family_count\": " << source_families.size() << ",\n"
         << "  \"matched_cluster_count\": " << matched_clusters.size() << ",\n"
         << "  \"source_smoke_only\": " << (source_smoke_only ? "true" : "false") << ",\n"
         << "  \"mean_neighbor_distance\": " << all_mean_distance << ",\n"
         << "  \"limit\": \"" << collatz::json_escape(limit) << "\",\n"
-        << "  \"next_action\": \"" << (alignment_status == "public-source-aligned"
-                                           ? "Add Roosendaal, Oliveira e Silva, and Barina record imports, then test whether source neighborhoods stay stable."
-                                           : "Import larger dated source-record tables and compare their neighborhoods before promoting to source-aligned candidate.")
+        << "  \"next_action\": \"" << (alignment_status == "multi-source-aligned"
+                                           ? "Run source-anchored topology, path-image, and GNN ablations before promoting any stronger research candidate."
+                                           : alignment_status == "public-source-aligned"
+                                                 ? "Add at least two independent source families beyond OEIS, then test whether source neighborhoods stay stable."
+                                                 : alignment_status == "partial-source-match"
+                                                       ? "Expand topology coverage or scope source targets to embedded starts, then rerun alignment."
+                                                       : "Import larger dated source-record tables and compare their neighborhoods before promoting confidence.")
         << "\",\n"
         << "  \"files\": {\"source_targets\": \"source_targets.csv\"},\n"
         << "  \"targets\": [\n";

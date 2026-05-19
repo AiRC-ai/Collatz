@@ -1,0 +1,8 @@
+[Unit]
+Description=Collatz evidence cycle
+Documentation=https://github.com/AiRC-ai/Collatz
+
+[Service]
+Type=oneshot
+EnvironmentFile=%h/.config/collatz/evidence-cycle.env
+ExecStart=/usr/bin/env bash -lc 'cd "$COLLATZ_REPO_DIR" && exec ./ops/collatz-evidence-cycle.sh --once'
