@@ -18,6 +18,8 @@ or validation.
 
 ## Current Dashboard Snapshot
 
+![Current Collatz evidence dashboard snapshot](docs/media/dashboard-summary.svg)
+
 Latest checked state:
 
 - Confidence: `range-stable signal`
@@ -42,6 +44,19 @@ Latest checked state:
 The dashboard is intentionally compact: it should answer what the AI currently
 believes, how confident it is, what evidence supports that, what limits the
 claim, and what experiment should falsify or strengthen it next.
+
+## Visual Research Artifacts
+
+The project keeps the first screen focused on the usable research state:
+trajectory plots, path-as-image encodings, topology maps, GNN graph previews,
+and source-alignment summaries.
+
+![Collatz path plot for n=27](collatz_27.svg)
+
+The path-as-image route turns trajectories into visual tensors for clustering,
+autoencoders, contrastive learning, and anomaly review.
+
+![Collatz path image atlas preview](docs/media/path-image-atlas.svg)
 
 ## Build
 
