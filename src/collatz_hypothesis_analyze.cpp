@@ -416,7 +416,9 @@ int main(int argc, char **argv) {
             alignment_status != "missing"
                 ? "Known source validation targets are now checked against embedding neighborhoods."
                 : "Source-record neighborhood comparison has not run yet.",
-            alignment_status == "source-smoke-aligned" ? "sample-local signal" : "pipeline-check",
+            alignment_status == "public-source-aligned"
+                ? "source-aligned candidate"
+                : alignment_status == "source-smoke-aligned" ? "sample-local signal" : "pipeline-check",
             alignment_status != "missing"
                 ? std::to_string(matched_source_targets) + " of " + std::to_string(source_target_count) +
                       " source targets matched the topology sample across " + std::to_string(matched_source_clusters) + " clusters."
@@ -435,7 +437,7 @@ int main(int argc, char **argv) {
         } else if (contrastive_status == "complete" && purity_lift > 0.05 && selected_rows > 0) {
             confidence_level = "sample-local signal";
         }
-        if (confidence_level == "range-stable signal" && alignment_status == "source-smoke-aligned" && source_target_count >= 25) {
+        if (confidence_level == "range-stable signal" && alignment_status == "public-source-aligned" && source_target_count >= 25) {
             confidence_level = "source-aligned candidate";
         }
 
@@ -470,10 +472,14 @@ int main(int argc, char **argv) {
             validation_status == "complete"
                 ? alignment_status == "source-smoke-aligned"
                       ? "Source alignment is currently only a smoke check; larger dated record imports are still required."
+                      : alignment_status == "public-source-aligned"
+                            ? "Source alignment now covers a larger public target set, but Roosendaal, Oliveira e Silva, and Barina imports still need to agree."
                       : "This is still empirical structure: source-record alignment and independent new seeded samples are the next falsification gates."
                 : "No claim is promoted beyond empirical pattern evidence until independent range, residue, and feature-ablation holdouts agree.";
         const std::string conclusion =
-            confidence_level == "range-stable signal"
+            confidence_level == "source-aligned candidate"
+                ? "The AI evidence engine has a source-aligned candidate: the learned path-family signal survives current holdouts and matches public source targets, but it is still not a proof."
+                : confidence_level == "range-stable signal"
                 ? "The AI evidence engine has a range-stable learned path-family signal across current holdouts, but it is still not a proof or source-aligned candidate."
                 : contrastive_status == "complete" && purity_lift > 0.05
                       ? "The AI evidence engine has a sample-local learned path-family signal; it needs holdout and ablation validation before promotion."
@@ -481,7 +487,9 @@ int main(int argc, char **argv) {
                             ? "The system has moved from a narrow topology sample to evidence-first pattern testing; conclusions remain sample-local."
                             : "The current dashboard is still a pipeline/topology check until the stratified evidence sample is generated.";
         const std::string next_experiment =
-            confidence_level == "range-stable signal"
+            confidence_level == "source-aligned candidate"
+                ? "Add Roosendaal, Oliveira e Silva, and Barina record imports, then rerun source-neighborhood, path-image, and GNN ablations."
+                : confidence_level == "range-stable signal"
                 ? alignment_status == "source-smoke-aligned"
                       ? "Import larger dated Roosendaal/Oliveira/Barina/OEIS source records, then rerun source-neighborhood alignment."
                       : "Run independent seeded stratified samples, source-record neighborhood comparisons, and path-image/GNN ablations."
@@ -491,7 +499,11 @@ int main(int argc, char **argv) {
                             ? "Retune contrastive labels/features and compare against autoencoder anomalies before promoting a learned signal."
                             : selected_rows > 0 ? "Train the contrastive encoder and autoencoder on the stratified sample." : "Generate the stratified full-scan evidence sample.";
         const std::string source_alignment_summary =
-            alignment_status == "source-smoke-aligned"
+            alignment_status == "public-source-aligned"
+                ? "Public source target check matched " + std::to_string(matched_source_targets) + " of " +
+                      std::to_string(source_target_count) + " validation starts across " +
+                      std::to_string(matched_source_clusters) + " topology clusters."
+                : alignment_status == "source-smoke-aligned"
                 ? "Source smoke check matched " + std::to_string(matched_source_targets) + " of " +
                       std::to_string(source_target_count) + " known validation starts across " +
                       std::to_string(matched_source_clusters) + " topology clusters."

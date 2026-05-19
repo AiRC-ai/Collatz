@@ -266,10 +266,15 @@ void write_alignment(const Options &options, const std::vector<Point> &points, c
         all_mean_distance /= static_cast<double>(matched);
     }
     const bool source_smoke_only = max_source_n <= 1000 || targets.size() < 25;
-    const std::string alignment_status = matched == targets.size() ? "source-smoke-aligned" : matched > 0 ? "partial-source-match" : "missing-source-targets";
+    const std::string alignment_status = matched == targets.size()
+                                             ? (source_smoke_only ? "source-smoke-aligned" : "public-source-aligned")
+                                             : matched > 0 ? "partial-source-match"
+                                                           : "missing-source-targets";
     const std::string limit = source_smoke_only
-                                  ? "Current source target set is a smoke check, not a large Roosendaal/Oliveira/Barina import."
-                                  : "Imported source targets still need independent retrieval-date provenance checks.";
+                                  ? "Current source target set is a smoke check, not a large public import."
+                                  : matched == targets.size()
+                                        ? "Current source alignment uses public imported targets; Roosendaal, Oliveira e Silva, and Barina imports remain the next confidence gate."
+                                        : "Some public source targets were not present in the current topology sample; either expand topology coverage or use a source target file scoped to embedded starts.";
 
     std::ofstream out(summary_path);
     if (!out) {
@@ -291,7 +296,10 @@ void write_alignment(const Options &options, const std::vector<Point> &points, c
         << "  \"source_smoke_only\": " << (source_smoke_only ? "true" : "false") << ",\n"
         << "  \"mean_neighbor_distance\": " << all_mean_distance << ",\n"
         << "  \"limit\": \"" << collatz::json_escape(limit) << "\",\n"
-        << "  \"next_action\": \"Import larger dated source-record tables and compare their neighborhoods before promoting to source-aligned candidate.\",\n"
+        << "  \"next_action\": \"" << (alignment_status == "public-source-aligned"
+                                           ? "Add Roosendaal, Oliveira e Silva, and Barina record imports, then test whether source neighborhoods stay stable."
+                                           : "Import larger dated source-record tables and compare their neighborhoods before promoting to source-aligned candidate.")
+        << "\",\n"
         << "  \"files\": {\"source_targets\": \"source_targets.csv\"},\n"
         << "  \"targets\": [\n";
     for (std::size_t i = 0; i < target_json.size(); ++i) {

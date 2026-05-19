@@ -22,9 +22,9 @@ or validation.
 
 Latest checked state:
 
-- Confidence: `range-stable signal`
-- Conclusion: the learned path-family signal survives current holdouts, but it
-  is not a proof and is not yet a source-aligned candidate.
+- Confidence: `source-aligned candidate`
+- Conclusion: the learned path-family signal survives current holdouts and now
+  matches the expanded public source target set, but it is still not a proof.
 - Coverage: topology covers `0.100%` of scanned rows; the stratified evidence
   sample covers `0.006%` directly while intentionally oversampling rare
   behaviors.
@@ -33,13 +33,13 @@ Latest checked state:
   lift.
 - Latest neural result: contrastive lift `20.141%`, range minimum lift
   `14.537%`, fold minimum lift `14.021%`.
-- Source check: `11 / 11` known validation starts matched across `9` topology
-  clusters.
-- Current limitation: source alignment is still a smoke check; larger dated
-  Roosendaal, Oliveira e Silva, Barina, and OEIS record imports are required
-  before promoting this to `source-aligned candidate`.
-- Next experiment: import larger source-record tables and rerun
-  source-neighborhood alignment.
+- Source check: `5,019 / 5,019` public OEIS-derived validation starts matched
+  across all `16` topology clusters in a 100K embedded topology check.
+- Current limitation: this is source-aligned against public OEIS target rows,
+  but Roosendaal, Oliveira e Silva, and Barina record imports still need to
+  agree before the claim gets stronger.
+- Next experiment: expand source-record imports beyond OEIS, then rerun
+  source-neighborhood, path-image, and GNN ablations.
 
 The dashboard is intentionally compact: it should answer what the AI currently
 believes, how confident it is, what evidence supports that, what limits the
@@ -82,12 +82,32 @@ This builds:
 - `build/collatz_selftest`
 - `build/collatz_insight_analyze`
 - `build/collatz_hypothesis_analyze`
+- `build/collatz_source_targets`
 
 Run validation:
 
 ```sh
 make test
 ```
+
+Build an expanded public source-validation target table from OEIS b-files:
+
+```sh
+mkdir -p data/imported
+curl -L -o data/imported/b006577.txt https://oeis.org/A006577/b006577.txt
+curl -L -o data/imported/b006884.txt https://oeis.org/A006884/b006884.txt
+./build/collatz_source_targets \
+  --oeis-stopping data/imported/b006577.txt \
+  --oeis-path-records data/imported/b006884.txt \
+  --output data/source_validation/public_source_targets.csv \
+  --max-n 100000 \
+  --stopping-limit 5000 \
+  --path-record-limit 100
+```
+
+The current public target table contains `5,000` OEIS A006577 total
+stopping-time rows and `19` OEIS A006884 path-record rows scoped to the
+100K embedded topology window.
 
 ## Run
 
@@ -292,19 +312,20 @@ This writes `data/generated/evidence_validation/metrics.json`,
 against numeric adjacency, range holdouts, residue holdouts, random folds, raw
 feature baselines, and learned feature-family ablations.
 
-Compare known source-validation starts against topology neighborhoods:
+Compare public source-validation starts against topology neighborhoods:
 
 ```sh
 ./build/collatz_source_align \
   --projection data/generated/topology/projection.csv \
-  --source-samples data/source_validation/reference_samples.csv \
+  --source-samples data/source_validation/public_source_targets.csv \
   --output-dir data/generated/source_alignment
 ```
 
 This writes `source_alignment.json` and `source_targets.csv`. The current
-committed source file is a smoke check, so this can confirm source wiring but
-cannot promote a claim to `source-aligned candidate` until larger dated
-Roosendaal, Oliveira e Silva, Barina, and OEIS imports are added.
+public source target table expands the source check from a smoke test to 5,019
+OEIS-derived validation starts. It can support a `source-aligned candidate`,
+but it still needs larger Roosendaal, Oliveira e Silva, and Barina imports
+before the claim gets stronger.
 
 Generate the AI hypothesis ledger and dashboard summary:
 

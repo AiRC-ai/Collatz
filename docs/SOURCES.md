@@ -46,6 +46,19 @@ are used for feature ideas, not proof.
 The first file is small by design: it proves that source validation is wired
 into the build before large imports are added.
 
+`collatz_source_targets` builds the expanded public target table
+`data/source_validation/public_source_targets.csv` from:
+
+- `https://oeis.org/A006577/b006577.txt`
+- `https://oeis.org/A006884/b006884.txt`
+
+The current checked target table contains 5,019 rows: 5,000 total
+stopping-time rows and 19 path-record rows with starts `<= 100000`. In a local
+100K embedded topology check, all 5,019 targets matched and covered all 16
+topology clusters. This is enough to call the current dashboard state a
+source-aligned candidate, but it is still not a proof and still needs larger
+Roosendaal, Oliveira e Silva, and Barina imports.
+
 Large imports should be named with source and retrieval date, for example:
 
 - `data/imported/oeis_a006577_YYYY-MM-DD.csv`

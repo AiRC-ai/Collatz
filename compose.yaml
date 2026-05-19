@@ -349,6 +349,30 @@ services:
       - ./results:/work/results
       - ./checkpoints:/work/checkpoints
 
+  source-targets:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_source_targets
+      - --oeis-stopping
+      - /work/data/imported/b006577.txt
+      - --oeis-path-records
+      - /work/data/imported/b006884.txt
+      - --output
+      - /work/data/source_validation/public_source_targets.csv
+      - --max-n
+      - ${SOURCE_TARGET_MAX_N:-100000}
+      - --stopping-limit
+      - ${SOURCE_TARGET_STOPPING_LIMIT:-5000}
+      - --path-record-limit
+      - ${SOURCE_TARGET_PATH_RECORD_LIMIT:-100}
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
   source-alignment:
     profiles: ["research"]
     build:
@@ -359,7 +383,7 @@ services:
       - --projection
       - /work/data/generated/topology/projection.csv
       - --source-samples
-      - /work/data/source_validation/reference_samples.csv
+      - ${SOURCE_SAMPLES:-/work/data/source_validation/public_source_targets.csv}
       - --output-dir
       - /work/data/generated/source_alignment
       - --neighbors

@@ -67,6 +67,9 @@ target_link_libraries(collatz_hypothesis_analyze PRIVATE collatz_core)
 add_executable(collatz_source_align src/collatz_source_align.cpp)
 target_link_libraries(collatz_source_align PRIVATE collatz_core)
 
+add_executable(collatz_source_targets src/collatz_source_targets.cpp)
+target_link_libraries(collatz_source_targets PRIVATE collatz_core)
+
 add_executable(collatz_selftest tests/collatz_selftest.cpp)
 target_link_libraries(collatz_selftest PRIVATE collatz_core)
 

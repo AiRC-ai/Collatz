@@ -1,0 +1,23 @@
+{
+  "dataset_type": "collatz_public_source_targets",
+  "tool": "collatz_source_targets",
+  "created_utc": "2026-05-19T23:13:53Z",
+  "output": "data/source_validation/public_source_targets.csv",
+  "max_n": 100000,
+  "max_steps": 10000000,
+  "sources": [
+    {"id":"OEIS_A006577","url":"https://oeis.org/A006577/b006577.txt","role":"total stopping-time validation"},
+    {"id":"OEIS_A006884","url":"https://oeis.org/A006884/b006884.txt","role":"path-record validation"}
+  ],
+  "rows_written": 5019,
+  "stopping_rows_read": 5000,
+  "stopping_rows_written": 5000,
+  "stopping_rows_skipped_above_max_n": 0,
+  "stopping_rows_bad": 0,
+  "stopping_rows_mismatch": 0,
+  "path_record_rows_read": 98,
+  "path_record_rows_written": 19,
+  "path_record_rows_skipped_above_max_n": 70,
+  "path_record_rows_bad": 9,
+  "skipped_overflow_or_unfinished": 0
+}
