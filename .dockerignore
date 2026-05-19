@@ -1,0 +1,11 @@
+build
+.git
+data/generated
+data/imported
+logs
+results
+checkpoints
+collatz_27.csv
+collatz_27.svg
+collatz_plot
+build-*

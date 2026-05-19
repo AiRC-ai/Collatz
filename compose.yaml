@@ -1,0 +1,463 @@
+services:
+  scanner-cpu:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_scan_cpu
+      - --start
+      - ${SCAN_START:-1}
+      - --end
+      - ${SCAN_END:-1000000}
+      - --output
+      - /work/data/generated/features.bin
+      - --progress
+      - /work/logs/progress.jsonl
+      - --metadata
+      - /work/data/generated/features.bin.metadata.json
+      - --chunk-size
+      - ${SCAN_CHUNK_SIZE:-100000}
+      - --threads
+      - ${SCAN_THREADS:-8}
+      - --format
+      - bin
+      - --resume
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
+  scanner-cuda:
+    profiles: ["cuda"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cuda
+    command:
+      - /work/build/collatz_scan_cuda
+      - ${SCAN_START:-1}
+      - ${SCAN_END:-1000000}
+      - /work/data/generated/cuda_features.csv
+    gpus: all
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
+  trainer:
+    profiles: ["train"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_train
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+      - ./checkpoints:/work/checkpoints
+
+  embedder:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_embed_export
+      - --input
+      - /work/data/generated/features.bin
+      - --output-dir
+      - /work/data/generated/ml
+      - --limit
+      - ${EMBED_LIMIT:-100000}
+      - --sketch-dims
+      - ${EMBED_SKETCH_DIMS:-128}
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
+  visualizer:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_path_image
+      - --input
+      - /work/data/generated/features.bin
+      - --count
+      - ${IMAGE_COUNT:-16}
+      - --output-dir
+      - /work/data/generated/images
+      - --size
+      - ${IMAGE_SIZE:-64}
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
+  representatives:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_select_representatives
+      - --input
+      - /work/data/generated/features.bin
+      - --output
+      - /work/data/generated/representatives.csv
+      - --top
+      - ${REP_TOP:-64}
+      - --residue-top
+      - ${REP_RESIDUE_TOP:-4}
+      - --stride
+      - ${REP_STRIDE:-1000000}
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
+  stratified:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_stratified_sample
+      - --input
+      - /work/data/generated/features.bin
+      - --output-dir
+      - /work/data/generated/stratified
+      - --clusters
+      - /work/data/generated/topology/clusters.csv
+      - --representatives
+      - /work/data/generated/representatives.csv
+      - --starts
+      - /work/data/generated/graphs/starts.csv
+      - --random-count
+      - ${STRATIFIED_RANDOM_COUNT:-4096}
+      - --global-top
+      - ${STRATIFIED_GLOBAL_TOP:-256}
+      - --residue-top
+      - ${STRATIFIED_RESIDUE_TOP:-16}
+      - --range-bands
+      - ${STRATIFIED_RANGE_BANDS:-16}
+      - --range-top
+      - ${STRATIFIED_RANGE_TOP:-24}
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
+  stratified-embedder:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_embed_export
+      - --input
+      - /work/data/generated/features.bin
+      - --sample-file
+      - /work/data/generated/stratified/samples.csv
+      - --output-dir
+      - /work/data/generated/ml_stratified
+      - --sketch-dims
+      - ${EMBED_SKETCH_DIMS:-128}
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
+  graph:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_graph_export
+      - --starts-file
+      - /work/data/generated/representatives.csv
+      - --output-dir
+      - /work/data/generated/graphs
+      - --count
+      - ${GRAPH_COUNT:-128}
+      - --preview-nodes
+      - ${GRAPH_PREVIEW_NODES:-512}
+      - --preview-edges
+      - ${GRAPH_PREVIEW_EDGES:-1200}
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
+  topology:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_embedding_analyze
+      - --input
+      - /work/data/generated/ml/metrics.csv
+      - --output-dir
+      - /work/data/generated/topology
+      - --clusters
+      - ${TOPOLOGY_CLUSTERS:-16}
+      - --preview-points
+      - ${TOPOLOGY_PREVIEW_POINTS:-5000}
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
+  neighborhoods:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_neighborhood_analyze
+      - --projection
+      - /work/data/generated/topology/projection.csv
+      - --clusters
+      - /work/data/generated/topology/clusters.csv
+      - --output
+      - /work/data/generated/topology/neighborhoods.json
+      - --neighbors
+      - ${NEIGHBORHOOD_NEIGHBORS:-12}
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
+  insights:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_insight_analyze
+      - --projection
+      - /work/data/generated/topology/projection.csv
+      - --clusters
+      - /work/data/generated/topology/clusters.csv
+      - --scan-metadata
+      - /work/data/generated/features.bin.metadata.json
+      - --output-dir
+      - /work/data/generated/insights
+      - --neighbors
+      - ${INSIGHT_NEIGHBORS:-12}
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
+  contrastive:
+    profiles: ["neural"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.gnn
+    command:
+      - python
+      - /work/research/contrastive_train.py
+      - --metrics
+      - /work/data/generated/ml_stratified/metrics.csv
+      - --parity-runs
+      - /work/data/generated/ml_stratified/parity_runs.csv
+      - --transitions
+      - /work/data/generated/ml_stratified/residue_transitions_mod32.csv
+      - --sample
+      - /work/data/generated/stratified/samples.csv
+      - --output-dir
+      - ${CONTRASTIVE_OUTPUT_DIR:-/work/data/generated/contrastive}
+      - --epochs
+      - ${CONTRASTIVE_EPOCHS:-40}
+      - --embedding-dims
+      - ${CONTRASTIVE_EMBEDDING_DIMS:-64}
+      - --feature-set
+      - ${CONTRASTIVE_FEATURE_SET:-hybrid}
+    gpus: all
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+      - ./checkpoints:/work/checkpoints
+
+  autoencoder:
+    profiles: ["neural"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.gnn
+    command:
+      - python
+      - /work/research/autoencoder_anomaly.py
+      - --metrics
+      - /work/data/generated/ml_stratified/metrics.csv
+      - --sample
+      - /work/data/generated/stratified/samples.csv
+      - --output-dir
+      - /work/data/generated/anomalies
+      - --epochs
+      - ${AUTOENCODER_EPOCHS:-50}
+      - --latent-dims
+      - ${AUTOENCODER_LATENT_DIMS:-24}
+    gpus: all
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+      - ./checkpoints:/work/checkpoints
+
+  evidence-validation:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.gnn
+    command:
+      - python
+      - /work/research/evidence_validate.py
+      - --metrics
+      - /work/data/generated/ml_stratified/metrics.csv
+      - --parity-runs
+      - /work/data/generated/ml_stratified/parity_runs.csv
+      - --transitions
+      - /work/data/generated/ml_stratified/residue_transitions_mod32.csv
+      - --sample
+      - /work/data/generated/stratified/samples.csv
+      - --contrastive-embeddings
+      - /work/data/generated/contrastive/embeddings.csv
+      - --contrastive-metrics
+      - /work/data/generated/contrastive/metrics.json
+      - --gnn-metrics
+      - /work/data/generated/gnn/metrics.json
+      - --output-dir
+      - /work/data/generated/evidence_validation
+      - --ablation
+      - metrics=/work/data/generated/contrastive_metrics/metrics.json
+      - --ablation
+      - parity=/work/data/generated/contrastive_parity/metrics.json
+      - --ablation
+      - residue=/work/data/generated/contrastive_residue/metrics.json
+      - --ablation
+      - tokens=/work/data/generated/contrastive_tokens/metrics.json
+    gpus: all
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+      - ./checkpoints:/work/checkpoints
+
+  source-alignment:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_source_align
+      - --projection
+      - /work/data/generated/topology/projection.csv
+      - --source-samples
+      - /work/data/source_validation/reference_samples.csv
+      - --output-dir
+      - /work/data/generated/source_alignment
+      - --neighbors
+      - ${SOURCE_ALIGNMENT_NEIGHBORS:-8}
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
+  hypotheses:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_hypothesis_analyze
+      - --insights
+      - /work/data/generated/insights/insights.json
+      - --stratified-metadata
+      - /work/data/generated/stratified/metadata.json
+      - --contrastive-metrics
+      - /work/data/generated/contrastive/metrics.json
+      - --autoencoder-metrics
+      - /work/data/generated/anomalies/metrics.json
+      - --gnn-metrics
+      - /work/data/generated/gnn/metrics.json
+      - --validation-metrics
+      - /work/data/generated/evidence_validation/metrics.json
+      - --source-alignment
+      - /work/data/generated/source_alignment/source_alignment.json
+      - --output-dir
+      - /work/data/generated/hypotheses
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
+  gnn:
+    profiles: ["gnn"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.gnn
+    command:
+      - python
+      - /work/research/gnn_train.py
+      - --nodes
+      - /work/data/generated/graphs/nodes.csv
+      - --edges
+      - /work/data/generated/graphs/edges.csv
+      - --output-dir
+      - /work/data/generated/gnn
+      - --epochs
+      - ${GNN_EPOCHS:-50}
+      - --embedding-dims
+      - ${GNN_EMBEDDING_DIMS:-32}
+    gpus: all
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+      - ./checkpoints:/work/checkpoints
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_web
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - --progress
+      - /work/logs/progress.jsonl
+      - --ledger
+      - /work/logs/iteration-ledger.jsonl
+      - --scan-metadata
+      - /work/data/generated/features.bin.metadata.json
+      - --embedding-metadata
+      - /work/data/generated/ml/metadata.json
+      - --image-manifest
+      - /work/data/generated/images/manifest.json
+      - --graph-manifest
+      - /work/data/generated/graphs/trajectory_graph.json
+      - --topology-manifest
+      - /work/data/generated/topology/embedding_topology.json
+      - --neighborhood-manifest
+      - /work/data/generated/topology/neighborhoods.json
+      - --insights-manifest
+      - /work/data/generated/insights/insights.json
+      - --gnn-metadata
+      - /work/data/generated/gnn/metrics.json
+      - --hypothesis-summary
+      - /work/data/generated/hypotheses/summary.json
+    ports:
+      - "${WEB_PORT:-8080}:8080"
+    volumes:
+      - ./logs:/work/logs
+      - ./data:/work/data:ro
+    depends_on:
+      - scanner-cpu

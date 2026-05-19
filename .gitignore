@@ -1,0 +1,12 @@
+/build/
+/build-*/
+/cmake-build-*/
+/collatz_plot
+/data/generated/
+/data/imported/
+/logs/*.jsonl
+/results/*
+/checkpoints/*
+!/logs/README.md
+!/results/README.md
+!/checkpoints/README.md
