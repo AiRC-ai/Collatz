@@ -15,3 +15,7 @@ The evidence section should show promotion blockers and source-alignment
 taxonomy counts. It should not collapse source status to only a matched
 fraction, because unknown rows and true mismatches carry different research
 meaning.
+
+Neural evidence should show retrieval-oriented path-family metrics when they
+exist: tail-family recall, coalescence-family recall, source-record recall, MRR,
+NDCG, ARI, and NMI. GPU utilization belongs in operations only.

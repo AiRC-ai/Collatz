@@ -74,7 +74,7 @@
         "matched_controls": {"bit_length": false, "range_band": false, "residue_class": false, "stopping_time_bucket": false, "peak_ratio_bucket": false, "first_drop_bucket": false}
       },
       {
-        "name": "parity-only",
+        "name": "parity-sequence-only",
         "lift_percent": {"mean": 11.3, "std": null, "ci_95": null},
         "n_folds": null,
         "n_seeds": null,
@@ -82,7 +82,7 @@
         "matched_controls": {"bit_length": false, "range_band": false, "residue_class": false, "stopping_time_bucket": false, "peak_ratio_bucket": false, "first_drop_bucket": false}
       },
       {
-        "name": "residue-only",
+        "name": "residue-sequence-only",
         "lift_percent": {"mean": 4.5, "std": null, "ci_95": null},
         "n_folds": null,
         "n_seeds": null,
@@ -90,8 +90,8 @@
         "matched_controls": {"bit_length": false, "range_band": false, "residue_class": false, "stopping_time_bucket": false, "peak_ratio_bucket": false, "first_drop_bucket": false}
       },
       {
-        "name": "token-only",
-        "lift_percent": {"mean": 6.5, "std": null, "ci_95": null},
+        "name": "shape-only",
+        "lift_percent": {"mean": null, "std": null, "ci_95": null},
         "n_folds": null,
         "n_seeds": null,
         "n_samples": 100000,
@@ -123,11 +123,12 @@
     "unmatched_breakdown": {
       "above_active_scan_range": 0,
       "missing_from_topology_sample": 0,
+      "missing_feature_row": 0,
       "parser_error": 0,
       "step_convention_mismatch": 0,
       "peak_convention_mismatch": 0,
       "true_mismatch": 0,
-      "missing_topology_node": 0,
+      "missing_topology_projection_node": 0,
       "duplicated_source_row": 0,
       "future_source_target": 0,
       "unknown": 1

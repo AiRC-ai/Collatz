@@ -40,6 +40,9 @@ target_link_libraries(collatz_train PRIVATE collatz_core)
 add_executable(collatz_embed_export src/collatz_embed_export.cpp)
 target_link_libraries(collatz_embed_export PRIVATE collatz_core)
 
+add_executable(collatz_family_labels src/collatz_family_labels.cpp)
+target_link_libraries(collatz_family_labels PRIVATE collatz_core)
+
 add_executable(collatz_path_image src/collatz_path_image.cpp)
 target_link_libraries(collatz_path_image PRIVATE collatz_core)
 
@@ -157,6 +160,69 @@ add_test(NAME collatz_source_align_taxonomy_fixture
         --neighbors 3
 )
 set_tests_properties(collatz_source_align_taxonomy_fixture PROPERTIES DEPENDS collatz_full_audit_fixture_scan)
+
+add_test(NAME collatz_embed_export_safe_fixture
+    COMMAND collatz_embed_export
+        --input "${CMAKE_BINARY_DIR}/full_audit_fixture.bin"
+        --sample-file "${COLLATZ_SOURCE_FIXTURES}/sample_starts_fixture.csv"
+        --output-dir "${CMAKE_BINARY_DIR}/ml_safe_fixture"
+        --sketch-dims 16
+        --metric-mode safe
+)
+set_tests_properties(collatz_embed_export_safe_fixture PROPERTIES DEPENDS collatz_full_audit_fixture_scan)
+
+add_test(NAME collatz_family_labels_fixture
+    COMMAND collatz_family_labels
+        --input "${CMAKE_BINARY_DIR}/full_audit_fixture.bin"
+        --sample-file "${COLLATZ_SOURCE_FIXTURES}/sample_starts_fixture.csv"
+        --source-targets "${COLLATZ_SOURCE_FIXTURES}/source_targets_old_header_fixture.csv"
+        --output "${CMAKE_BINARY_DIR}/ml_labels_fixture/families.csv"
+        --metadata "${CMAKE_BINARY_DIR}/ml_labels_fixture/metadata.json"
+        --max-steps 1000
+        --tail-cap 32
+)
+set_tests_properties(collatz_family_labels_fixture PROPERTIES DEPENDS collatz_full_audit_fixture_scan)
+
+add_test(NAME collatz_pair_sampler_fixture
+    COMMAND python3 "${CMAKE_SOURCE_DIR}/research/pair_sampler.py"
+        --labels "${CMAKE_BINARY_DIR}/ml_labels_fixture/families.csv"
+        --metrics "${CMAKE_BINARY_DIR}/ml_safe_fixture/metrics_safe.csv"
+        --sample "${COLLATZ_SOURCE_FIXTURES}/sample_starts_fixture.csv"
+        --output-dir "${CMAKE_BINARY_DIR}/ml_pairs_fixture"
+        --hard-negatives 1
+        --max-pairs-per-type 16
+)
+set_tests_properties(collatz_pair_sampler_fixture PROPERTIES DEPENDS "collatz_embed_export_safe_fixture;collatz_family_labels_fixture")
+
+add_test(NAME collatz_path_image_tensor_fixture
+    COMMAND collatz_path_image
+        --sample-file "${COLLATZ_SOURCE_FIXTURES}/sample_starts_fixture.csv"
+        --format tensor
+        --output-dir "${CMAKE_BINARY_DIR}/image_tensor_fixture"
+        --size 8
+        --count 6
+        --max-steps 1000
+)
+
+add_test(NAME collatz_graph_export_membership_fixture
+    COMMAND collatz_graph_export
+        --starts-file "${COLLATZ_SOURCE_FIXTURES}/sample_starts_fixture.csv"
+        --output-dir "${CMAKE_BINARY_DIR}/graph_membership_fixture"
+        --count 6
+        --max-steps 1000
+        --preview-nodes 64
+        --preview-edges 128
+)
+
+add_test(NAME path_family_tools_fixture
+    COMMAND python3 "${CMAKE_SOURCE_DIR}/tools/test_path_family_tools.py"
+        "${CMAKE_BINARY_DIR}/ml_safe_fixture"
+        "${CMAKE_BINARY_DIR}/ml_labels_fixture"
+        "${CMAKE_BINARY_DIR}/ml_pairs_fixture"
+        "${CMAKE_BINARY_DIR}/image_tensor_fixture"
+        "${CMAKE_BINARY_DIR}/graph_membership_fixture"
+)
+set_tests_properties(path_family_tools_fixture PROPERTIES DEPENDS "collatz_pair_sampler_fixture;collatz_path_image_tensor_fixture;collatz_graph_export_membership_fixture")
 
 add_test(NAME collatz_evidence_publish_fixture
     COMMAND collatz_evidence_publish

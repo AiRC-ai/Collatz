@@ -25,6 +25,7 @@ struct Options {
     std::size_t sketch_dims = collatz::kDefaultSketchLength;
     std::size_t residue_dims = collatz::kDefaultSketchLength;
     std::uint8_t residue_modulus = 32;
+    std::string metric_mode = "full";
 };
 
 void usage(std::ostream &out) {
@@ -36,7 +37,8 @@ void usage(std::ostream &out) {
         << "  --max-steps N          max path steps for derived sketches, default input header max_steps\n"
         << "  --sketch-dims N        fixed log-path sketch length (default 128)\n"
         << "  --residue-dims N       residue sequence length (default 128)\n"
-        << "  --residue-modulus N    residue modulus for transition stream (default 32)\n";
+        << "  --residue-modulus N    residue modulus for transition stream (default 32)\n"
+        << "  --metric-mode MODE     full or safe; safe also writes metrics_safe.csv (default full)\n";
 }
 
 std::size_t parse_size_arg(const std::string &value, const char *name) {
@@ -86,6 +88,11 @@ Options parse_args(int argc, char **argv) {
                 throw std::runtime_error("--residue-modulus must be in [2,255]");
             }
             options.residue_modulus = static_cast<std::uint8_t>(*value);
+        } else if (arg == "--metric-mode") {
+            options.metric_mode = need_value("--metric-mode");
+            if (options.metric_mode != "full" && options.metric_mode != "safe") {
+                throw std::runtime_error("--metric-mode must be full or safe");
+            }
         } else if (arg == "--help" || arg == "-h") {
             usage(std::cout);
             std::exit(0);
@@ -217,6 +224,14 @@ void write_metrics_header(std::ostream &out) {
     out << '\n';
 }
 
+void write_metrics_header(std::ostream &out, std::size_t dims) {
+    out << "n";
+    for (std::size_t i = 0; i < dims; ++i) {
+        out << ",m" << i;
+    }
+    out << '\n';
+}
+
 void write_sketch_header(std::ostream &out, std::size_t dims, const char *prefix) {
     out << "n";
     for (std::size_t i = 0; i < dims; ++i) {
@@ -255,6 +270,18 @@ void write_metadata(
         << "  \"rows_exported\": " << exported_rows << ",\n"
         << "  \"sample_filter_rows\": " << sample_filter_rows << ",\n"
         << "  \"metric_vector_dims\": " << collatz::kMetricVectorDims << ",\n"
+        << "  \"metric_mode\": \"" << options.metric_mode << "\",\n"
+        << "  \"metric_schema\": \"" << (options.metric_mode == "safe" ? "safe_v1" : "full_v1") << "\",\n"
+        << "  \"safe_metric_vector_dims\": " << collatz::kSafeMetricVectorDims << ",\n"
+        << "  \"excluded_metric_indices\": [";
+    const auto &excluded = collatz::unsafe_metric_indices();
+    for (std::size_t i = 0; i < excluded.size(); ++i) {
+        out << excluded[i];
+        if (i + 1 != excluded.size()) {
+            out << ',';
+        }
+    }
+    out << "],\n"
         << "  \"sketch_dims\": " << options.sketch_dims << ",\n"
         << "  \"residue_dims\": " << options.residue_dims << ",\n"
         << "  \"residue_modulus\": " << static_cast<unsigned>(options.residue_modulus) << ",\n"
@@ -264,6 +291,7 @@ void write_metadata(
         << "  \"checksum_fnv1a64\": " << checksum << ",\n"
         << "  \"outputs\": {\n"
         << "    \"metrics\": \"metrics.csv\",\n"
+        << "    \"metrics_safe\": " << (options.metric_mode == "safe" ? "\"metrics_safe.csv\"" : "null") << ",\n"
         << "    \"parity_runs\": \"parity_runs.csv\",\n"
         << "    \"log_sketch\": \"log_sketch.csv\",\n"
         << "    \"residue_sequence\": \"residue_mod" << static_cast<unsigned>(options.residue_modulus) << ".csv\",\n"
@@ -297,17 +325,24 @@ int main(int argc, char **argv) {
 
         std::filesystem::create_directories(options.output_dir);
         std::ofstream metrics;
+        std::ofstream metrics_safe;
         std::ofstream parity_runs;
         std::ofstream log_sketch;
         std::ofstream residues;
         std::ofstream transitions;
         open_output(metrics, path_join(options.output_dir, "metrics.csv"));
+        if (options.metric_mode == "safe") {
+            open_output(metrics_safe, path_join(options.output_dir, "metrics_safe.csv"));
+        }
         open_output(parity_runs, path_join(options.output_dir, "parity_runs.csv"));
         open_output(log_sketch, path_join(options.output_dir, "log_sketch.csv"));
         open_output(residues, path_join(options.output_dir, "residue_mod" + std::to_string(options.residue_modulus) + ".csv"));
         open_output(transitions, path_join(options.output_dir, "residue_transitions_mod" + std::to_string(options.residue_modulus) + ".csv"));
 
         write_metrics_header(metrics);
+        if (options.metric_mode == "safe") {
+            write_metrics_header(metrics_safe, collatz::kSafeMetricVectorDims);
+        }
         parity_runs << "n,tokens\n";
         write_sketch_header(log_sketch, options.sketch_dims, "s");
         write_sketch_header(residues, options.residue_dims, "r");
@@ -343,6 +378,18 @@ int main(int argc, char **argv) {
                 metrics << ',' << value;
             }
             metrics << '\n';
+
+            if (options.metric_mode == "safe") {
+                const auto safe_metric = collatz::safe_metric_vector(record);
+                if (safe_metric.size() != collatz::kSafeMetricVectorDims) {
+                    throw std::runtime_error("safe metric vector dimension mismatch");
+                }
+                metrics_safe << record.n;
+                for (const auto value : safe_metric) {
+                    metrics_safe << ',' << value;
+                }
+                metrics_safe << '\n';
+            }
 
             parity_runs << record.n << ',';
             write_integral_sequence(parity_runs, collatz::parity_run_tokens(record), ';');

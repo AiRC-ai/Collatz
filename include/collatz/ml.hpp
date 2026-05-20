@@ -10,10 +10,13 @@
 namespace collatz {
 
 constexpr std::size_t kMetricVectorDims = 37;
+constexpr std::size_t kSafeMetricVectorDims = 32;
 constexpr std::size_t kDefaultSketchLength = 128;
 constexpr std::size_t kDefaultImageSize = 64;
 
 std::vector<double> metric_vector(const BinaryFeatureRecord &record);
+std::vector<double> safe_metric_vector(const BinaryFeatureRecord &record);
+const std::vector<std::size_t> &unsafe_metric_indices();
 std::vector<std::uint16_t> parity_run_tokens(const BinaryFeatureRecord &record, std::size_t max_steps = kParityPrefixBits);
 std::vector<std::uint8_t> parity_bits_from_record(const BinaryFeatureRecord &record, std::size_t max_bits = kParityPrefixBits);
 std::vector<double> log_path_sketch(std::uint64_t n, std::uint32_t max_steps, std::size_t dims);

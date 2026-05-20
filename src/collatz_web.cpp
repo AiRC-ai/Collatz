@@ -664,9 +664,10 @@ async function refresh() {
   const taxonomy = sourceAlignment.unmatched_breakdown || {};
   const unknown = taxonomy.unknown || 0;
   const trueMismatch = taxonomy.true_mismatch || 0;
-  const missingTopology = taxonomy.missing_topology_node || 0;
+  const missingFeature = taxonomy.missing_feature_row || 0;
+  const missingTopology = (taxonomy.missing_from_topology_sample || 0) + (taxonomy.missing_topology_projection_node || 0);
   document.getElementById('aiSource').textContent = sourceAlignment.targets_total
-    ? `${compact(sourceAlignment.matched)} of ${compact(sourceAlignment.targets_total)} public source targets matched; taxonomy unknown ${compact(unknown)}, true mismatch ${compact(trueMismatch)}, missing topology ${compact(missingTopology)}.`
+    ? `${compact(sourceAlignment.matched)} of ${compact(sourceAlignment.targets_total)} public source targets matched; taxonomy unknown ${compact(unknown)}, true mismatch ${compact(trueMismatch)}, missing feature ${compact(missingFeature)}, missing topology ${compact(missingTopology)}.`
     : 'waiting for source alignment';
   document.getElementById('aiNextStep').textContent = evidence.next_experiment?.summary || 'waiting for canonical next experiment';
   drawTopology(topology);

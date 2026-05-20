@@ -34,11 +34,12 @@ PROMOTION_BLOCKERS = {
 UNMATCHED_BUCKETS = {
     "above_active_scan_range",
     "missing_from_topology_sample",
+    "missing_feature_row",
     "parser_error",
     "step_convention_mismatch",
     "peak_convention_mismatch",
     "true_mismatch",
-    "missing_topology_node",
+    "missing_topology_projection_node",
     "duplicated_source_row",
     "future_source_target",
     "unknown",

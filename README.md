@@ -329,23 +329,35 @@ what the topology means, current limits, scoped findings, loose/tight family
 candidates, and next experiments. It is the dashboard's first repeatable
 "AI analyst" layer before deeper neural models.
 
-Train the first research contrastive embedding model on a CUDA-capable GPU:
+Prepare the path-family learning inputs:
 
 ```sh
-docker compose --profile neural run --rm contrastive
+docker compose --profile research run --rm stratified-embedder
+docker compose --profile research run --rm family-labels
+docker compose --profile research run --rm pair-sampler
+```
+
+This writes safe scalar metrics, deterministic trajectory-family labels, and
+matched positive/hard-negative pairs. The safe metric export excludes
+integrity/checksum fields so `metrics-only` remains a trustworthy baseline.
+
+Train the path-family contrastive v2 model on a CUDA-capable GPU:
+
+```sh
+docker compose --profile neural run --rm contrastive-v2
 ```
 
 This writes `data/generated/contrastive/embeddings.csv`, `encoder.pt`, and
-`metrics.json`. The key metric is whether nearest-neighbor purity beats the
-random label baseline.
+`metrics.json`. The key question is whether hybrid path-family retrieval beats
+the safe `metrics-only` baseline under matched controls.
 
 Run feature-family ablations when a learned signal looks promising:
 
 ```sh
-CONTRASTIVE_FEATURE_SET=metrics CONTRASTIVE_OUTPUT_DIR=/work/data/generated/contrastive_metrics docker compose --profile neural run --rm contrastive
-CONTRASTIVE_FEATURE_SET=parity CONTRASTIVE_OUTPUT_DIR=/work/data/generated/contrastive_parity docker compose --profile neural run --rm contrastive
-CONTRASTIVE_FEATURE_SET=residue CONTRASTIVE_OUTPUT_DIR=/work/data/generated/contrastive_residue docker compose --profile neural run --rm contrastive
-CONTRASTIVE_FEATURE_SET=tokens CONTRASTIVE_OUTPUT_DIR=/work/data/generated/contrastive_tokens docker compose --profile neural run --rm contrastive
+CONTRASTIVE_FEATURE_SET=metrics CONTRASTIVE_OUTPUT_DIR=/work/data/generated/contrastive_metrics docker compose --profile neural run --rm contrastive-v2
+CONTRASTIVE_FEATURE_SET=shape CONTRASTIVE_OUTPUT_DIR=/work/data/generated/contrastive_shape docker compose --profile neural run --rm contrastive-v2
+CONTRASTIVE_FEATURE_SET=parity-sequence CONTRASTIVE_OUTPUT_DIR=/work/data/generated/contrastive_parity-sequence docker compose --profile neural run --rm contrastive-v2
+CONTRASTIVE_FEATURE_SET=residue-sequence CONTRASTIVE_OUTPUT_DIR=/work/data/generated/contrastive_residue-sequence docker compose --profile neural run --rm contrastive-v2
 ```
 
 Train the first autoencoder anomaly model:
@@ -367,7 +379,8 @@ docker compose --profile research run --rm evidence-validation
 This writes `data/generated/evidence_validation/metrics.json`,
 `holdouts.csv`, and `ablation_report.csv`. It compares learned neighborhoods
 against numeric adjacency, range holdouts, residue holdouts, random folds, raw
-feature baselines, and learned feature-family ablations.
+feature baselines, learned feature-family ablations, and retrieval metrics such
+as tail-family recall, source-record recall, MRR, NDCG, ARI, and NMI.
 
 Compare public source-validation starts against topology neighborhoods:
 
@@ -417,9 +430,9 @@ Train a research-only Graph Neural Network embedding over the exported graph:
 docker compose --profile gnn run --rm gnn
 ```
 
-The GNN service uses PyTorch CUDA in Docker, reads `nodes.csv` and `edges.csv`,
-and writes `data/generated/gnn/embeddings.csv` plus `metrics.json` for the
-dashboard.
+The GNN service uses PyTorch CUDA in Docker, reads `nodes.csv`, `edges.csv`,
+and `start_membership.csv`, and writes node embeddings plus pooled
+`start_embeddings.csv` for retrieval-based evidence validation.
 
 Start the progress web server:
 
@@ -546,9 +559,12 @@ docker compose --profile research run --rm neighborhoods
 docker compose --profile research run --rm insights
 docker compose --profile research run --rm stratified
 docker compose --profile research run --rm stratified-embedder
+docker compose --profile research run --rm family-labels
+docker compose --profile research run --rm pair-sampler
 docker compose --profile research run --rm visualizer
+docker compose --profile research run --rm image-tensors
 docker compose --profile gnn run --rm gnn
-docker compose --profile neural run --rm contrastive
+docker compose --profile neural run --rm contrastive-v2
 docker compose --profile neural run --rm autoencoder
 docker compose --profile research run --rm evidence-validation
 docker compose --profile research run --rm source-alignment

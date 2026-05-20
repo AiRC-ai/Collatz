@@ -96,6 +96,28 @@ services:
       - ./logs:/work/logs
       - ./results:/work/results
 
+  image-tensors:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_path_image
+      - --input
+      - /work/data/generated/features.bin
+      - --sample-file
+      - /work/data/generated/stratified/samples.csv
+      - --format
+      - tensor
+      - --output-dir
+      - /work/data/generated/image_tensors
+      - --size
+      - ${IMAGE_TENSOR_SIZE:-64}
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
   representatives:
     profiles: ["research"]
     build:
@@ -165,6 +187,53 @@ services:
       - /work/data/generated/ml_stratified
       - --sketch-dims
       - ${EMBED_SKETCH_DIMS:-128}
+      - --metric-mode
+      - safe
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
+  family-labels:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_family_labels
+      - --input
+      - /work/data/generated/features.bin
+      - --sample-file
+      - /work/data/generated/stratified/samples.csv
+      - --source-targets
+      - /work/data/generated/source_validation/public_source_targets.csv
+      - --output
+      - /work/data/generated/ml_labels/families.csv
+      - --metadata
+      - /work/data/generated/ml_labels/metadata.json
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
+  pair-sampler:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.gnn
+    command:
+      - python
+      - /work/research/pair_sampler.py
+      - --labels
+      - /work/data/generated/ml_labels/families.csv
+      - --metrics
+      - /work/data/generated/ml_stratified/metrics_safe.csv
+      - --sample
+      - /work/data/generated/stratified/samples.csv
+      - --output-dir
+      - /work/data/generated/ml_pairs
+      - --hard-negatives
+      - ${PAIR_HARD_NEGATIVES:-8}
     volumes:
       - ./data:/work/data
       - ./logs:/work/logs
@@ -202,7 +271,7 @@ services:
       - --output-dir
       - /work/data/generated/graphs
       - --count
-      - ${GRAPH_COUNT:-128}
+      - ${GRAPH_COUNT:-5000}
       - --preview-nodes
       - ${GRAPH_PREVIEW_NODES:-512}
       - --preview-edges
@@ -293,7 +362,7 @@ services:
       - --output-dir
       - ${CONTRASTIVE_OUTPUT_DIR:-/work/data/generated/contrastive}
       - --limit
-      - ${CONTRASTIVE_LIMIT:-25000}
+      - ${CONTRASTIVE_LIMIT:-0}
       - --epochs
       - ${CONTRASTIVE_EPOCHS:-40}
       - --batch-size
@@ -309,6 +378,55 @@ services:
     environment:
       CONTRASTIVE_EVAL_CHUNK: ${CONTRASTIVE_EVAL_CHUNK:-2048}
       CONTRASTIVE_EVAL_DEVICE: ${CONTRASTIVE_EVAL_DEVICE:-auto}
+    gpus: all
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+      - ./checkpoints:/work/checkpoints
+
+  contrastive-v2:
+    profiles: ["neural"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.gnn
+    command:
+      - python
+      - /work/research/contrastive_train_v2.py
+      - --metrics-safe
+      - /work/data/generated/ml_stratified/metrics_safe.csv
+      - --log-sketch
+      - /work/data/generated/ml_stratified/log_sketch.csv
+      - --parity-runs
+      - /work/data/generated/ml_stratified/parity_runs.csv
+      - --transitions
+      - /work/data/generated/ml_stratified/residue_transitions_mod32.csv
+      - --families
+      - /work/data/generated/ml_labels/families.csv
+      - --positive-pairs
+      - /work/data/generated/ml_pairs/positive_pairs.csv
+      - --hard-negatives
+      - /work/data/generated/ml_pairs/hard_negatives.csv
+      - --pair-metrics
+      - /work/data/generated/ml_pairs/metrics.json
+      - --output-dir
+      - ${CONTRASTIVE_OUTPUT_DIR:-/work/data/generated/contrastive}
+      - --limit
+      - ${CONTRASTIVE_LIMIT:-0}
+      - --epochs
+      - ${CONTRASTIVE_EPOCHS:-40}
+      - --batch-size
+      - ${CONTRASTIVE_BATCH_SIZE:-512}
+      - --hidden-dims
+      - ${CONTRASTIVE_HIDDEN_DIMS:-192}
+      - --embedding-dims
+      - ${CONTRASTIVE_EMBEDDING_DIMS:-64}
+      - --sequence-len
+      - ${CONTRASTIVE_SEQUENCE_LEN:-128}
+      - --feature-set
+      - ${CONTRASTIVE_FEATURE_SET:-hybrid}
+      - --pair-mode
+      - ${CONTRASTIVE_PAIR_MODE:-family_pairs}
     gpus: all
     volumes:
       - ./data:/work/data
@@ -351,6 +469,39 @@ services:
       - ./results:/work/results
       - ./checkpoints:/work/checkpoints
 
+  image-contrastive:
+    profiles: ["neural"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.gnn
+    command:
+      - python
+      - /work/research/image_contrastive_train.py
+      - --tensor-dir
+      - /work/data/generated/image_tensors
+      - --families
+      - /work/data/generated/ml_labels/families.csv
+      - --positive-pairs
+      - /work/data/generated/ml_pairs/positive_pairs.csv
+      - --hard-negatives
+      - /work/data/generated/ml_pairs/hard_negatives.csv
+      - --pair-metrics
+      - /work/data/generated/ml_pairs/metrics.json
+      - --output-dir
+      - /work/data/generated/image_contrastive
+      - --epochs
+      - ${IMAGE_CONTRASTIVE_EPOCHS:-20}
+      - --batch-size
+      - ${IMAGE_CONTRASTIVE_BATCH_SIZE:-256}
+      - --embedding-dims
+      - ${IMAGE_CONTRASTIVE_EMBEDDING_DIMS:-64}
+    gpus: all
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+      - ./checkpoints:/work/checkpoints
+
   evidence-validation:
     profiles: ["research"]
     build:
@@ -360,11 +511,17 @@ services:
       - python
       - /work/research/evidence_validate.py
       - --metrics
-      - /work/data/generated/ml_stratified/metrics.csv
+      - /work/data/generated/ml_stratified/metrics_safe.csv
       - --parity-runs
       - /work/data/generated/ml_stratified/parity_runs.csv
       - --transitions
       - /work/data/generated/ml_stratified/residue_transitions_mod32.csv
+      - --log-sketch
+      - /work/data/generated/ml_stratified/log_sketch.csv
+      - --families
+      - /work/data/generated/ml_labels/families.csv
+      - --pair-metrics
+      - /work/data/generated/ml_pairs/metrics.json
       - --sample
       - /work/data/generated/stratified/samples.csv
       - --contrastive-embeddings
@@ -373,6 +530,8 @@ services:
       - /work/data/generated/contrastive/metrics.json
       - --gnn-metrics
       - /work/data/generated/gnn/metrics.json
+      - --gnn-start-embeddings
+      - /work/data/generated/gnn/start_embeddings.csv
       - --full-audit
       - /work/data/generated/full_audit/summary.json
       - --output-dir
@@ -380,11 +539,15 @@ services:
       - --ablation
       - metrics=/work/data/generated/contrastive_metrics/metrics.json
       - --ablation
-      - parity=/work/data/generated/contrastive_parity/metrics.json
+      - shape=/work/data/generated/contrastive_shape/metrics.json
       - --ablation
-      - residue=/work/data/generated/contrastive_residue/metrics.json
+      - parity-sequence=/work/data/generated/contrastive_parity-sequence/metrics.json
       - --ablation
-      - tokens=/work/data/generated/contrastive_tokens/metrics.json
+      - residue-sequence=/work/data/generated/contrastive_residue-sequence/metrics.json
+      - --ablation
+      - image-only=/work/data/generated/image_contrastive/metrics.json
+      - --ablation
+      - GNN-only=/work/data/generated/gnn/metrics.json
     environment:
       EVIDENCE_EVAL_CHUNK: ${EVIDENCE_EVAL_CHUNK:-2048}
       EVIDENCE_EVAL_DEVICE: ${EVIDENCE_EVAL_DEVICE:-auto}
@@ -495,6 +658,8 @@ services:
       - /work/data/generated/graphs/edges.csv
       - --output-dir
       - ${GNN_OUTPUT_DIR:-/work/data/generated/gnn}
+      - --membership
+      - /work/data/generated/graphs/start_membership.csv
       - --epochs
       - ${GNN_EPOCHS:-50}
       - --embedding-dims

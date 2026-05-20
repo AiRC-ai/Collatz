@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import os
 import random
 from collections import Counter, defaultdict
@@ -21,9 +22,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--metrics", default="/work/data/generated/ml_stratified/metrics.csv")
     parser.add_argument("--parity-runs", default="/work/data/generated/ml_stratified/parity_runs.csv")
     parser.add_argument("--transitions", default="/work/data/generated/ml_stratified/residue_transitions_mod32.csv")
+    parser.add_argument("--log-sketch", default="/work/data/generated/ml_stratified/log_sketch.csv")
+    parser.add_argument("--families", default="/work/data/generated/ml_labels/families.csv")
+    parser.add_argument("--pair-metrics", default="/work/data/generated/ml_pairs/metrics.json")
     parser.add_argument("--contrastive-embeddings", default="/work/data/generated/contrastive/embeddings.csv")
     parser.add_argument("--contrastive-metrics", default="/work/data/generated/contrastive/metrics.json")
     parser.add_argument("--gnn-metrics", default="/work/data/generated/gnn/metrics.json")
+    parser.add_argument("--gnn-start-embeddings", default="/work/data/generated/gnn/start_embeddings.csv")
     parser.add_argument("--full-audit", default="/work/data/generated/full_audit/summary.json")
     parser.add_argument("--output-dir", default="/work/data/generated/evidence_validation")
     parser.add_argument("--token-bins", type=int, default=int(os.getenv("EVIDENCE_TOKEN_BINS", "64")))
@@ -71,15 +76,28 @@ def read_sample(path: Path) -> tuple[set[int], dict[int, str], dict[int, str]]:
     return selected, labels, reasons
 
 
-def read_metrics(path: Path, selected: set[int]) -> dict[int, list[float]]:
+def read_metrics(path: Path, selected: set[int], prefix: str = "m") -> dict[int, list[float]]:
     rows: dict[int, list[float]] = {}
     with path.open(newline="") as handle:
         reader = csv.DictReader(handle)
-        fields = [field for field in reader.fieldnames or [] if field.startswith("m")]
+        fields = [field for field in reader.fieldnames or [] if field.startswith(prefix)]
         for row in reader:
             n = int(row["n"])
             if n in selected:
                 rows[n] = [float(row[field]) for field in fields]
+    return rows
+
+
+def read_families(path: Path, selected: set[int]) -> dict[int, dict[str, str]]:
+    rows: dict[int, dict[str, str]] = {}
+    if not path.exists():
+        return rows
+    with path.open(newline="") as handle:
+        reader = csv.DictReader(handle)
+        for row in reader:
+            n = int(row["n"])
+            if n in selected:
+                rows[n] = row
     return rows
 
 
@@ -123,9 +141,28 @@ def read_embeddings(path: Path, labels_by_n: dict[int, str]) -> tuple[list[int],
     return starts, labels, rows
 
 
+def read_start_embeddings(path: Path) -> tuple[list[int], list[list[float]]]:
+    if not path.exists():
+        return [], []
+    starts: list[int] = []
+    rows: list[list[float]] = []
+    with path.open(newline="") as handle:
+        reader = csv.DictReader(handle)
+        fields = [
+            field
+            for field in reader.fieldnames or []
+            if field.startswith("mean_e") or field.startswith("max_e") or field.startswith("tail_e") or field.startswith("e")
+        ]
+        for row in reader:
+            starts.append(int(row["n"]))
+            rows.append([float(row[field]) for field in fields])
+    return starts, rows
+
+
 def build_feature_rows(
     starts: list[int],
     metrics: dict[int, list[float]],
+    shape: dict[int, list[float]],
     parity: dict[int, list[float]],
     residue: dict[int, list[float]],
     feature_set: str,
@@ -137,12 +174,107 @@ def build_feature_rows(
         row: list[float] = []
         if feature_set in ("hybrid", "metrics"):
             row.extend(metrics.get(n, [0.0] * metric_dims))
+        if feature_set in ("hybrid", "shape"):
+            shape_dims = len(next(iter(shape.values()))) if shape else 0
+            row.extend(shape.get(n, [0.0] * shape_dims))
         if feature_set in ("hybrid", "parity", "tokens"):
             row.extend(parity.get(n, [0.0] * token_bins))
         if feature_set in ("hybrid", "residue", "tokens"):
             row.extend(residue.get(n, [0.0] * token_bins))
         rows.append(row)
     return rows
+
+
+def retrieval_metrics(
+    rows: list[list[float]],
+    starts: list[int],
+    label_by_n: dict[int, str],
+    ks: tuple[int, ...] = (1, 5, 10),
+) -> dict[str, float | None]:
+    labels = [label_by_n.get(n, "") for n in starts]
+    valid = [index for index, label in enumerate(labels) if label and label != "none" and label != "unknown"]
+    if len(valid) < 2:
+        return {f"recall@{k}": None for k in ks} | {"MRR": None, "NDCG@10": None}
+    x = torch.tensor(rows, dtype=torch.float32)
+    x = F.normalize(torch.nan_to_num(x), dim=1)
+    sim = x @ x.T
+    sim.fill_diagonal_(-2.0)
+    recalls = {k: 0 for k in ks}
+    reciprocal_total = 0.0
+    ndcg_total = 0.0
+    evaluated = 0
+    for index in valid:
+        label = labels[index]
+        relevant_total = sum(1 for j in valid if j != index and labels[j] == label)
+        if relevant_total == 0:
+            continue
+        order = sim[index].argsort(descending=True).tolist()
+        evaluated += 1
+        first_rank = None
+        dcg = 0.0
+        ideal = sum(1.0 / math.log2(rank + 2) for rank in range(min(10, relevant_total)))
+        for rank, candidate in enumerate(order[:10]):
+            hit = labels[candidate] == label
+            if hit and first_rank is None:
+                first_rank = rank + 1
+            if hit:
+                dcg += 1.0 / math.log2(rank + 2)
+        for k in ks:
+            if any(labels[candidate] == label for candidate in order[:k]):
+                recalls[k] += 1
+        if first_rank is not None:
+            reciprocal_total += 1.0 / first_rank
+        if ideal > 0.0:
+            ndcg_total += dcg / ideal
+    if evaluated == 0:
+        return {f"recall@{k}": None for k in ks} | {"MRR": None, "NDCG@10": None}
+    result: dict[str, float | None] = {f"recall@{k}": recalls[k] / evaluated for k in ks}
+    result["MRR"] = reciprocal_total / evaluated
+    result["NDCG@10"] = ndcg_total / evaluated
+    return result
+
+
+def ari_nmi(cluster_labels: list[str], target_labels: list[str]) -> tuple[float | None, float | None]:
+    if len(cluster_labels) != len(target_labels) or len(cluster_labels) < 2:
+        return None, None
+    n = len(cluster_labels)
+    contingency: dict[tuple[str, str], int] = Counter(zip(cluster_labels, target_labels))
+    cluster_counts = Counter(cluster_labels)
+    target_counts = Counter(target_labels)
+
+    def choose2(value: int) -> float:
+        return value * (value - 1) / 2.0
+
+    sum_comb = sum(choose2(value) for value in contingency.values())
+    sum_cluster = sum(choose2(value) for value in cluster_counts.values())
+    sum_target = sum(choose2(value) for value in target_counts.values())
+    total = choose2(n)
+    expected = (sum_cluster * sum_target / total) if total else 0.0
+    max_index = (sum_cluster + sum_target) * 0.5
+    ari = (sum_comb - expected) / (max_index - expected) if max_index != expected else 0.0
+
+    mutual = 0.0
+    for (cluster, target), count in contingency.items():
+        mutual += (count / n) * math.log((count * n) / (cluster_counts[cluster] * target_counts[target]))
+    h_cluster = -sum((count / n) * math.log(count / n) for count in cluster_counts.values())
+    h_target = -sum((count / n) * math.log(count / n) for count in target_counts.values())
+    nmi = mutual / math.sqrt(h_cluster * h_target) if h_cluster > 0.0 and h_target > 0.0 else 0.0
+    return ari, nmi
+
+
+def lift_stats(values: list[float]) -> dict[str, float | int | list[float] | None]:
+    if not values:
+        return {"mean": None, "std": None, "ci_95": None, "bootstrap_ci_95": None}
+    mean = sum(values) / len(values)
+    if len(values) < 2:
+        return {"mean": mean, "std": None, "ci_95": None, "bootstrap_ci_95": None}
+    variance = sum((value - mean) ** 2 for value in values) / (len(values) - 1)
+    std = math.sqrt(variance)
+    margin = 1.96 * std / math.sqrt(len(values))
+    ordered = sorted(values)
+    low = ordered[max(0, int(0.025 * (len(ordered) - 1)))]
+    high = ordered[min(len(ordered) - 1, int(0.975 * (len(ordered) - 1)))]
+    return {"mean": mean, "std": std, "ci_95": [mean - margin, mean + margin], "bootstrap_ci_95": [low, high]}
 
 
 def random_baseline(labels: list[str]) -> float:
@@ -250,8 +382,12 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     selected, labels_by_n, reasons_by_n = read_sample(Path(args.sample))
+    family_rows = read_families(Path(args.families), selected)
+    if family_rows:
+        labels_by_n = {n: row.get("coalescence_family_id", labels_by_n.get(n, "family")) for n, row in family_rows.items()}
     starts, labels, learned_rows = read_embeddings(Path(args.contrastive_embeddings), labels_by_n)
     metrics = read_metrics(Path(args.metrics), selected)
+    shape = read_metrics(Path(args.log_sketch), selected, prefix="s")
     parity = read_token_hist(Path(args.parity_runs), selected, args.token_bins)
     residue = read_token_hist(Path(args.transitions), selected, args.token_bins)
 
@@ -261,8 +397,8 @@ def main() -> None:
     learned_lift = float(learned["lift"] or 0.0)
 
     raw_feature_stats = []
-    for feature_set in ("metrics", "parity", "residue", "tokens", "hybrid"):
-        rows = build_feature_rows(starts, metrics, parity, residue, feature_set, args.token_bins)
+    for feature_set in ("metrics", "shape", "parity", "residue", "tokens", "hybrid"):
+        rows = build_feature_rows(starts, metrics, shape, parity, residue, feature_set, args.token_bins)
         stats = neighbor_stats(rows, labels, standardize=True)
         raw_feature_stats.append({"feature_set": feature_set, **stats})
 
@@ -339,6 +475,13 @@ def main() -> None:
     range_count, range_min_lift, range_mean_lift = summarize_group_lifts(range_groups)
     residue_count, residue_min_lift, residue_mean_lift = summarize_group_lifts(residue_groups)
     fold_count, fold_min_lift, fold_mean_lift = summarize_group_lifts(fold_groups)
+    lift_values = [
+        float(group["lift"])
+        for groups in (range_groups, residue_groups, fold_groups)
+        for group in groups
+        if group.get("lift") is not None
+    ]
+    lift_summary = lift_stats(lift_values)
     contrastive_minus_numeric = learned_purity - numeric_purity
     passes_range = range_count >= max(2, args.range_bands // 2) and (range_min_lift or 0.0) > 0.0
     passes_folds = fold_count >= 2 and (fold_min_lift or 0.0) > 0.0
@@ -347,6 +490,8 @@ def main() -> None:
     validation_confidence = "range-stable signal" if passes_range and passes_folds and passes_residue and passes_baseline else "sample-local signal"
 
     gnn_metrics = read_json(Path(args.gnn_metrics))
+    gnn_starts, gnn_rows = read_start_embeddings(Path(args.gnn_start_embeddings))
+    pair_metrics = read_json(Path(args.pair_metrics))
     full_audit = read_json(Path(args.full_audit))
     eval_device, eval_chunk = evaluation_runtime()
     full_records = int(full_audit.get("records_read", 0) or 0)
@@ -357,6 +502,24 @@ def main() -> None:
         if validation_confidence == "range-stable signal"
         else "Learned neighborhoods remain sample-local until holdouts and ablations show stable lift."
     )
+
+    tail_label = {n: row.get("tail_hash", "") for n, row in family_rows.items()}
+    coalescence_label = {n: row.get("coalescence_family_id", "") for n, row in family_rows.items()}
+    parity_label = {n: row.get("parity_motif_hash", "") for n, row in family_rows.items()}
+    residue_label = {n: row.get("residue_motif_hash", "") for n, row in family_rows.items()}
+    source_label = {n: row.get("source_family", "") for n, row in family_rows.items()}
+    learned_retrieval = {
+        "tail_family": retrieval_metrics(learned_rows, starts, tail_label),
+        "coalescence_family": retrieval_metrics(learned_rows, starts, coalescence_label),
+        "parity_motif": retrieval_metrics(learned_rows, starts, parity_label),
+        "residue_motif": retrieval_metrics(learned_rows, starts, residue_label),
+        "source_record": retrieval_metrics(learned_rows, starts, source_label),
+    }
+    gnn_retrieval = {}
+    if gnn_rows:
+        gnn_tail_label = {n: tail_label.get(n, "") for n in gnn_starts}
+        gnn_retrieval = retrieval_metrics(gnn_rows, gnn_starts, gnn_tail_label)
+    ari, nmi = ari_nmi(labels, [tail_label.get(n, "") for n in starts])
 
     metrics_out = {
         "dataset_type": "collatz_evidence_validation",
@@ -390,11 +553,45 @@ def main() -> None:
         "fold_count": fold_count,
         "fold_min_lift": finite(fold_min_lift),
         "fold_mean_lift": finite(fold_mean_lift),
+        "n_seeds": 1,
+        "n_folds": args.folds,
+        "lift_statistics": {
+            "mean": finite(lift_summary["mean"]),
+            "std": finite(lift_summary["std"]),
+            "ci_95": lift_summary["ci_95"],
+            "bootstrap_ci_95": lift_summary["bootstrap_ci_95"],
+        },
+        "matched_controls": pair_metrics.get("matched_controls", {
+            "bit_length": False,
+            "range_band": False,
+            "residue_class": False,
+            "stopping_time_bucket": False,
+            "peak_ratio_bucket": False,
+            "first_drop_bucket": False,
+        }),
+        "hard_negative_match_rate": pair_metrics.get("hard_negative_match_rate"),
+        "retrieval": {
+            "tail_family_recall@1": learned_retrieval["tail_family"].get("recall@1"),
+            "tail_family_recall@5": learned_retrieval["tail_family"].get("recall@5"),
+            "tail_family_recall@10": learned_retrieval["tail_family"].get("recall@10"),
+            "coalescence_family_recall@1": learned_retrieval["coalescence_family"].get("recall@1"),
+            "coalescence_family_recall@5": learned_retrieval["coalescence_family"].get("recall@5"),
+            "coalescence_family_recall@10": learned_retrieval["coalescence_family"].get("recall@10"),
+            "parity_motif_recall@10": learned_retrieval["parity_motif"].get("recall@10"),
+            "residue_motif_recall@10": learned_retrieval["residue_motif"].get("recall@10"),
+            "source_record_recall@10": learned_retrieval["source_record"].get("recall@10"),
+            "MRR": learned_retrieval["coalescence_family"].get("MRR"),
+            "NDCG@10": learned_retrieval["coalescence_family"].get("NDCG@10"),
+            "ARI": finite(ari),
+            "NMI": finite(nmi),
+        },
         "ablation_count": len(complete_ablations),
         "best_ablation": best_ablation.get("name") if best_ablation else None,
         "best_lift": finite(float(best_ablation["purity_lift"])) if best_ablation else None,
         "gnn_status": gnn_metrics.get("status", "missing"),
         "gnn_loss_final": gnn_metrics.get("loss_final"),
+        "gnn_start_embedding_count": len(gnn_starts),
+        "gnn_retrieval": gnn_retrieval,
         "raw_feature_stats": raw_feature_stats,
         "learned_ablation_stats": learned_ablation_stats,
         "range_holdouts": range_groups,

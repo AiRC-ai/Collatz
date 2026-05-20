@@ -24,10 +24,12 @@ STATUS_FILE="${COLLATZ_NEURAL_STATUS:-data/generated/runner/neural_parallel_stat
 LOG_DIR="${COLLATZ_NEURAL_LOG_DIR:-logs/neural-parallel}"
 COMPOSE_OVERRIDE="${COLLATZ_COMPOSE_OVERRIDE:-}"
 MAX_PARALLEL="${COLLATZ_PARALLEL_NEURAL_JOBS:-6}"
-FEATURE_SETS="${COLLATZ_PARALLEL_FEATURE_SETS:-hybrid metrics parity residue tokens}"
+FEATURE_SETS="${COLLATZ_PARALLEL_FEATURE_SETS:-hybrid metrics shape parity-sequence residue-sequence}"
 RUN_AUTOENCODER="${COLLATZ_PARALLEL_AUTOENCODER:-1}"
+RUN_IMAGE_CONTRASTIVE="${COLLATZ_PARALLEL_IMAGE_CONTRASTIVE:-0}"
 RUN_EVIDENCE="${COLLATZ_PARALLEL_EVIDENCE_VALIDATE:-1}"
 RUN_STRATIFIED="${COLLATZ_PARALLEL_PREPARE_SAMPLE:-1}"
+CONTRASTIVE_SERVICE="${COLLATZ_CONTRASTIVE_SERVICE:-contrastive-v2}"
 
 mkdir -p "$(dirname "$STATUS_FILE")" "$LOG_DIR"
 
@@ -159,18 +161,36 @@ launch_contrastive() {
   (
     export CONTRASTIVE_FEATURE_SET="$feature"
     export CONTRASTIVE_OUTPUT_DIR="$output"
-    export CONTRASTIVE_LIMIT="${CONTRASTIVE_LIMIT:-100000}"
+    export CONTRASTIVE_LIMIT="${CONTRASTIVE_LIMIT:-0}"
     export CONTRASTIVE_EPOCHS="${CONTRASTIVE_EPOCHS:-160}"
     export CONTRASTIVE_BATCH_SIZE="${CONTRASTIVE_BATCH_SIZE:-4096}"
     export CONTRASTIVE_HIDDEN_DIMS="${CONTRASTIVE_HIDDEN_DIMS:-512}"
     export CONTRASTIVE_EMBEDDING_DIMS="${CONTRASTIVE_EMBEDDING_DIMS:-128}"
+    export CONTRASTIVE_PAIR_MODE="${CONTRASTIVE_PAIR_MODE:-family_pairs}"
     export CONTRASTIVE_EVAL_CHUNK="${CONTRASTIVE_EVAL_CHUNK:-2048}"
     export CONTRASTIVE_EVAL_DEVICE="${CONTRASTIVE_EVAL_DEVICE:-auto}"
-    "${COMPOSE[@]}" --profile neural run --rm contrastive
+    "${COMPOSE[@]}" --profile neural run --rm "$CONTRASTIVE_SERVICE"
   ) > "$LOG_DIR/$name.log" 2>&1 &
   JOB_NAMES+=("$name")
   JOB_TYPES+=("contrastive")
   JOB_FEATURES+=("$feature")
+  JOB_PIDS+=("$!")
+  JOB_STATES+=("running")
+  JOB_CODES+=("null")
+  write_status "running" "training parallel neural jobs"
+}
+
+launch_image_contrastive() {
+  wait_for_slot
+  (
+    export IMAGE_CONTRASTIVE_EPOCHS="${IMAGE_CONTRASTIVE_EPOCHS:-80}"
+    export IMAGE_CONTRASTIVE_BATCH_SIZE="${IMAGE_CONTRASTIVE_BATCH_SIZE:-1024}"
+    export IMAGE_CONTRASTIVE_EMBEDDING_DIMS="${IMAGE_CONTRASTIVE_EMBEDDING_DIMS:-128}"
+    "${COMPOSE[@]}" --profile neural run --rm image-contrastive
+  ) > "$LOG_DIR/image-contrastive.log" 2>&1 &
+  JOB_NAMES+=("image_contrastive")
+  JOB_TYPES+=("image-contrastive")
+  JOB_FEATURES+=("image-only")
   JOB_PIDS+=("$!")
   JOB_STATES+=("running")
   JOB_CODES+=("null")
@@ -218,6 +238,14 @@ if [ "$DRY_RUN" -eq 1 ]; then
     JOB_STATES+=("complete")
     JOB_CODES+=(0)
   fi
+  if [ "$RUN_IMAGE_CONTRASTIVE" = "1" ]; then
+    JOB_NAMES+=("image_contrastive")
+    JOB_TYPES+=("image-contrastive")
+    JOB_FEATURES+=("image-only")
+    JOB_PIDS+=(0)
+    JOB_STATES+=("complete")
+    JOB_CODES+=(0)
+  fi
   write_status "complete" "dry-run parallel neural evidence"
   echo "dry-run parallel neural evidence complete"
   exit 0
@@ -232,6 +260,11 @@ if [ "$RUN_STRATIFIED" = "1" ]; then
   export EMBED_SKETCH_DIMS="${EMBED_SKETCH_DIMS:-128}"
   "${COMPOSE[@]}" --profile research run --rm stratified > "$LOG_DIR/stratified.log" 2>&1
   "${COMPOSE[@]}" --profile research run --rm stratified-embedder > "$LOG_DIR/stratified-embedder.log" 2>&1
+  "${COMPOSE[@]}" --profile research run --rm family-labels > "$LOG_DIR/family-labels.log" 2>&1
+  "${COMPOSE[@]}" --profile research run --rm pair-sampler > "$LOG_DIR/pair-sampler.log" 2>&1
+  if [ "$RUN_IMAGE_CONTRASTIVE" = "1" ]; then
+    "${COMPOSE[@]}" --profile research run --rm image-tensors > "$LOG_DIR/image-tensors.log" 2>&1
+  fi
 fi
 
 for feature in $FEATURE_SETS; do
@@ -239,6 +272,9 @@ for feature in $FEATURE_SETS; do
 done
 if [ "$RUN_AUTOENCODER" = "1" ]; then
   launch_autoencoder
+fi
+if [ "$RUN_IMAGE_CONTRASTIVE" = "1" ]; then
+  launch_image_contrastive
 fi
 
 while [ "$(running_count)" -gt 0 ]; do

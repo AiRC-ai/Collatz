@@ -35,6 +35,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train Collatz graph embeddings with a lightweight GraphSAGE encoder.")
     parser.add_argument("--nodes", default="/work/data/generated/graphs/nodes.csv")
     parser.add_argument("--edges", default="/work/data/generated/graphs/edges.csv")
+    parser.add_argument("--membership", default="/work/data/generated/graphs/start_membership.csv")
     parser.add_argument("--output-dir", default="/work/data/generated/gnn")
     parser.add_argument("--epochs", type=int, default=int(os.getenv("GNN_EPOCHS", "50")))
     parser.add_argument("--hidden-dims", type=int, default=int(os.getenv("GNN_HIDDEN_DIMS", "96")))
@@ -133,6 +134,20 @@ def write_metrics(path: Path, metrics: dict[str, object]) -> None:
     tmp.replace(path)
 
 
+def read_membership(path: Path) -> dict[int, list[tuple[int, bool]]]:
+    membership: dict[int, list[tuple[int, bool]]] = {}
+    if not path.exists():
+        return membership
+    with path.open(newline="") as handle:
+        reader = csv.DictReader(handle)
+        for row in reader:
+            n = int(row["n"])
+            node_id = int(row["node_id"])
+            final_tail = row.get("final_tail", "0") in ("1", "true", "True")
+            membership.setdefault(n, []).append((node_id, final_tail))
+    return membership
+
+
 def train(args: argparse.Namespace) -> dict[str, object]:
     random.seed(args.seed)
     torch.manual_seed(args.seed)
@@ -196,6 +211,23 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         for node_id, value in enumerate(values):
             writer.writerow([node_id, value, *[f"{v:.9g}" for v in z[node_id].tolist()]])
 
+    membership = read_membership(Path(args.membership))
+    start_embeddings_path = output_dir / "start_embeddings.csv"
+    with start_embeddings_path.open("w", newline="") as handle:
+        writer = csv.writer(handle)
+        dims = z.shape[1]
+        writer.writerow(["n", *[f"mean_e{i}" for i in range(dims)], *[f"max_e{i}" for i in range(dims)], *[f"tail_e{i}" for i in range(dims)]])
+        for n, items in sorted(membership.items()):
+            node_ids = [node_id for node_id, _ in items if 0 <= node_id < z.shape[0]]
+            if not node_ids:
+                continue
+            vectors = z[node_ids]
+            mean_vec = vectors.mean(dim=0)
+            max_vec = vectors.max(dim=0).values
+            tail_candidates = [node_id for node_id, final_tail in items if final_tail and 0 <= node_id < z.shape[0]]
+            tail_vec = z[tail_candidates[-1]] if tail_candidates else vectors[-1]
+            writer.writerow([n, *[f"{v:.9g}" for v in mean_vec.tolist()], *[f"{v:.9g}" for v in max_vec.tolist()], *[f"{v:.9g}" for v in tail_vec.tolist()]])
+
     metrics = {
         "dataset_type": "collatz_gnn_embeddings",
         "tool": "research/gnn_train.py",
@@ -211,7 +243,8 @@ def train(args: argparse.Namespace) -> dict[str, object]:
         "loss_start": losses[0],
         "loss_final": losses[-1],
         "loss_history": losses,
-        "outputs": {"embeddings": "embeddings.csv"},
+        "start_embedding_count": len(membership),
+        "outputs": {"embeddings": "embeddings.csv", "start_embeddings": "start_embeddings.csv"},
     }
     write_metrics(metrics_path, metrics)
     return metrics

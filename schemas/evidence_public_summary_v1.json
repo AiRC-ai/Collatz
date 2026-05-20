@@ -143,7 +143,8 @@
             "fold_min_lift_percent": { "type": "number" },
             "numeric_adjacency_lift_percent": { "type": "number" }
           }
-        }
+        },
+        "retrieval": { "type": "object" }
       }
     },
     "source_alignment": {
@@ -224,7 +225,13 @@
           "properties": {
             "mean": { "type": ["number", "null"] },
             "std": { "type": ["number", "null"] },
-            "ci_95": { "type": ["number", "null"] }
+            "ci_95": {
+              "oneOf": [
+                { "type": "number" },
+                { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 2 },
+                { "type": "null" }
+              ]
+            }
           }
         },
         "n_folds": { "type": ["integer", "null"] },
@@ -256,11 +263,12 @@
       "required": [
         "above_active_scan_range",
         "missing_from_topology_sample",
+        "missing_feature_row",
         "parser_error",
         "step_convention_mismatch",
         "peak_convention_mismatch",
         "true_mismatch",
-        "missing_topology_node",
+        "missing_topology_projection_node",
         "duplicated_source_row",
         "future_source_target",
         "unknown"
@@ -268,11 +276,12 @@
       "properties": {
         "above_active_scan_range": { "type": "integer", "minimum": 0 },
         "missing_from_topology_sample": { "type": "integer", "minimum": 0 },
+        "missing_feature_row": { "type": "integer", "minimum": 0 },
         "parser_error": { "type": "integer", "minimum": 0 },
         "step_convention_mismatch": { "type": "integer", "minimum": 0 },
         "peak_convention_mismatch": { "type": "integer", "minimum": 0 },
         "true_mismatch": { "type": "integer", "minimum": 0 },
-        "missing_topology_node": { "type": "integer", "minimum": 0 },
+        "missing_topology_projection_node": { "type": "integer", "minimum": 0 },
         "duplicated_source_row": { "type": "integer", "minimum": 0 },
         "future_source_target": { "type": "integer", "minimum": 0 },
         "unknown": { "type": "integer", "minimum": 0 }

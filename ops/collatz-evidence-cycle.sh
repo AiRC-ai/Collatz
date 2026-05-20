@@ -29,6 +29,7 @@ if [ "$DRY_RUN" -eq 1 ]; then
   echo "dry-run stage: optionally run one CPU crunch scan batch if configured"
   echo "dry-run stage: run deterministic full dataset audit"
   echo "dry-run stage: optionally run one neural stage if GPU is available and configured"
+  echo "dry-run stage: neural stage prepares safe metrics, family labels, and matched pairs when enabled"
   echo "dry-run stage: refresh hypothesis summary after crunch stages"
   echo "dry-run stage: publish canonical evidence summary"
   echo "dry-run stage: run public privacy scan"
@@ -487,6 +488,7 @@ stage "align source targets"
 "$BUILD_DIR/collatz_source_align" \
   --projection "$PROJECTION_FILE" \
   --source-samples "$SOURCE_OUTPUT" \
+  --feature-bin "$FEATURE_FILE" \
   --output-dir "$SOURCE_ALIGNMENT_DIR" \
   --neighbors "${COLLATZ_SOURCE_ALIGNMENT_NEIGHBORS:-8}" || fail_cycle "align source targets" "$?"
 

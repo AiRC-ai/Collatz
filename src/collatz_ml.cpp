@@ -104,6 +104,31 @@ std::vector<double> metric_vector(const BinaryFeatureRecord &record) {
     return out;
 }
 
+const std::vector<std::size_t> &unsafe_metric_indices() {
+    static const std::vector<std::size_t> indices = {
+        15, // FeatureReachedOne integrity flag.
+        16, // FeatureFirstDropKnown integrity flag.
+        34, // checksum low 16 bits.
+        35, // checksum middle 16 bits.
+        36, // checksum high 16 bits.
+    };
+    return indices;
+}
+
+std::vector<double> safe_metric_vector(const BinaryFeatureRecord &record) {
+    const auto full = metric_vector(record);
+    std::vector<double> out;
+    out.reserve(kSafeMetricVectorDims);
+    const auto &unsafe = unsafe_metric_indices();
+    for (std::size_t i = 0; i < full.size(); ++i) {
+        if (std::find(unsafe.begin(), unsafe.end(), i) != unsafe.end()) {
+            continue;
+        }
+        out.push_back(full[i]);
+    }
+    return out;
+}
+
 std::vector<std::uint8_t> parity_bits_from_record(const BinaryFeatureRecord &record, std::size_t max_bits) {
     const std::size_t count = std::min<std::size_t>({max_bits, kParityPrefixBits, std::max<std::uint32_t>(1, record.total_steps)});
     std::vector<std::uint8_t> bits(count, 0);

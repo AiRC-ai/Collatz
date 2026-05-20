@@ -299,11 +299,12 @@ const std::vector<std::string> &reason_buckets() {
     static const std::vector<std::string> buckets = {
         "above_active_scan_range",
         "missing_from_topology_sample",
+        "missing_feature_row",
         "parser_error",
         "step_convention_mismatch",
         "peak_convention_mismatch",
         "true_mismatch",
-        "missing_topology_node",
+        "missing_topology_projection_node",
         "duplicated_source_row",
         "future_source_target",
         "unknown",
@@ -448,7 +449,7 @@ void write_alignment(const Options &options, const std::vector<Point> &points, c
             continue;
         }
         if (feature_lookup.enabled && !feature_row_present) {
-            record_unmatched("missing_topology_node", "source target is inside range but no binary feature row was found");
+            record_unmatched("missing_feature_row", "source target is inside range but no binary feature row was found");
             continue;
         }
         if (feature_row_present && observed_steps != target.total_steps && observed_peak != target.peak_low) {
@@ -464,7 +465,7 @@ void write_alignment(const Options &options, const std::vector<Point> &points, c
             continue;
         }
         if (found == point_by_n.end()) {
-            record_unmatched(feature_lookup.enabled ? "missing_from_topology_sample" : "missing_topology_node",
+            record_unmatched(feature_lookup.enabled ? "missing_from_topology_sample" : "missing_topology_projection_node",
                              feature_lookup.enabled
                                  ? "source target exists in the feature file but is absent from the topology sample"
                                  : "source target is absent from the topology projection");

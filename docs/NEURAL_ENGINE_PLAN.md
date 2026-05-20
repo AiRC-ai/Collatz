@@ -200,16 +200,18 @@ The core dashboard should show embedding progress later:
 2. Build an evidence-first stratified sample by range, stopping-time extremes,
    peak-ratio extremes, first-drop outliers, residue class, record ladders,
    topology representatives, GNN starts, and deterministic random baselines.
-3. Train a metric + parity-run contrastive encoder.
-4. Run feature ablations: metrics-only, parity-only, residue-only,
-   parity+residue tokens, and hybrid.
-5. Validate learned neighborhoods against numeric adjacency, range holdouts,
-   residue holdouts, random folds, and raw-feature baselines.
-6. Compare known source-validation starts against topology neighborhoods.
-7. Project embeddings with UMAP.
-8. Inspect cluster neighborhoods against known records.
-9. Train an autoencoder and collect high-reconstruction-error anomalies.
-10. Generate recurrence/GAF/transition images for cluster representatives.
+3. Generate deterministic path-family labels and matched hard-negative pairs.
+4. Train a metric + shape + ordered parity + ordered residue contrastive v2
+   encoder with representation dropout.
+5. Run feature ablations: metrics-only, shape-only, parity-sequence-only,
+   residue-sequence-only, image-only, GNN-only, and hybrid.
+6. Validate learned neighborhoods against numeric adjacency, range holdouts,
+   residue holdouts, random folds, raw-feature baselines, and retrieval metrics.
+7. Compare known source-validation starts against topology neighborhoods.
+8. Project embeddings with UMAP.
+9. Inspect cluster neighborhoods against known records.
+10. Train an autoencoder and collect high-reconstruction-error anomalies.
+11. Generate recurrence/GAF/transition images for cluster representatives.
 11. Write a hypothesis ledger entry that states the claim, confidence level,
    evidence, limit, falsification test, and next action.
 

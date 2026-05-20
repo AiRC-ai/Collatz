@@ -312,18 +312,21 @@ std::string lower_feature_name(std::string name) {
         return "metrics-only";
     }
     if (name == "parity") {
-        return "parity-only";
+        return "parity-sequence-only";
     }
     if (name == "residue") {
-        return "residue-only";
+        return "residue-sequence-only";
+    }
+    if (name == "shape") {
+        return "shape-only";
     }
     if (name == "tokens" || name == "token") {
         return "token-only";
     }
-    if (name == "gnn") {
+    if (name == "gnn" || name == "gnn-only") {
         return "GNN-only";
     }
-    if (name == "image") {
+    if (name == "image" || name == "image-only") {
         return "image-only";
     }
     return name;
@@ -332,7 +335,7 @@ std::string lower_feature_name(std::string name) {
 std::map<std::string, LeaderboardEntry> read_leaderboard(const std::string &ablation_report) {
     std::map<std::string, LeaderboardEntry> entries;
     const std::vector<std::string> names = {
-        "metrics-only", "parity-only", "residue-only", "token-only", "image-only", "GNN-only", "hybrid",
+        "metrics-only", "shape-only", "parity-sequence-only", "residue-sequence-only", "image-only", "GNN-only", "hybrid",
     };
     for (const auto &name : names) {
         entries[name] = LeaderboardEntry{name};
@@ -354,6 +357,9 @@ std::map<std::string, LeaderboardEntry> read_leaderboard(const std::string &abla
             continue;
         }
         const auto name = lower_feature_name(parts[1]);
+        if (entries.find(name) == entries.end()) {
+            continue;
+        }
         auto &entry = entries[name];
         entry.name = name;
         entry.present = true;
@@ -415,6 +421,37 @@ void write_matched_controls(std::ostream &out, bool enabled) {
         << ",\"stopping_time_bucket\":" << (enabled ? "true" : "false")
         << ",\"peak_ratio_bucket\":" << (enabled ? "true" : "false")
         << ",\"first_drop_bucket\":" << (enabled ? "true" : "false") << "}";
+}
+
+std::string matched_controls_json(const std::string &validation) {
+    const auto controls = json_object_for_key(validation, "matched_controls");
+    if (!controls.empty()) {
+        return controls;
+    }
+    std::ostringstream out;
+    write_matched_controls(out, false);
+    return out.str();
+}
+
+bool matched_controls_complete_from_validation(const std::string &validation) {
+    const auto controls = json_object_for_key(validation, "matched_controls");
+    if (controls.empty()) {
+        return false;
+    }
+    return json_bool_or(controls, "bit_length") &&
+           json_bool_or(controls, "range_band") &&
+           json_bool_or(controls, "residue_class") &&
+           json_bool_or(controls, "stopping_time_bucket") &&
+           json_bool_or(controls, "peak_ratio_bucket") &&
+           json_bool_or(controls, "first_drop_bucket");
+}
+
+bool lift_statistics_complete_from_validation(const std::string &validation) {
+    const auto stats = json_object_for_key(validation, "lift_statistics");
+    const auto ci = json_value_for_key(stats, "ci_95");
+    return json_u64_or(validation, "n_seeds") >= 5 &&
+           json_u64_or(validation, "n_folds") >= 5 &&
+           !ci.empty() && ci != "null";
 }
 
 void write_summary_json(
@@ -503,8 +540,14 @@ int main(int argc, char **argv) {
         const double metrics_lift = metrics.lift.value_or(-1.0);
         const double hybrid_lift = hybrid.lift.value_or(contrastive_lift);
         const bool metric_dominant = metrics.lift && hybrid.lift && metrics_lift > hybrid_lift;
-        const bool matched_controls_complete = false;
-        const bool lift_statistics_complete = false;
+        const bool matched_controls_complete = matched_controls_complete_from_validation(validation);
+        const bool lift_statistics_complete = lift_statistics_complete_from_validation(validation);
+        const std::uint64_t n_folds = json_u64_or(validation, "n_folds", 0);
+        const std::uint64_t n_seeds = json_u64_or(validation, "n_seeds", 0);
+        const auto lift_stats = json_object_for_key(validation, "lift_statistics");
+        const std::string ci_95 = json_value_for_key(lift_stats, "ci_95");
+        const std::string lift_std = json_value_for_key(lift_stats, "std");
+        const std::string controls = matched_controls_json(validation);
 
         const bool gate1 = full_audit_completed && contrastive_lift > 0.0 && contrastive_minus_numeric > 0.0 &&
                            range_min_lift > 0.0 && fold_min_lift > 0.0;
@@ -636,11 +679,13 @@ int main(int argc, char **argv) {
         for (const auto &[_, entry] : leaderboard) {
             json << "      {\"name\": \"" << collatz::json_escape(entry.name)
                  << "\", \"lift_percent\": {\"mean\": " << number_or_null(entry.lift ? std::optional<double>(percent_value(*entry.lift)) : std::nullopt, 3)
-                 << ", \"std\": null, \"ci_95\": null}, \"n_folds\": null, \"n_seeds\": null, \"n_samples\": "
+                 << ", \"std\": " << (lift_std.empty() ? "null" : lift_std)
+                 << ", \"ci_95\": " << (ci_95.empty() ? "null" : ci_95)
+                 << "}, \"n_folds\": " << (n_folds == 0 ? "null" : std::to_string(n_folds))
+                 << ", \"n_seeds\": " << (n_seeds == 0 ? "null" : std::to_string(n_seeds))
+                 << ", \"n_samples\": "
                  << (entry.present ? entry.samples : sample_rows)
-                 << ", \"matched_controls\": ";
-            write_matched_controls(json, false);
-            json << "}";
+                 << ", \"matched_controls\": " << controls << "}";
             if (++entry_index != leaderboard.size()) {
                 json << ',';
             }
@@ -652,7 +697,10 @@ int main(int argc, char **argv) {
              << "\", \"may_promote_confidence\": false},\n"
              << "    \"holdouts\": {\"weakest_range_lift_percent\": " << percent_value(range_min_lift)
              << ", \"fold_min_lift_percent\": " << percent_value(fold_min_lift)
-             << ", \"numeric_adjacency_lift_percent\": " << percent_value(contrastive_minus_numeric) << "}\n"
+             << ", \"numeric_adjacency_lift_percent\": " << percent_value(contrastive_minus_numeric) << "},\n"
+             << "    \"retrieval\": " << (json_object_for_key(validation, "retrieval").empty()
+                                           ? "{}"
+                                           : json_object_for_key(validation, "retrieval")) << "\n"
              << "  },\n"
              << "  \"source_alignment\": {\n"
              << "    \"targets_total\": " << targets_total << ",\n"
@@ -670,7 +718,7 @@ int main(int argc, char **argv) {
              << ", \"complete\": " << (barina_complete ? "true" : "false") << "}\n"
              << "    },\n"
              << "    \"unmatched_breakdown\": " << (json_object_for_key(source_alignment, "unmatched_breakdown").empty()
-                                                        ? "{\"above_active_scan_range\":0,\"missing_from_topology_sample\":0,\"parser_error\":0,\"step_convention_mismatch\":0,\"peak_convention_mismatch\":0,\"true_mismatch\":0,\"missing_topology_node\":0,\"duplicated_source_row\":0,\"future_source_target\":0,\"unknown\":0}"
+                                                        ? "{\"above_active_scan_range\":0,\"missing_from_topology_sample\":0,\"missing_feature_row\":0,\"parser_error\":0,\"step_convention_mismatch\":0,\"peak_convention_mismatch\":0,\"true_mismatch\":0,\"missing_topology_projection_node\":0,\"duplicated_source_row\":0,\"future_source_target\":0,\"unknown\":0}"
                                                         : json_object_for_key(source_alignment, "unmatched_breakdown"))
              << ",\n"
              << "    \"unknown_unmatched_percent\": " << json_double_or(source_alignment, "unknown_unmatched_percent") << "\n"

@@ -55,6 +55,13 @@ struct StartPath {
     bool overflow = false;
 };
 
+struct StartMembership {
+    std::uint64_t n = 0;
+    std::uint32_t position = 0;
+    std::uint32_t node_id = 0;
+    bool final_tail = false;
+};
+
 void usage(std::ostream &out) {
     out << "usage: collatz_graph_export (--n N | --starts-file FILE) [options]\n\n"
         << "options:\n"
@@ -262,6 +269,21 @@ void write_starts(const std::string &path, const std::vector<StartPath> &starts)
     }
 }
 
+void write_membership(const std::string &path, const std::vector<StartMembership> &membership) {
+    collatz::ensure_parent_dir(path);
+    std::ofstream out(path);
+    if (!out) {
+        throw std::runtime_error("failed to open membership output: " + path);
+    }
+    out << "n,position,node_id,final_tail\n";
+    for (const auto &item : membership) {
+        out << item.n << ','
+            << item.position << ','
+            << item.node_id << ','
+            << (item.final_tail ? 1 : 0) << '\n';
+    }
+}
+
 void write_manifest(
     const Options &options,
     const std::vector<Node> &nodes,
@@ -285,7 +307,7 @@ void write_manifest(
         << "  \"node_count\": " << nodes.size() << ",\n"
         << "  \"edge_count\": " << edges.size() << ",\n"
         << "  \"max_steps\": " << options.max_steps << ",\n"
-        << "  \"files\": {\"nodes\": \"nodes.csv\", \"edges\": \"edges.csv\", \"starts\": \"starts.csv\"},\n"
+        << "  \"files\": {\"nodes\": \"nodes.csv\", \"edges\": \"edges.csv\", \"starts\": \"starts.csv\", \"membership\": \"start_membership.csv\"},\n"
         << "  \"node_feature_schema\": [\"log2_value\", \"parity\", \"residue_mod3\", \"residue_mod4\", \"residue_mod8\", \"residue_mod16\", \"residue_mod32\", \"is_start\", \"is_terminal\", \"in_degree\", \"out_degree\"],\n"
         << "  \"preview\": {\n"
         << "    \"nodes\": [\n";
@@ -338,6 +360,7 @@ int main(int argc, char **argv) {
         std::vector<Node> nodes;
         std::vector<Edge> edges;
         std::vector<StartPath> starts;
+        std::vector<StartMembership> membership;
         std::unordered_map<std::string, std::uint32_t> node_ids;
         std::unordered_set<std::uint64_t> edge_ids;
 
@@ -350,6 +373,10 @@ int main(int argc, char **argv) {
             const auto start_node_id = node_id_for(nodes, node_ids, path.front().value);
             nodes[start_node_id].is_start = true;
             starts.push_back({start.n, start.category, start_node_id, static_cast<std::uint32_t>(path.size() - 1), overflow});
+            for (std::size_t i = 0; i < path.size(); ++i) {
+                const auto node_id = node_id_for(nodes, node_ids, path[i].value);
+                membership.push_back({start.n, static_cast<std::uint32_t>(i), node_id, i + 1 == path.size()});
+            }
 
             for (std::size_t i = 1; i < path.size(); ++i) {
                 const auto source = node_id_for(nodes, node_ids, path[i - 1].value);
@@ -366,6 +393,7 @@ int main(int argc, char **argv) {
         write_nodes(path_join(options.output_dir, "nodes.csv"), nodes);
         write_edges(path_join(options.output_dir, "edges.csv"), edges);
         write_starts(path_join(options.output_dir, "starts.csv"), starts);
+        write_membership(path_join(options.output_dir, "start_membership.csv"), membership);
         write_manifest(options, nodes, edges, starts);
 
         std::cout << "starts=" << starts.size()
