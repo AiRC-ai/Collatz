@@ -149,9 +149,16 @@ def contrastive_loss(z1: torch.Tensor, z2: torch.Tensor, temperature: float = 0.
 def evaluate_neighbors(embeddings: torch.Tensor, labels: list[str]) -> tuple[float, float, float]:
     if embeddings.shape[0] < 2:
         return 0.0, 0.0, 0.0
-    sim = embeddings @ embeddings.T
-    sim.fill_diagonal_(-2.0)
-    nearest = sim.argmax(dim=1).cpu().tolist()
+    chunk_size = max(1, int(os.getenv("CONTRASTIVE_EVAL_CHUNK", "2048")))
+    nearest: list[int] = []
+    all_embeddings = embeddings.T.contiguous()
+    for start in range(0, embeddings.shape[0], chunk_size):
+        end = min(start + chunk_size, embeddings.shape[0])
+        sim = embeddings[start:end] @ all_embeddings
+        rows = torch.arange(end - start)
+        cols = torch.arange(start, end)
+        sim[rows, cols] = -2.0
+        nearest.extend(sim.argmax(dim=1).cpu().tolist())
     same = sum(1 for i, j in enumerate(nearest) if labels[i] == labels[j])
     purity = same / len(labels)
     counts = Counter(labels)

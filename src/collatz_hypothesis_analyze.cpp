@@ -23,6 +23,7 @@ struct Options {
     std::string autoencoder_metrics = "data/generated/anomalies/metrics.json";
     std::string gnn_metrics = "data/generated/gnn/metrics.json";
     std::string validation_metrics = "data/generated/evidence_validation/metrics.json";
+    std::string full_audit = "data/generated/full_audit/summary.json";
     std::string source_alignment = "data/generated/source_alignment/source_alignment.json";
     std::string output_dir = "data/generated/hypotheses";
 };
@@ -46,6 +47,7 @@ void usage(std::ostream &out) {
         << "  --autoencoder-metrics FILE   autoencoder anomaly metrics JSON\n"
         << "  --gnn-metrics FILE           GNN metrics JSON\n"
         << "  --validation-metrics FILE    evidence validation metrics JSON\n"
+        << "  --full-audit FILE            full binary dataset audit JSON\n"
         << "  --source-alignment FILE      source neighborhood alignment JSON\n"
         << "  --output-dir DIR             output directory (default data/generated/hypotheses)\n";
 }
@@ -72,6 +74,8 @@ Options parse_args(int argc, char **argv) {
             options.gnn_metrics = need_value("--gnn-metrics");
         } else if (arg == "--validation-metrics") {
             options.validation_metrics = need_value("--validation-metrics");
+        } else if (arg == "--full-audit") {
+            options.full_audit = need_value("--full-audit");
         } else if (arg == "--source-alignment") {
             options.source_alignment = need_value("--source-alignment");
         } else if (arg == "--output-dir") {
@@ -273,14 +277,20 @@ int main(int argc, char **argv) {
         const std::string autoencoder = read_file_or_empty(options.autoencoder_metrics);
         const std::string gnn = read_file_or_empty(options.gnn_metrics);
         const std::string validation = read_file_or_empty(options.validation_metrics);
+        const std::string full_audit = read_file_or_empty(options.full_audit);
         const std::string source_alignment = read_file_or_empty(options.source_alignment);
 
-        const std::uint64_t scanned_rows = std::max(json_u64_or(stratified, "input_records_read"), json_u64_or(insights, "scan_records"));
+        const std::uint64_t audited_rows = json_u64_or(full_audit, "records_read");
+        const std::uint64_t scanned_rows =
+            std::max(audited_rows, std::max(json_u64_or(stratified, "input_records_read"), json_u64_or(insights, "scan_records")));
         const std::uint64_t selected_rows = json_u64_or(stratified, "selected_rows");
         const std::uint64_t topology_points = json_u64_or(insights, "topology_points");
         const std::uint64_t reason_count = json_u64_or(stratified, "reason_count");
         const double topology_coverage = scanned_rows == 0 ? 0.0 : static_cast<double>(topology_points) / static_cast<double>(scanned_rows);
         const double stratified_coverage = scanned_rows == 0 ? 0.0 : static_cast<double>(selected_rows) / static_cast<double>(scanned_rows);
+        const double audit_coverage = json_double_or(full_audit, "coverage_ratio", audited_rows > 0 ? 1.0 : 0.0);
+        const std::uint64_t audit_max_steps = json_u64_or(full_audit, "max_total_steps");
+        const std::uint64_t audit_max_steps_n = json_u64_or(full_audit, "max_total_steps_n");
 
         const std::string contrastive_status = json_string_or(contrastive, "status", "missing");
         const double neighbor_purity = json_double_or(contrastive, "neighbor_purity", 0.0);
@@ -323,6 +333,21 @@ int main(int argc, char **argv) {
 
         std::vector<Hypothesis> hypotheses;
         hypotheses.push_back({
+            "whole-dataset-audit",
+            audited_rows > 0
+                ? "The deterministic C++ audit reads every available binary feature row before neural conclusions are summarized."
+                : "The full binary dataset audit has not run yet.",
+            audited_rows > 0 && audit_coverage >= 0.999 ? "pipeline-check" : "pipeline-check",
+            audited_rows > 0
+                ? std::to_string(audited_rows) + " audited rows; max stopping time " +
+                      std::to_string(audit_max_steps) + " at n=" + std::to_string(audit_max_steps_n) + "."
+                : "No full-audit JSON was found.",
+            "A full deterministic audit proves the generated dataset was read and summarized; it is still not a Collatz theorem.",
+            "Reject dashboard conclusions if the audit does not cover the full current binary dataset.",
+            audited_rows > 0 ? "Use this audit as the denominator for neural coverage and holdout claims." : "Run collatz_full_audit on features.bin.",
+        });
+
+        hypotheses.push_back({
             "stratified-evidence-coverage",
             selected_rows > 0
                 ? "The analysis now has an evidence-first stratified sample that pulls from multiple Collatz behavior buckets."
@@ -330,7 +355,7 @@ int main(int argc, char **argv) {
             selected_rows > 0 ? "sample-local signal" : "pipeline-check",
             selected_rows > 0
                 ? std::to_string(selected_rows) + " selected rows across " + std::to_string(reason_count) +
-                      " selection reasons from " + std::to_string(scanned_rows) + " scanned rows."
+                      " selection reasons from " + std::to_string(scanned_rows) + " audited/scanned rows."
                 : "No stratified sample metadata was found.",
             "A stratified sample is evidence coverage, not a proof; it must be compared across independent samples.",
             "Rebuild the sample with different seeds and range holdouts; reject claims that do not survive.",
@@ -467,8 +492,12 @@ int main(int argc, char **argv) {
         }
 
         const std::string coverage =
-            "Topology covers " + percent(topology_coverage) + " of scanned rows; stratified evidence sample covers " +
-            percent(stratified_coverage) + " directly while intentionally oversampling rare behaviors.";
+            (audited_rows > 0
+                 ? "Full audit covers " + std::to_string(audited_rows) + " binary rows; "
+                 : "Full audit is missing; ") +
+            "topology covers " + percent(topology_coverage) +
+            " of audited/scanned rows; stratified evidence sample covers " + percent(stratified_coverage) +
+            " directly while intentionally oversampling rare behaviors.";
         const std::string strongest_evidence =
             validation_status == "complete"
                 ? "Learned embeddings beat random by " + percent(validation_lift) + " and numeric adjacency by " +
@@ -477,7 +506,7 @@ int main(int argc, char **argv) {
                       ? "Learned nearest-neighbor purity beats the random baseline by " + percent(purity_lift) + "."
                       : selected_rows > 0
                             ? "The sample now includes " + std::to_string(selected_rows) + " starts across " +
-                                  std::to_string(reason_count) + " evidence buckets from the full scan."
+                                  std::to_string(reason_count) + " evidence buckets from the full audited scan."
                             : json_string_or(insights, "meaning", "The existing topology and GNN artifacts are available, but the evidence sample is not built.");
         const std::string weakest_limit =
             validation_status == "complete"
@@ -488,7 +517,7 @@ int main(int argc, char **argv) {
                       : alignment_status == "public-source-aligned"
                             ? "Source alignment covers fewer than three independent source families; Roosendaal, Oliveira e Silva, and Barina imports still need to agree."
                       : "This is still empirical structure: source-record alignment and independent new seeded samples are the next falsification gates."
-                : "No claim is promoted beyond empirical pattern evidence until independent range, residue, and feature-ablation holdouts agree.";
+                : "No claim is promoted beyond empirical pattern evidence until the full audit, independent range/residue holdouts, and feature-ablation checks agree.";
         const std::string conclusion =
             confidence_level == "multi-source-aligned candidate"
                 ? "The AI evidence engine has a multi-source-aligned candidate: the learned path-family signal survives current holdouts and agrees with multiple public source families, but it is still not a proof."

@@ -27,6 +27,7 @@ if [ "$DRY_RUN" -eq 1 ]; then
   echo "dry-run stage: align source targets to current topology"
   echo "dry-run stage: regenerate hypothesis summary"
   echo "dry-run stage: optionally run one CPU crunch scan batch if configured"
+  echo "dry-run stage: run deterministic full dataset audit"
   echo "dry-run stage: optionally run one neural stage if GPU is available and configured"
   echo "dry-run stage: refresh hypothesis summary after crunch stages"
   echo "dry-run stage: run public privacy scan"
@@ -57,6 +58,7 @@ CONTRASTIVE_METRICS="${COLLATZ_CONTRASTIVE_METRICS:-data/generated/contrastive/m
 AUTOENCODER_METRICS="${COLLATZ_AUTOENCODER_METRICS:-data/generated/anomalies/metrics.json}"
 GNN_METRICS="${COLLATZ_GNN_METRICS:-data/generated/gnn/metrics.json}"
 VALIDATION_METRICS="${COLLATZ_VALIDATION_METRICS:-data/generated/evidence_validation/metrics.json}"
+FULL_AUDIT_FILE="${COLLATZ_FULL_AUDIT_FILE:-data/generated/full_audit/summary.json}"
 LEDGER_FILE="${COLLATZ_LEDGER_FILE:-logs/iteration-ledger.jsonl}"
 MAX_N="${COLLATZ_SOURCE_MAX_N:-100000000}"
 GPU_MIN_FREE_MB="${COLLATZ_GPU_MIN_FREE_MB:-4096}"
@@ -81,6 +83,8 @@ GPU_STATE="unknown"
 GPU_FREE_MEMORY_MB=0
 GPU_COMPUTE_PROCESS_COUNT=0
 NEURAL_STAGE="disabled"
+FULL_AUDIT_STATE="pending"
+FULL_AUDIT_RECORDS=0
 
 mkdir -p "$RUNNER_DIR"
 if ! mkdir "$LOCK_DIR" 2>/dev/null; then
@@ -126,6 +130,8 @@ write_status() {
     printf '  "gpu_free_memory_mb": %s,\n' "$GPU_FREE_MEMORY_MB"
     printf '  "gpu_compute_process_count": %s,\n' "$GPU_COMPUTE_PROCESS_COUNT"
     printf '  "neural_stage": "%s",\n' "$(json_escape "$NEURAL_STAGE")"
+    printf '  "full_audit_state": "%s",\n' "$(json_escape "$FULL_AUDIT_STATE")"
+    printf '  "full_audit_records": %s,\n' "$FULL_AUDIT_RECORDS"
     printf '  "next_stage": "%s"\n' "$(json_escape "$next_stage")"
     printf '}\n'
   } > "$STATUS_FILE.tmp"
@@ -281,7 +287,8 @@ decompress_optional() {
 build_if_needed() {
   if [ -x "$BUILD_DIR/collatz_source_targets" ] &&
      [ -x "$BUILD_DIR/collatz_source_align" ] &&
-     [ -x "$BUILD_DIR/collatz_hypothesis_analyze" ]; then
+     [ -x "$BUILD_DIR/collatz_hypothesis_analyze" ] &&
+     [ -x "$BUILD_DIR/collatz_full_audit" ]; then
     return
   fi
   cmake -S . -B "$BUILD_DIR"
@@ -300,8 +307,21 @@ regenerate_hypothesis_summary() {
     --autoencoder-metrics "$AUTOENCODER_METRICS" \
     --gnn-metrics "$GNN_METRICS" \
     --validation-metrics "$VALIDATION_METRICS" \
+    --full-audit "$FULL_AUDIT_FILE" \
     --source-alignment "$SOURCE_ALIGNMENT_DIR/source_alignment.json" \
     --output-dir "$HYPOTHESES_DIR"
+}
+
+run_full_audit() {
+  FULL_AUDIT_STATE="running"
+  write_status "running" "full dataset audit" false "" "optional neural stage"
+  "$BUILD_DIR/collatz_full_audit" \
+    --input "$FEATURE_FILE" \
+    --output "$FULL_AUDIT_FILE" \
+    --range-bands "${COLLATZ_FULL_AUDIT_RANGE_BANDS:-16}" \
+    --top-count "${COLLATZ_FULL_AUDIT_TOP_COUNT:-16}" || fail_cycle "full dataset audit" "$?"
+  FULL_AUDIT_RECORDS="$(read_json_number records_read "$FULL_AUDIT_FILE")"
+  FULL_AUDIT_STATE="complete"
 }
 
 gpu_available() {
@@ -453,6 +473,9 @@ regenerate_hypothesis_summary || fail_cycle "regenerate hypothesis summary" "$?"
 
 stage "optional cpu crunch scan"
 run_cpu_crunch_if_configured
+
+stage "full dataset audit"
+run_full_audit
 
 stage "optional neural stage"
 if [ "$RUN_NEURAL" = "1" ] && [ -n "$NEURAL_COMMAND" ]; then

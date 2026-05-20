@@ -52,6 +52,9 @@ target_link_libraries(collatz_select_representatives PRIVATE collatz_core)
 add_executable(collatz_stratified_sample src/collatz_stratified_sample.cpp)
 target_link_libraries(collatz_stratified_sample PRIVATE collatz_core)
 
+add_executable(collatz_full_audit src/collatz_full_audit.cpp)
+target_link_libraries(collatz_full_audit PRIVATE collatz_core)
+
 add_executable(collatz_graph_export src/collatz_graph_export.cpp)
 target_link_libraries(collatz_graph_export PRIVATE collatz_core)
 
@@ -78,6 +81,27 @@ target_link_libraries(collatz_selftest PRIVATE collatz_core)
 
 enable_testing()
 add_test(NAME collatz_selftest COMMAND collatz_selftest)
+
+add_test(NAME collatz_full_audit_fixture_scan
+    COMMAND collatz_scan_cpu
+        --start 1
+        --end 100
+        --output "${CMAKE_BINARY_DIR}/full_audit_fixture.bin"
+        --metadata "${CMAKE_BINARY_DIR}/full_audit_fixture.metadata.json"
+        --progress "${CMAKE_BINARY_DIR}/full_audit_fixture.progress.jsonl"
+        --format bin
+        --threads 1
+        --chunk-size 25
+)
+
+add_test(NAME collatz_full_audit_fixture
+    COMMAND collatz_full_audit
+        --input "${CMAKE_BINARY_DIR}/full_audit_fixture.bin"
+        --output "${CMAKE_BINARY_DIR}/full_audit_fixture.summary.json"
+        --range-bands 4
+        --top-count 4
+)
+set_tests_properties(collatz_full_audit_fixture PROPERTIES DEPENDS collatz_full_audit_fixture_scan)
 
 set(COLLATZ_SOURCE_FIXTURES "${CMAKE_SOURCE_DIR}/tests/fixtures/source_records")
 add_test(NAME collatz_source_targets_fixtures

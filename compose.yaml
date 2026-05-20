@@ -170,6 +170,26 @@ services:
       - ./logs:/work/logs
       - ./results:/work/results
 
+  full-audit:
+    profiles: ["research"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cpu
+    command:
+      - /work/build/collatz_full_audit
+      - --input
+      - /work/data/generated/features.bin
+      - --output
+      - /work/data/generated/full_audit/summary.json
+      - --range-bands
+      - ${FULL_AUDIT_RANGE_BANDS:-16}
+      - --top-count
+      - ${FULL_AUDIT_TOP_COUNT:-16}
+    volumes:
+      - ./data:/work/data
+      - ./logs:/work/logs
+      - ./results:/work/results
+
   graph:
     profiles: ["research"]
     build:
@@ -332,6 +352,8 @@ services:
       - /work/data/generated/contrastive/metrics.json
       - --gnn-metrics
       - /work/data/generated/gnn/metrics.json
+      - --full-audit
+      - /work/data/generated/full_audit/summary.json
       - --output-dir
       - /work/data/generated/evidence_validation
       - --ablation
@@ -424,6 +446,8 @@ services:
       - /work/data/generated/gnn/metrics.json
       - --validation-metrics
       - /work/data/generated/evidence_validation/metrics.json
+      - --full-audit
+      - /work/data/generated/full_audit/summary.json
       - --source-alignment
       - /work/data/generated/source_alignment/source_alignment.json
       - --output-dir
@@ -492,6 +516,8 @@ services:
       - /work/data/generated/hypotheses/summary.json
       - --runner-status
       - /work/data/generated/runner/status.json
+      - --full-audit
+      - /work/data/generated/full_audit/summary.json
     ports:
       - "${WEB_PORT:-8080}:8080"
     volumes:

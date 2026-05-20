@@ -34,6 +34,7 @@ struct Options {
     std::string gnn_metadata = "data/generated/gnn/metrics.json";
     std::string hypothesis_summary = "data/generated/hypotheses/summary.json";
     std::string runner_status = "data/generated/runner/status.json";
+    std::string full_audit = "data/generated/full_audit/summary.json";
 };
 
 void usage(std::ostream &out) {
@@ -42,7 +43,8 @@ void usage(std::ostream &out) {
         << "                   [--image-manifest FILE] [--graph-manifest FILE]\n"
         << "                   [--topology-manifest FILE] [--neighborhood-manifest FILE]\n"
         << "                   [--insights-manifest FILE] [--gnn-metadata FILE]\n"
-        << "                   [--hypothesis-summary FILE] [--runner-status FILE]\n";
+        << "                   [--hypothesis-summary FILE] [--runner-status FILE]\n"
+        << "                   [--full-audit FILE]\n";
 }
 
 Options parse_args(int argc, char **argv) {
@@ -87,6 +89,8 @@ Options parse_args(int argc, char **argv) {
             options.hypothesis_summary = need_value("--hypothesis-summary");
         } else if (arg == "--runner-status") {
             options.runner_status = need_value("--runner-status");
+        } else if (arg == "--full-audit") {
+            options.full_audit = need_value("--full-audit");
         } else if (arg == "--help" || arg == "-h") {
             usage(std::cout);
             std::exit(0);
@@ -344,6 +348,22 @@ std::string compact_hypothesis_summary_json(const Options &options) {
     return out.str();
 }
 
+std::string compact_full_audit_json(const Options &options) {
+    const std::string json = read_file(options.full_audit);
+    if (json.empty()) {
+        return "null";
+    }
+    std::ostringstream out;
+    out << "{\"records_read\":" << json_value_or(json, "records_read", "0")
+        << ",\"coverage_ratio\":" << json_value_or(json, "coverage_ratio", "0")
+        << ",\"max_total_steps\":" << json_value_or(json, "max_total_steps", "0")
+        << ",\"max_total_steps_n\":" << json_value_or(json, "max_total_steps_n", "0")
+        << ",\"total_steps_mean\":" << json_value_or(json, "total_steps_mean", "0")
+        << ",\"total_steps_quantiles\":" << json_value_or(json, "total_steps_quantiles", "{}")
+        << "}";
+    return out.str();
+}
+
 bool unsafe_public_value(const std::string &value) {
     return value.find("/Users/") != std::string::npos || value.find("/home/") != std::string::npos ||
            value.find("10.") != std::string::npos || value.find("192.168.") != std::string::npos ||
@@ -363,7 +383,7 @@ std::string safe_runner_value_or(const std::string &json, const std::string &key
 std::string compact_runner_status_json(const Options &options) {
     const std::string json = read_file(options.runner_status);
     if (json.empty()) {
-        return "{\"state\":\"idle\",\"current_stage\":\"not configured\",\"last_started_utc\":\"\",\"last_finished_utc\":\"\",\"last_success\":false,\"last_error_summary\":\"\",\"active_experiment\":\"source alignment plus optional CPU/GPU crunch\",\"source_target_count\":0,\"matched_source_targets\":0,\"source_match_rate\":0,\"evidence_score\":0,\"evidence_delta\":0,\"cycle_count\":0,\"cpu_crunch_state\":\"disabled\",\"cpu_threads\":0,\"cpu_target_end\":0,\"gpu_state\":\"unknown\",\"gpu_free_memory_mb\":0,\"gpu_compute_process_count\":0,\"neural_stage\":\"disabled\",\"next_stage\":\"run evidence cycle\"}";
+        return "{\"state\":\"idle\",\"current_stage\":\"not configured\",\"last_started_utc\":\"\",\"last_finished_utc\":\"\",\"last_success\":false,\"last_error_summary\":\"\",\"active_experiment\":\"source alignment plus optional CPU/GPU crunch\",\"source_target_count\":0,\"matched_source_targets\":0,\"source_match_rate\":0,\"evidence_score\":0,\"evidence_delta\":0,\"cycle_count\":0,\"cpu_crunch_state\":\"disabled\",\"cpu_threads\":0,\"cpu_target_end\":0,\"gpu_state\":\"unknown\",\"gpu_free_memory_mb\":0,\"gpu_compute_process_count\":0,\"neural_stage\":\"disabled\",\"full_audit_state\":\"missing\",\"full_audit_records\":0,\"next_stage\":\"run evidence cycle\"}";
     }
     std::ostringstream out;
     out << "{\"state\":" << safe_runner_value_or(json, "state", "\"idle\"")
@@ -386,6 +406,8 @@ std::string compact_runner_status_json(const Options &options) {
         << ",\"gpu_free_memory_mb\":" << safe_runner_value_or(json, "gpu_free_memory_mb", "0")
         << ",\"gpu_compute_process_count\":" << safe_runner_value_or(json, "gpu_compute_process_count", "0")
         << ",\"neural_stage\":" << safe_runner_value_or(json, "neural_stage", "\"disabled\"")
+        << ",\"full_audit_state\":" << safe_runner_value_or(json, "full_audit_state", "\"missing\"")
+        << ",\"full_audit_records\":" << safe_runner_value_or(json, "full_audit_records", "0")
         << ",\"next_stage\":" << safe_runner_value_or(json, "next_stage", "\"run evidence cycle\"")
         << "}";
     return out.str();
@@ -402,6 +424,7 @@ std::string dashboard_progress_json(const Options &options) {
            compact_object_from_json(read_file(options.neighborhood_manifest), {"neighborhood_count", "neighbors_per_center"}) +
            ",\"insights_manifest\":" + compact_insights_manifest_json(options) +
            ",\"hypothesis_summary\":" + compact_hypothesis_summary_json(options) +
+           ",\"full_audit\":" + compact_full_audit_json(options) +
            ",\"gnn_metadata\":" + compact_object_from_json(gnn, {"status", "device", "epochs", "loss_final"}) +
            ",\"runner_status\":" + compact_runner_status_json(options) +
            "}";
@@ -462,6 +485,7 @@ std::string html_page() {
   </header>
   <section class="grid">
     <div class="panel"><div class="label">Dataset</div><div id="records" class="value">0</div></div>
+    <div class="panel"><div class="label">Full Audit</div><div id="fullAudit" class="value">missing</div></div>
     <div class="panel"><div class="label">Throughput</div><div id="throughput" class="value">0/s</div></div>
     <div class="panel"><div class="label">Evidence Score</div><div id="evidenceScore" class="value">0</div></div>
     <div class="panel"><div class="label">Topology</div><div id="topology" class="value">0 / 0</div></div>
@@ -537,6 +561,7 @@ async function refresh() {
   const neighborhoods = data.neighborhood_manifest || {};
   const insights = data.insights_manifest || {};
   const hypotheses = data.hypothesis_summary || {};
+  const fullAudit = data.full_audit || {};
   const gnn = data.gnn_metadata || {};
   const runner = data.runner_status || {};
   const mode = progress.mode || progress.status || gnn.status || 'waiting';
@@ -544,6 +569,9 @@ async function refresh() {
   const throughput = progress.throughput_per_sec ? ` at ${compact(progress.throughput_per_sec)}/s` : '';
   document.getElementById('status').textContent = `${mode}${processed}${throughput}`;
   document.getElementById('records').textContent = compact(scan.dataset_records_observed);
+  const auditRows = Number(fullAudit.records_read || runner.full_audit_records || 0);
+  const auditState = runner.full_audit_state || (auditRows ? 'complete' : 'missing');
+  document.getElementById('fullAudit').textContent = auditRows ? `${compact(auditRows)} ${auditState}` : auditState;
   document.getElementById('throughput').textContent = progress.throughput_per_sec ? `${compact(progress.throughput_per_sec)}/s` : 'idle';
   const score = Number(runner.evidence_score || 0);
   const delta = Number(runner.evidence_delta || 0);

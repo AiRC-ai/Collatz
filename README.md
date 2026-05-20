@@ -28,6 +28,8 @@ Latest checked state:
 - Coverage: topology covers `0.067%` of scanned rows; the stratified evidence
   sample covers `0.036%` directly while intentionally oversampling rare
   behaviors.
+- Full audit: the deterministic C++ audit reads every binary feature row and
+  supplies the denominator for neural coverage and holdout claims.
 - Strongest evidence: learned embeddings beat random by `9.557%`, numeric
   adjacency by `5.168%`, and the weakest range holdout still has `6.428%`
   lift.
@@ -84,6 +86,7 @@ This builds:
 - `build/collatz_path_image_atlas`
 - `build/collatz_select_representatives`
 - `build/collatz_stratified_sample`
+- `build/collatz_full_audit`
 - `build/collatz_graph_export`
 - `build/collatz_embedding_analyze`
 - `build/collatz_neighborhood_analyze`
@@ -439,17 +442,23 @@ The cycle:
 4. Aligns source targets against the current topology.
 5. Regenerates the hypothesis summary used by the dashboard.
 6. Optionally runs a CPU crunch scan batch when configured.
-7. Optionally runs a reviewed neural stage only when configured and GPU policy
+7. Runs the deterministic full-dataset audit over the current binary feature
+   file.
+8. Optionally runs a reviewed neural stage only when configured and GPU policy
    allows it.
-8. Runs the public privacy scan over tracked source/docs/templates.
-9. Appends a sanitized private ledger entry.
-10. Writes `data/generated/runner/status.json` for the Automation dashboard card.
+9. Runs the public privacy scan over tracked source/docs/templates.
+10. Appends a sanitized private ledger entry.
+11. Writes `data/generated/runner/status.json` for the Automation dashboard card.
 
 The runner status includes only public-safe fields: evidence score, score delta,
 cycle count, source target counts, CPU crunch state, GPU availability state, and
 neural stage state. The evidence score is not theorem probability. It is an
 empirical research score based on the current confidence gate, source-record
 match rate, and neural validation lift.
+
+The full audit is deterministic dataset evidence. It proves the generated
+feature file was read and summarized end to end, but it does not prove the
+Collatz conjecture.
 
 Example user-level systemd templates are in `ops/`:
 

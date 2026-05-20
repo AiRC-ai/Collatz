@@ -24,6 +24,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--contrastive-embeddings", default="/work/data/generated/contrastive/embeddings.csv")
     parser.add_argument("--contrastive-metrics", default="/work/data/generated/contrastive/metrics.json")
     parser.add_argument("--gnn-metrics", default="/work/data/generated/gnn/metrics.json")
+    parser.add_argument("--full-audit", default="/work/data/generated/full_audit/summary.json")
     parser.add_argument("--output-dir", default="/work/data/generated/evidence_validation")
     parser.add_argument("--token-bins", type=int, default=int(os.getenv("EVIDENCE_TOKEN_BINS", "64")))
     parser.add_argument("--range-bands", type=int, default=int(os.getenv("EVIDENCE_RANGE_BANDS", "4")))
@@ -159,9 +160,16 @@ def neighbor_stats(rows: list[list[float]], labels: list[str], standardize: bool
         std = x.std(dim=0, keepdim=True).clamp_min(1e-6)
         x = torch.nan_to_num((x - mean) / std)
     x = F.normalize(torch.nan_to_num(x), dim=1)
-    sim = x @ x.T
-    sim.fill_diagonal_(-2.0)
-    nearest = sim.argmax(dim=1).cpu().tolist()
+    chunk_size = max(1, int(os.getenv("EVIDENCE_EVAL_CHUNK", "2048")))
+    x_t = x.T.contiguous()
+    nearest: list[int] = []
+    for start in range(0, x.shape[0], chunk_size):
+        end = min(start + chunk_size, x.shape[0])
+        sim = x[start:end] @ x_t
+        rows_index = torch.arange(end - start)
+        cols_index = torch.arange(start, end)
+        sim[rows_index, cols_index] = -2.0
+        nearest.extend(sim.argmax(dim=1).cpu().tolist())
     purity = sum(1 for i, j in enumerate(nearest) if labels[i] == labels[j]) / len(labels)
     baseline = random_baseline(labels)
     return {"row_count": len(rows), "purity": purity, "random_baseline": baseline, "lift": purity - baseline}
@@ -327,8 +335,12 @@ def main() -> None:
     validation_confidence = "range-stable signal" if passes_range and passes_folds and passes_residue and passes_baseline else "sample-local signal"
 
     gnn_metrics = read_json(Path(args.gnn_metrics))
+    full_audit = read_json(Path(args.full_audit))
+    full_records = int(full_audit.get("records_read", 0) or 0)
+    full_audit_coverage = float(full_audit.get("coverage_ratio", 0.0) or 0.0)
+    neural_full_dataset_ratio = len(starts) / full_records if full_records else 0.0
     conclusion = (
-        "Learned neighborhoods survive range, residue, and fold checks, so the current claim can be treated as range-stable empirical evidence."
+        "Learned neighborhoods survive range, residue, and fold checks against a sample selected from the audited full dataset, so the current claim can be treated as range-stable empirical evidence."
         if validation_confidence == "range-stable signal"
         else "Learned neighborhoods remain sample-local until holdouts and ablations show stable lift."
     )
@@ -340,6 +352,13 @@ def main() -> None:
         "confidence_level": validation_confidence,
         "conclusion": conclusion,
         "sample_rows": len(starts),
+        "full_dataset_records": full_records,
+        "full_dataset_audit_coverage": finite(full_audit_coverage),
+        "neural_full_dataset_ratio": finite(neural_full_dataset_ratio),
+        "full_dataset_max_total_steps": full_audit.get("max_total_steps"),
+        "full_dataset_max_total_steps_n": full_audit.get("max_total_steps_n"),
+        "full_dataset_total_steps_mean": full_audit.get("total_steps_mean"),
+        "full_dataset_total_steps_quantiles": full_audit.get("total_steps_quantiles"),
         "sample_reason_count": len(set(reasons_by_n.values())),
         "label_count": len(set(labels)),
         "contrastive_neighbor_purity": finite(learned.get("purity")),
