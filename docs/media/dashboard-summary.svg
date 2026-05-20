@@ -34,9 +34,9 @@
 
     <rect x="348" y="132" width="260" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
     <text x="368" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">SCAN SUMMARY</text>
-    <text x="368" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">150M</text>
+    <text x="368" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">200M</text>
     <text x="458" y="202" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="17">audited rows</text>
-    <text x="368" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">full-file audit + 50K neural starts</text>
+    <text x="368" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">full-file audit + 100K neural starts</text>
 
     <rect x="632" y="132" width="260" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
     <text x="652" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">SOURCE CHECK</text>
@@ -56,20 +56,20 @@
 
     <text x="88" y="384" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Learned nearest-neighbor purity</text>
     <rect x="88" y="398" width="372" height="18" rx="9" fill="#1f2a44"/>
-    <rect x="88" y="398" width="351" height="18" rx="9" fill="url(#green)"/>
-    <text x="474" y="413" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">94.28%</text>
+    <rect x="88" y="398" width="353" height="18" rx="9" fill="url(#green)"/>
+    <text x="474" y="413" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">94.79%</text>
 
     <text x="88" y="444" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Numeric-adjacency baseline</text>
     <rect x="88" y="458" width="372" height="18" rx="9" fill="#1f2a44"/>
-    <rect x="88" y="458" width="331" height="18" rx="9" fill="#60a5fa"/>
-    <text x="474" y="473" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">89.11%</text>
+    <rect x="88" y="458" width="333" height="18" rx="9" fill="#60a5fa"/>
+    <text x="474" y="473" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">89.45%</text>
 
     <text x="88" y="504" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Random-label baseline</text>
     <rect x="88" y="518" width="372" height="18" rx="9" fill="#1f2a44"/>
-    <rect x="88" y="518" width="315" height="18" rx="9" fill="#a78bfa"/>
-    <text x="474" y="533" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">84.72%</text>
+    <rect x="88" y="518" width="316" height="18" rx="9" fill="#a78bfa"/>
+    <text x="474" y="533" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">84.82%</text>
 
-    <text x="88" y="562" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Lift over random: +9.557 percentage points</text>
+    <text x="88" y="562" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Lift over random: +9.968 percentage points</text>
   </g>
 
   <g filter="url(#softShadow)">
@@ -96,7 +96,7 @@
 
     <rect x="640" y="540" width="448" height="1" fill="#263450"/>
     <text x="640" y="566" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Next falsification test</text>
-    <text x="640" y="590" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Add Roosendaal, Oliveira e Silva, and Barina records, then rerun ablations.</text>
+    <text x="640" y="590" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Run independent seeded samples, source-record checks, and GNN/image ablations.</text>
   </g>
 
   <text x="64" y="642" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Public artifact: static research summary only. Runtime hosts, private addresses, and local infrastructure are intentionally omitted.</text>

@@ -25,16 +25,19 @@ Latest checked state:
 - Confidence: `range-stable signal`
 - Conclusion: the learned path-family signal survives current holdouts, but it
   is still not a proof or source-aligned candidate.
-- Coverage: topology covers `0.067%` of scanned rows; the stratified evidence
-  sample covers `0.036%` directly while intentionally oversampling rare
+- Coverage: the full audit covers `200,000,000` binary rows; topology covers
+  `0.050%` of audited/scanned rows; the stratified evidence sample covers
+  `0.054%` directly while intentionally oversampling rare
   behaviors.
 - Full audit: the deterministic C++ audit reads every binary feature row and
   supplies the denominator for neural coverage and holdout claims.
-- Strongest evidence: learned embeddings beat random by `9.557%`, numeric
-  adjacency by `5.168%`, and the weakest range holdout still has `6.428%`
+- Strongest evidence: learned embeddings beat random by `9.968%`, numeric
+  adjacency by `5.341%`, and the weakest range holdout still has `7.459%`
   lift.
-- Latest neural result: contrastive lift `9.557%`, range minimum lift `6.428%`,
-  fold minimum lift `8.070%`.
+- Latest neural result: the RTX/CUDA parallel run completed `6` neural jobs over
+  a `100,000` row stratified sample. Hybrid contrastive lift is `9.968%`;
+  metrics-only is the strongest current ablation at `12.165%`; fold minimum
+  lift is `8.604%`.
 - Source check: `5,091 / 5,191` public validation starts currently align with
   the topology source-neighborhood gate.
 - Current limitation: source-record alignment is still partial. Roosendaal,
@@ -45,6 +48,10 @@ Latest checked state:
 - Automation: a private-safe evidence runner can refresh generated source
   targets, source alignment, hypotheses, and dashboard status on a timer. The
   runner writes public-safe state only; it does not auto-commit or auto-push.
+- GPU utilization: the parallel launcher runs hybrid, metrics, parity, residue,
+  token contrastive encoders, and autoencoder anomaly training at the same time
+  with isolated outputs. In the latest runtime check, this reached a sampled
+  `100%` GPU-utilization burst during the parallel contrastive phase.
 
 The dashboard is intentionally compact: it should answer what the AI currently
 believes, how confident it is, what evidence supports that, what limits the
