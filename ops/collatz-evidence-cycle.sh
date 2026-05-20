@@ -45,6 +45,12 @@ SOURCE_METADATA="${COLLATZ_SOURCE_METADATA:-$SOURCE_OUTPUT.metadata.json}"
 SOURCE_ALIGNMENT_DIR="${COLLATZ_SOURCE_ALIGNMENT_DIR:-data/generated/source_alignment}"
 PROJECTION_FILE="${COLLATZ_PROJECTION_FILE:-data/generated/topology/projection.csv}"
 HYPOTHESES_DIR="${COLLATZ_HYPOTHESES_DIR:-data/generated/hypotheses}"
+INSIGHTS_FILE="${COLLATZ_INSIGHTS_FILE:-data/generated/insights/insights.json}"
+STRATIFIED_METADATA="${COLLATZ_STRATIFIED_METADATA:-data/generated/stratified/metadata.json}"
+CONTRASTIVE_METRICS="${COLLATZ_CONTRASTIVE_METRICS:-data/generated/contrastive/metrics.json}"
+AUTOENCODER_METRICS="${COLLATZ_AUTOENCODER_METRICS:-data/generated/anomalies/metrics.json}"
+GNN_METRICS="${COLLATZ_GNN_METRICS:-data/generated/gnn/metrics.json}"
+VALIDATION_METRICS="${COLLATZ_VALIDATION_METRICS:-data/generated/evidence_validation/metrics.json}"
 LEDGER_FILE="${COLLATZ_LEDGER_FILE:-logs/iteration-ledger.jsonl}"
 MAX_N="${COLLATZ_SOURCE_MAX_N:-100000000}"
 GPU_MIN_FREE_MB="${COLLATZ_GPU_MIN_FREE_MB:-4096}"
@@ -224,6 +230,12 @@ stage "align source targets"
 
 stage "regenerate hypothesis summary"
 "$BUILD_DIR/collatz_hypothesis_analyze" \
+  --insights "$INSIGHTS_FILE" \
+  --stratified-metadata "$STRATIFIED_METADATA" \
+  --contrastive-metrics "$CONTRASTIVE_METRICS" \
+  --autoencoder-metrics "$AUTOENCODER_METRICS" \
+  --gnn-metrics "$GNN_METRICS" \
+  --validation-metrics "$VALIDATION_METRICS" \
   --source-alignment "$SOURCE_ALIGNMENT_DIR/source_alignment.json" \
   --output-dir "$HYPOTHESES_DIR" || fail_cycle "regenerate hypothesis summary" "$?"
 
