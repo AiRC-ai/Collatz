@@ -224,6 +224,12 @@ if [ "$DRY_RUN" -eq 1 ]; then
 fi
 
 if [ "$RUN_STRATIFIED" = "1" ]; then
+  export STRATIFIED_RANDOM_COUNT="${STRATIFIED_RANDOM_COUNT:-100000}"
+  export STRATIFIED_GLOBAL_TOP="${STRATIFIED_GLOBAL_TOP:-2048}"
+  export STRATIFIED_RESIDUE_TOP="${STRATIFIED_RESIDUE_TOP:-128}"
+  export STRATIFIED_RANGE_TOP="${STRATIFIED_RANGE_TOP:-128}"
+  export STRATIFIED_RANGE_BANDS="${STRATIFIED_RANGE_BANDS:-16}"
+  export EMBED_SKETCH_DIMS="${EMBED_SKETCH_DIMS:-128}"
   "${COMPOSE[@]}" --profile research run --rm stratified > "$LOG_DIR/stratified.log" 2>&1
   "${COMPOSE[@]}" --profile research run --rm stratified-embedder > "$LOG_DIR/stratified-embedder.log" 2>&1
 fi
