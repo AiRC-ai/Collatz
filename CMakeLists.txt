@@ -261,6 +261,13 @@ add_test(NAME dashboard_summary_svg_fixture
         "--output" "${CMAKE_BINARY_DIR}/dashboard-summary-fixture.svg"
 )
 
+add_test(NAME evidence_history_svg_fixture
+    COMMAND "${CMAKE_SOURCE_DIR}/tools/render_evidence_history.py"
+        "--history" "${CMAKE_SOURCE_DIR}/fixtures/evidence_small/history.jsonl"
+        "--evidence" "${CMAKE_SOURCE_DIR}/fixtures/evidence_small/expected_latest_public_summary.json"
+        "--output" "${CMAKE_BINARY_DIR}/evidence-history-fixture.svg"
+)
+
 add_test(NAME evidence_contract_fixture
     COMMAND "${CMAKE_SOURCE_DIR}/tools/test_evidence_contract.py"
 )

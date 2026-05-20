@@ -32,6 +32,7 @@ if [ "$DRY_RUN" -eq 1 ]; then
   echo "dry-run stage: neural stage prepares safe metrics, family labels, and matched pairs when enabled"
   echo "dry-run stage: refresh hypothesis summary after crunch stages"
   echo "dry-run stage: publish canonical evidence summary"
+  echo "dry-run stage: regenerate public dashboard and historical evidence images"
   echo "dry-run stage: run public privacy scan"
   echo "dry-run stage: append sanitized iteration ledger"
   echo "dry-run stage: write public-safe runner status"
@@ -247,7 +248,7 @@ last_history_value() {
 update_evidence_score() {
   local alignment_json="$SOURCE_ALIGNMENT_DIR/source_alignment.json"
   local summary_json="$HYPOTHESES_DIR/summary.json"
-  local target_count matched confidence base previous previous_cycle validation_lift neural_bonus
+  local target_count matched confidence base previous previous_cycle validation_lift neural_bonus audit_records audit_range_end
   target_count="$(read_json_number target_count "$alignment_json")"
   matched="$(read_json_number matched_targets "$alignment_json")"
   confidence="$(read_json_string confidence_level "$summary_json")"
@@ -255,6 +256,8 @@ update_evidence_score() {
   previous="$(last_history_value evidence_score)"
   previous_cycle="$(last_history_value cycle_count)"
   validation_lift="$(read_json_decimal contrastive_lift "$VALIDATION_METRICS")"
+  audit_records="$(read_json_number records_read "$FULL_AUDIT_FILE")"
+  audit_range_end="$(read_json_number effective_range_end "$FULL_AUDIT_FILE")"
   neural_bonus="$(awk -v lift="$validation_lift" 'BEGIN { if (lift < 0) lift = 0; if (lift > 0.30) lift = 0.30; printf "%.4f", lift * 20.0 }')"
 
   SOURCE_MATCH_RATE="$(awk -v matched="$matched" -v total="$target_count" 'BEGIN { if (total > 0) printf "%.4f", matched / total; else printf "0.0000" }')"
@@ -262,9 +265,9 @@ update_evidence_score() {
   EVIDENCE_DELTA="$(awk -v current="$EVIDENCE_SCORE" -v previous="$previous" 'BEGIN { printf "%.2f", current - previous }')"
   CYCLE_COUNT="$(awk -v previous="$previous_cycle" 'BEGIN { printf "%d", previous + 1 }')"
   mkdir -p "$(dirname "$HISTORY_FILE")"
-  printf '{"timestamp":"%s","cycle_count":%s,"evidence_score":%s,"evidence_delta":%s,"confidence_level":"%s","source_match_rate":%s,"source_target_count":%s,"matched_source_targets":%s}\n' \
+  printf '{"timestamp":"%s","cycle_count":%s,"evidence_score":%s,"evidence_delta":%s,"confidence_level":"%s","full_audit_records":%s,"audit_range_end":%s,"source_match_rate":%s,"source_target_count":%s,"matched_source_targets":%s}\n' \
     "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$CYCLE_COUNT" "$EVIDENCE_SCORE" "$EVIDENCE_DELTA" \
-    "$(json_escape "${confidence:-pipeline-check}")" "$SOURCE_MATCH_RATE" "$target_count" "$matched" >> "$HISTORY_FILE"
+    "$(json_escape "${confidence:-pipeline-check}")" "${audit_records:-0}" "${audit_range_end:-0}" "$SOURCE_MATCH_RATE" "$target_count" "$matched" >> "$HISTORY_FILE"
 }
 
 download_required() {
@@ -523,6 +526,16 @@ regenerate_hypothesis_summary || fail_cycle "refresh post-crunch hypothesis summ
 stage "publish canonical evidence summary"
 publish_canonical_evidence || fail_cycle "publish canonical evidence summary" "$?"
 
+stage "regenerate public visual artifacts"
+if [ -x tools/render_dashboard_summary.py ]; then
+  tools/render_dashboard_summary.py \
+    --input "$PUBLIC_EVIDENCE_FILE" \
+    --output docs/media/dashboard-summary.svg || fail_cycle "regenerate public visual artifacts" "$?"
+fi
+if [ -x tools/render_evidence_history.py ]; then
+  echo "historical evidence graph waits until the current cycle is appended"
+fi
+
 stage "run public privacy scan"
 if [ -x ops/privacy-scan.sh ]; then
   ops/privacy-scan.sh || fail_cycle "run public privacy scan" "$?"
@@ -533,6 +546,14 @@ fi
 stage "append sanitized ledger"
 update_evidence_score || fail_cycle "append sanitized ledger" "$?"
 append_ledger || fail_cycle "append sanitized ledger" "$?"
+
+stage "regenerate historical evidence graph"
+if [ -x tools/render_evidence_history.py ]; then
+  tools/render_evidence_history.py \
+    --history "$HISTORY_FILE" \
+    --evidence "$PUBLIC_EVIDENCE_FILE" \
+    --output docs/media/evidence-history.svg || fail_cycle "regenerate historical evidence graph" "$?"
+fi
 
 TARGET_COUNT="$(read_json_number target_count "$SOURCE_ALIGNMENT_DIR/source_alignment.json")"
 MATCHED_COUNT="$(read_json_number matched_targets "$SOURCE_ALIGNMENT_DIR/source_alignment.json")"

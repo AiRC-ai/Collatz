@@ -1,0 +1,2 @@
+{"timestamp":"2026-05-20T00:00:00Z","cycle_count":1,"evidence_score":72.10,"evidence_delta":72.10,"confidence_level":"range-stable signal","full_audit_records":100,"audit_range_end":100,"source_match_rate":0.9000,"source_target_count":10,"matched_source_targets":9}
+{"timestamp":"2026-05-20T00:30:00Z","cycle_count":2,"evidence_score":73.40,"evidence_delta":1.30,"confidence_level":"range-stable signal","full_audit_records":200,"audit_range_end":200,"source_match_rate":1.0000,"source_target_count":10,"matched_source_targets":10}
