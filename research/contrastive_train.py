@@ -150,13 +150,18 @@ def evaluate_neighbors(embeddings: torch.Tensor, labels: list[str]) -> tuple[flo
     if embeddings.shape[0] < 2:
         return 0.0, 0.0, 0.0
     chunk_size = max(1, int(os.getenv("CONTRASTIVE_EVAL_CHUNK", "2048")))
+    eval_device_setting = os.getenv("CONTRASTIVE_EVAL_DEVICE", "auto")
+    eval_device = torch.device(
+        "cuda" if eval_device_setting != "cpu" and torch.cuda.is_available() else "cpu"
+    )
+    embeddings = embeddings.to(eval_device)
     nearest: list[int] = []
     all_embeddings = embeddings.T.contiguous()
     for start in range(0, embeddings.shape[0], chunk_size):
         end = min(start + chunk_size, embeddings.shape[0])
         sim = embeddings[start:end] @ all_embeddings
-        rows = torch.arange(end - start)
-        cols = torch.arange(start, end)
+        rows = torch.arange(end - start, device=eval_device)
+        cols = torch.arange(start, end, device=eval_device)
         sim[rows, cols] = -2.0
         nearest.extend(sim.argmax(dim=1).cpu().tolist())
     same = sum(1 for i, j in enumerate(nearest) if labels[i] == labels[j])

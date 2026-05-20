@@ -161,13 +161,18 @@ def neighbor_stats(rows: list[list[float]], labels: list[str], standardize: bool
         x = torch.nan_to_num((x - mean) / std)
     x = F.normalize(torch.nan_to_num(x), dim=1)
     chunk_size = max(1, int(os.getenv("EVIDENCE_EVAL_CHUNK", "2048")))
+    eval_device_setting = os.getenv("EVIDENCE_EVAL_DEVICE", "auto")
+    eval_device = torch.device(
+        "cuda" if eval_device_setting != "cpu" and torch.cuda.is_available() else "cpu"
+    )
+    x = x.to(eval_device)
     x_t = x.T.contiguous()
     nearest: list[int] = []
     for start in range(0, x.shape[0], chunk_size):
         end = min(start + chunk_size, x.shape[0])
         sim = x[start:end] @ x_t
-        rows_index = torch.arange(end - start)
-        cols_index = torch.arange(start, end)
+        rows_index = torch.arange(end - start, device=eval_device)
+        cols_index = torch.arange(start, end, device=eval_device)
         sim[rows_index, cols_index] = -2.0
         nearest.extend(sim.argmax(dim=1).cpu().tolist())
     purity = sum(1 for i, j in enumerate(nearest) if labels[i] == labels[j]) / len(labels)
