@@ -41,6 +41,16 @@ def main() -> None:
     invalid["next_experiment"]["summary"] = "review /Users/example/private/path"
     expect_failure(invalid, "unsafe public string")
 
+    decimal_safe = copy.deepcopy(base)
+    decimal_safe["neural"]["holdouts"]["numeric_adjacency_lift_percent"] = 10.125
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as handle:
+        json.dump(decimal_safe, handle)
+        temp_path = Path(handle.name)
+    try:
+        validate_evidence_summary.validate(temp_path)
+    finally:
+        temp_path.unlink(missing_ok=True)
+
     invalid = copy.deepcopy(base)
     del invalid["audit"]["rows"]
     expect_failure(invalid, "missing audit rows")

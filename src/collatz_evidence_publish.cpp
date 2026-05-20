@@ -10,6 +10,7 @@
 #include <iostream>
 #include <map>
 #include <optional>
+#include <regex>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -396,10 +397,10 @@ std::string confidence_interpretation(const std::string &label) {
 }
 
 bool unsafe_public_text(const std::string &text) {
+    static const std::regex private_ipv4(
+        R"((^|[^0-9])(10\.[0-9]{1,3}\.[0-9]{1,3}\.|192\.168\.[0-9]{1,3}\.|172\.(1[6-9]|2[0-9]|3[0-1])\.[0-9]{1,3}\.))");
     return text.find("/Users/") != std::string::npos || text.find("/home/") != std::string::npos ||
-           text.find("10.") != std::string::npos || text.find("192.168.") != std::string::npos ||
-           text.find("172.16.") != std::string::npos || text.find("172.17.") != std::string::npos ||
-           text.find("172.18.") != std::string::npos || text.find("ssh ") != std::string::npos ||
+           std::regex_search(text, private_ipv4) || text.find("ssh ") != std::string::npos ||
            text.find("nvidia-smi") != std::string::npos || text.find("bash -lc") != std::string::npos;
 }
 
