@@ -468,6 +468,7 @@ optional CPU and neural stages in that untracked environment file:
 COLLATZ_RUN_CPU_CRUNCH=1
 COLLATZ_CPU_CRUNCH_STEP=10000000
 COLLATZ_CPU_CRUNCH_THREADS=8
+COLLATZ_CPU_CRUNCH_COMMAND='docker compose run --rm scanner-cpu'
 COLLATZ_RUN_NEURAL=1
 COLLATZ_GPU_ALLOW_SHARED=1
 COLLATZ_NEURAL_COMMAND='docker compose --profile neural run --rm contrastive'

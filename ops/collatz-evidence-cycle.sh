@@ -67,6 +67,7 @@ CPU_CRUNCH_STEP="${COLLATZ_CPU_CRUNCH_STEP:-10000000}"
 CPU_CRUNCH_THREADS="${COLLATZ_CPU_CRUNCH_THREADS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 8)}"
 CPU_CRUNCH_CHUNK_SIZE="${COLLATZ_CPU_CRUNCH_CHUNK_SIZE:-250000}"
 CPU_CRUNCH_MAX_STEPS="${COLLATZ_CPU_CRUNCH_MAX_STEPS:-10000000}"
+CPU_CRUNCH_COMMAND="${COLLATZ_CPU_CRUNCH_COMMAND:-}"
 RUN_NEURAL="${COLLATZ_RUN_NEURAL:-0}"
 NEURAL_COMMAND="${COLLATZ_NEURAL_COMMAND:-}"
 EVIDENCE_SCORE=0
@@ -370,18 +371,26 @@ run_cpu_crunch_if_configured() {
   CPU_THREADS="$CPU_CRUNCH_THREADS"
   CPU_TARGET_END="$target_end"
   write_status "running" "cpu crunch scan" false "" "optional neural stage"
-  "$BUILD_DIR/collatz_scan_cpu" \
-    --start 1 \
-    --end "$target_end" \
-    --output "$FEATURE_FILE" \
-    --progress "$PROGRESS_FILE" \
-    --metadata "$SCAN_METADATA" \
-    --chunk-size "$CPU_CRUNCH_CHUNK_SIZE" \
-    --max-steps "$CPU_CRUNCH_MAX_STEPS" \
-    --threads "$CPU_CRUNCH_THREADS" \
-    --format bin \
-    --resume \
-    --mode-label cpu-crunch || fail_cycle "cpu crunch scan" "$?"
+  if [ -n "$CPU_CRUNCH_COMMAND" ]; then
+    SCAN_START=1 \
+    SCAN_END="$target_end" \
+    SCAN_THREADS="$CPU_CRUNCH_THREADS" \
+    SCAN_CHUNK_SIZE="$CPU_CRUNCH_CHUNK_SIZE" \
+    bash -lc "$CPU_CRUNCH_COMMAND" || fail_cycle "cpu crunch scan" "$?"
+  else
+    "$BUILD_DIR/collatz_scan_cpu" \
+      --start 1 \
+      --end "$target_end" \
+      --output "$FEATURE_FILE" \
+      --progress "$PROGRESS_FILE" \
+      --metadata "$SCAN_METADATA" \
+      --chunk-size "$CPU_CRUNCH_CHUNK_SIZE" \
+      --max-steps "$CPU_CRUNCH_MAX_STEPS" \
+      --threads "$CPU_CRUNCH_THREADS" \
+      --format bin \
+      --resume \
+      --mode-label cpu-crunch || fail_cycle "cpu crunch scan" "$?"
+  fi
   CPU_CRUNCH_STATE="complete"
 }
 
