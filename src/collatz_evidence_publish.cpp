@@ -390,6 +390,25 @@ std::uint64_t breakdown_count(const std::string &source_alignment, const std::st
     return json_u64_or(json_object_for_key(source_alignment, "unmatched_breakdown"), bucket, 0);
 }
 
+std::string canonical_unmatched_breakdown_json(const std::string &source_alignment) {
+    const auto count = [&](const std::string &bucket) { return breakdown_count(source_alignment, bucket); };
+    const std::uint64_t missing_topology_projection =
+        count("missing_topology_projection_node") + count("missing_topology_node");
+    std::ostringstream out;
+    out << "{\"above_active_scan_range\":" << count("above_active_scan_range")
+        << ",\"missing_from_topology_sample\":" << count("missing_from_topology_sample")
+        << ",\"missing_feature_row\":" << count("missing_feature_row")
+        << ",\"parser_error\":" << count("parser_error")
+        << ",\"step_convention_mismatch\":" << count("step_convention_mismatch")
+        << ",\"peak_convention_mismatch\":" << count("peak_convention_mismatch")
+        << ",\"true_mismatch\":" << count("true_mismatch")
+        << ",\"missing_topology_projection_node\":" << missing_topology_projection
+        << ",\"duplicated_source_row\":" << count("duplicated_source_row")
+        << ",\"future_source_target\":" << count("future_source_target")
+        << ",\"unknown\":" << count("unknown") << "}";
+    return out.str();
+}
+
 std::string confidence_interpretation(const std::string &label) {
     if (label == "candidate pattern") {
         return "The learned structure survives the configured source, holdout, seed, and ablation gates, but it is still not proof.";
@@ -717,9 +736,7 @@ int main(int argc, char **argv) {
              << "      \"barina\": {\"present\": " << (family_present(source_alignment, "barina") ? "true" : "false")
              << ", \"complete\": " << (barina_complete ? "true" : "false") << "}\n"
              << "    },\n"
-             << "    \"unmatched_breakdown\": " << (json_object_for_key(source_alignment, "unmatched_breakdown").empty()
-                                                        ? "{\"above_active_scan_range\":0,\"missing_from_topology_sample\":0,\"missing_feature_row\":0,\"parser_error\":0,\"step_convention_mismatch\":0,\"peak_convention_mismatch\":0,\"true_mismatch\":0,\"missing_topology_projection_node\":0,\"duplicated_source_row\":0,\"future_source_target\":0,\"unknown\":0}"
-                                                        : json_object_for_key(source_alignment, "unmatched_breakdown"))
+             << "    \"unmatched_breakdown\": " << canonical_unmatched_breakdown_json(source_alignment)
              << ",\n"
              << "    \"unknown_unmatched_percent\": " << json_double_or(source_alignment, "unknown_unmatched_percent") << "\n"
              << "  },\n"
