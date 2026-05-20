@@ -18,6 +18,19 @@ CONFIDENCE_LABELS = {
     "proof": 4,
 }
 
+PROMOTION_BLOCKERS = {
+    "range_stable_gate_incomplete",
+    "oeis_source_family_incomplete",
+    "non_oeis_source_families_incomplete",
+    "source_alignment_unknown_rows_present",
+    "source_alignment_true_mismatch_present",
+    "source_alignment_unmatched_rows_present",
+    "metrics_only_exceeds_hybrid",
+    "richer_representation_not_stronger",
+    "matched_controls_incomplete",
+    "missing_lift_statistics",
+}
+
 UNMATCHED_BUCKETS = {
     "above_active_scan_range",
     "missing_from_topology_sample",
@@ -98,6 +111,10 @@ def validate(path: Path) -> None:
     require(confidence.get("rank") == CONFIDENCE_LABELS[confidence["label"]], "confidence rank does not match label")
     require(confidence.get("claim_is_proof") is False, "claim_is_proof must be false")
     require(isinstance(confidence.get("interpretation"), str) and confidence["interpretation"], "confidence interpretation required")
+    blockers = confidence.get("promotion_blockers")
+    require(isinstance(blockers, list), "confidence.promotion_blockers must be a list")
+    require(len(blockers) == len(set(blockers)), "confidence.promotion_blockers must be unique")
+    require(set(blockers).issubset(PROMOTION_BLOCKERS), "confidence.promotion_blockers contains unknown blocker")
 
     audit = data["audit"]
     require(isinstance(audit.get("rows"), int), "audit.rows must be integer")
@@ -114,10 +131,16 @@ def validate(path: Path) -> None:
 
     neural = data["neural"]
     require(isinstance(neural.get("leaderboard"), list) and neural["leaderboard"], "neural.leaderboard required")
+    lifts: dict[str, Any] = {}
+    all_controls_complete = True
+    all_stats_complete = True
     for item in neural["leaderboard"]:
         require_keys(item, ["name", "lift_percent", "n_folds", "n_seeds", "n_samples", "matched_controls"], "leaderboard")
         lift = item["lift_percent"]
         require_keys(lift, ["mean", "std", "ci_95"], "leaderboard.lift_percent")
+        lifts[item["name"]] = lift.get("mean")
+        if lift.get("std") is None or lift.get("ci_95") is None or item.get("n_folds") is None or item.get("n_seeds") is None:
+            all_stats_complete = False
         controls = item["matched_controls"]
         require(
             all(key in controls for key in (
@@ -130,12 +153,45 @@ def validate(path: Path) -> None:
             )),
             "matched_controls incomplete",
         )
+        if not all(controls.values()):
+            all_controls_complete = False
 
     source = data["source_alignment"]
     require(source.get("matched", 0) + source.get("unmatched", 0) == source.get("targets_total", -1), "source counts do not add up")
     breakdown = source.get("unmatched_breakdown", {})
     require(set(breakdown) == UNMATCHED_BUCKETS, "unmatched_breakdown buckets do not match contract")
     require(sum(int(value) for value in breakdown.values()) == source.get("unmatched"), "unmatched_breakdown total mismatch")
+    require(
+        ("source_alignment_unknown_rows_present" in blockers) == (int(breakdown["unknown"]) > 0),
+        "unknown source blocker does not match unmatched_breakdown.unknown",
+    )
+    require(
+        ("source_alignment_true_mismatch_present" in blockers) == (int(breakdown["true_mismatch"]) > 0),
+        "true mismatch blocker does not match unmatched_breakdown.true_mismatch",
+    )
+    require(
+        ("source_alignment_unmatched_rows_present" in blockers) == (source.get("unmatched", 0) > 0),
+        "unmatched source blocker does not match source unmatched count",
+    )
+    metrics_lift = lifts.get("metrics-only")
+    hybrid_lift = lifts.get("hybrid")
+    if metrics_lift is not None and hybrid_lift is not None:
+        require(
+            ("metrics_only_exceeds_hybrid" in blockers) == (metrics_lift > hybrid_lift),
+            "metrics-only dominance blocker does not match leaderboard",
+        )
+    require(
+        ("matched_controls_incomplete" in blockers) == (not all_controls_complete),
+        "matched-controls blocker does not match leaderboard controls",
+    )
+    require(
+        ("missing_lift_statistics" in blockers) == (not all_stats_complete),
+        "missing lift statistics blocker does not match leaderboard stats",
+    )
+    if confidence["label"] == "candidate pattern":
+        require("metrics_only_exceeds_hybrid" not in blockers, "candidate pattern cannot be metric dominant")
+        require("matched_controls_incomplete" not in blockers, "candidate pattern requires matched controls")
+        require("missing_lift_statistics" not in blockers, "candidate pattern requires lift statistics")
 
     safety = data["public_safety"]
     require(safety.get("sanitized") is True, "public_safety.sanitized must be true")

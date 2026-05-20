@@ -7,6 +7,7 @@
 - Learned lift: weakest range `7.459%`, fold minimum `8.604%`, numeric-adjacency lift `5.341%`.
 - Best current ablation: `metrics-only at 12.165%`.
 - Interpretation: `metric-dominant signal`; metrics-only lift exceeds hybrid lift under the current evidence run.
+- Promotion blockers: `source_alignment_unknown_rows_present, source_alignment_unmatched_rows_present, metrics_only_exceeds_hybrid, richer_representation_not_stronger, matched_controls_incomplete, missing_lift_statistics`.
 - Source alignment: `4 / 5` matched; unknown unmatched rows `1`.
 - Next experiment: Classify unmatched source targets, expand non-OEIS source imports, then rerun source-neighborhood, path-image, GNN, and matched-control ablations.
 - This is empirical evidence, not a Collatz proof.

@@ -19,3 +19,7 @@ Confidence levels are conservative:
   exists.
 
 Operational telemetry never raises scientific confidence.
+
+`confidence.promotion_blockers` is machine-readable gate state. Public wording
+should explain these blockers instead of inferring confidence from separate
+README text, dashboard telemetry, or private runner status.

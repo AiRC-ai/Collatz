@@ -9,7 +9,15 @@
     "claim_is_proof": false,
     "claim_is_source_neighborhood_supported": false,
     "claim_is_candidate_pattern": false,
-    "interpretation": "The learned neighborhood signal survives current range and holdout checks, but it is not proof and is not yet source-neighborhood-supported."
+    "interpretation": "The learned neighborhood signal survives current range and holdout checks, but it is not proof and is not yet source-neighborhood-supported.",
+    "promotion_blockers": [
+      "source_alignment_unknown_rows_present",
+      "source_alignment_unmatched_rows_present",
+      "metrics_only_exceeds_hybrid",
+      "richer_representation_not_stronger",
+      "matched_controls_incomplete",
+      "missing_lift_statistics"
+    ]
   },
   "audit": {
     "active_feature_file": "data/generated/features.bin",

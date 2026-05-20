@@ -182,6 +182,17 @@ add_test(NAME readme_snapshot_fixture
         "--expect" "${CMAKE_SOURCE_DIR}/fixtures/evidence_small/expected_readme_snapshot.md"
 )
 
+add_test(NAME readme_snapshot_committed_block
+    COMMAND "${CMAKE_SOURCE_DIR}/tools/render_readme_snapshot.py"
+        "--input" "${CMAKE_SOURCE_DIR}/data/generated/evidence/latest_public_summary.json"
+        "--readme" "${CMAKE_SOURCE_DIR}/README.md"
+        "--check-readme"
+)
+
+add_test(NAME evidence_contract_fixture
+    COMMAND "${CMAKE_SOURCE_DIR}/tools/test_evidence_contract.py"
+)
+
 if(COLLATZ_ENABLE_TORCH)
     find_package(Torch REQUIRED)
     target_compile_definitions(collatz_train PRIVATE COLLATZ_WITH_TORCH=1)

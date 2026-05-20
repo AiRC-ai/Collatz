@@ -29,7 +29,8 @@
         "claim_is_proof",
         "claim_is_source_neighborhood_supported",
         "claim_is_candidate_pattern",
-        "interpretation"
+        "interpretation",
+        "promotion_blockers"
       ],
       "properties": {
         "label": {
@@ -45,7 +46,25 @@
         "claim_is_proof": { "type": "boolean" },
         "claim_is_source_neighborhood_supported": { "type": "boolean" },
         "claim_is_candidate_pattern": { "type": "boolean" },
-        "interpretation": { "type": "string", "minLength": 1 }
+        "interpretation": { "type": "string", "minLength": 1 },
+        "promotion_blockers": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "range_stable_gate_incomplete",
+              "oeis_source_family_incomplete",
+              "non_oeis_source_families_incomplete",
+              "source_alignment_unknown_rows_present",
+              "source_alignment_true_mismatch_present",
+              "source_alignment_unmatched_rows_present",
+              "metrics_only_exceeds_hybrid",
+              "richer_representation_not_stronger",
+              "matched_controls_incomplete",
+              "missing_lift_statistics"
+            ]
+          },
+          "uniqueItems": true
+        }
       },
       "additionalProperties": false
     },

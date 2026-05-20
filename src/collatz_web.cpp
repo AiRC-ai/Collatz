@@ -653,14 +653,20 @@ async function refresh() {
     ? `Lift over random is represented in the leaderboard; range minimum ${fixed(holdouts.weakest_range_lift_percent, 3)}%, fold minimum ${fixed(holdouts.fold_min_lift_percent, 3)}%, numeric-adjacency lift ${fixed(holdouts.numeric_adjacency_lift_percent, 3)}%.`
     : 'waiting for neural holdout evidence';
   const neuralInterpretation = neuralEvidence.interpretation || {};
-  document.getElementById('aiLimit').textContent = neuralInterpretation.reason || 'waiting for canonical limitation';
+  const blockers = Array.isArray(confidence.promotion_blockers) ? confidence.promotion_blockers : [];
+  document.getElementById('aiLimit').textContent = blockers.length
+    ? `${neuralInterpretation.reason || 'current gates are incomplete'} Blockers: ${blockers.slice(0, 4).join(', ')}${blockers.length > 4 ? '...' : ''}.`
+    : neuralInterpretation.reason || 'waiting for canonical limitation';
   const latestRun = neuralEvidence.latest_run || {};
   document.getElementById('aiNeural').textContent = latestRun.sample_rows
     ? `${compact(latestRun.sample_rows)} sample rows, ${latestRun.parallel_jobs_completed || 0} parallel jobs, GPU used: ${latestRun.gpu_used ? 'yes' : 'no'}.`
     : 'waiting for neural metrics';
-  const unknown = sourceAlignment.unmatched_breakdown?.unknown || 0;
+  const taxonomy = sourceAlignment.unmatched_breakdown || {};
+  const unknown = taxonomy.unknown || 0;
+  const trueMismatch = taxonomy.true_mismatch || 0;
+  const missingTopology = taxonomy.missing_topology_node || 0;
   document.getElementById('aiSource').textContent = sourceAlignment.targets_total
-    ? `${compact(sourceAlignment.matched)} of ${compact(sourceAlignment.targets_total)} public source targets matched; unknown unmatched rows: ${compact(unknown)}.`
+    ? `${compact(sourceAlignment.matched)} of ${compact(sourceAlignment.targets_total)} public source targets matched; taxonomy unknown ${compact(unknown)}, true mismatch ${compact(trueMismatch)}, missing topology ${compact(missingTopology)}.`
     : 'waiting for source alignment';
   document.getElementById('aiNextStep').textContent = evidence.next_experiment?.summary || 'waiting for canonical next experiment';
   drawTopology(topology);

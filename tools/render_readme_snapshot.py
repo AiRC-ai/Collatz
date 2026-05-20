@@ -27,6 +27,7 @@ def render(data: dict) -> str:
     source = data["source_alignment"]
     interpretation = neural["interpretation"]
     leaderboard = neural["leaderboard"]
+    blockers = confidence.get("promotion_blockers", [])
     best = max(
         (entry for entry in leaderboard if entry["lift_percent"]["mean"] is not None),
         key=lambda entry: entry["lift_percent"]["mean"],
@@ -46,6 +47,7 @@ def render(data: dict) -> str:
             f"- Learned lift: weakest range `{fmt(holdouts['weakest_range_lift_percent'])}%`, fold minimum `{fmt(holdouts['fold_min_lift_percent'])}%`, numeric-adjacency lift `{fmt(holdouts['numeric_adjacency_lift_percent'])}%`.",
             f"- Best current ablation: `{best_text}`.",
             f"- Interpretation: `{interpretation['signal_type']}`; {interpretation['reason']}.",
+            f"- Promotion blockers: `{', '.join(blockers) if blockers else 'none'}`.",
             f"- Source alignment: `{source['matched']:,} / {source['targets_total']:,}` matched; unknown unmatched rows `{source['unmatched_breakdown']['unknown']}`.",
             f"- Next experiment: {data['next_experiment']['summary']}",
             "- This is empirical evidence, not a Collatz proof.",
@@ -63,16 +65,30 @@ def update_readme(readme: Path, snapshot: str) -> None:
     readme.write_text(before + snapshot + after)
 
 
+def readme_snapshot_block(readme: Path) -> str:
+    text = readme.read_text()
+    if BEGIN not in text or END not in text:
+        raise SystemExit(f"README is missing generated snapshot markers: {readme}")
+    _, rest = text.split(BEGIN, 1)
+    block, _ = rest.split(END, 1)
+    return BEGIN + block + END + "\n"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Render README evidence snapshot from canonical JSON.")
     parser.add_argument("--input", default="data/generated/evidence/latest_public_summary.json")
     parser.add_argument("--readme", default="README.md")
     parser.add_argument("--update-readme", action="store_true")
+    parser.add_argument("--check-readme", action="store_true")
     parser.add_argument("--expect")
     args = parser.parse_args()
     data = json.loads(Path(args.input).read_text())
     snapshot = render(data) + "\n"
-    if args.expect:
+    if args.check_readme:
+        actual = readme_snapshot_block(Path(args.readme))
+        if snapshot != actual:
+            raise SystemExit("README generated evidence block is out of sync")
+    elif args.expect:
         expected = Path(args.expect).read_text()
         if snapshot != expected:
             raise SystemExit("rendered README snapshot differs from expected fixture")

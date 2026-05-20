@@ -284,6 +284,21 @@ std::string number_or_null(std::optional<double> value, int precision = 6) {
     return out.str();
 }
 
+void write_string_array(std::ostream &out, const std::vector<std::string> &items, const std::string &indent) {
+    out << '[';
+    if (!items.empty()) {
+        out << '\n';
+        for (std::size_t i = 0; i < items.size(); ++i) {
+            out << indent << '"' << collatz::json_escape(items[i]) << '"';
+            if (i + 1 != items.size()) {
+                out << ',';
+            }
+            out << '\n';
+        }
+    }
+    out << (items.empty() ? "" : "    ") << ']';
+}
+
 std::string lower_feature_name(std::string name) {
     for (char &ch : name) {
         ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
@@ -481,13 +496,47 @@ int main(int argc, char **argv) {
         const double metrics_lift = metrics.lift.value_or(-1.0);
         const double hybrid_lift = hybrid.lift.value_or(contrastive_lift);
         const bool metric_dominant = metrics.lift && hybrid.lift && metrics_lift > hybrid_lift;
+        const bool matched_controls_complete = false;
+        const bool lift_statistics_complete = false;
 
         const bool gate1 = full_audit_completed && contrastive_lift > 0.0 && contrastive_minus_numeric > 0.0 &&
                            range_min_lift > 0.0 && fold_min_lift > 0.0;
         const bool gate2 = gate1 && oeis_complete && supplemental_complete >= 2 && true_mismatch == 0 && unknown == 0 &&
                            targets_total > 0 && matched == targets_total;
         const bool richer_beats_metrics = hybrid.lift && metrics.lift && hybrid_lift > metrics_lift;
-        const bool gate3 = gate2 && richer_beats_metrics;
+        const bool gate3 = gate2 && richer_beats_metrics && matched_controls_complete && lift_statistics_complete;
+
+        std::vector<std::string> promotion_blockers;
+        if (!gate1) {
+            promotion_blockers.push_back("range_stable_gate_incomplete");
+        }
+        if (!oeis_complete) {
+            promotion_blockers.push_back("oeis_source_family_incomplete");
+        }
+        if (supplemental_complete < 2) {
+            promotion_blockers.push_back("non_oeis_source_families_incomplete");
+        }
+        if (unknown > 0) {
+            promotion_blockers.push_back("source_alignment_unknown_rows_present");
+        }
+        if (true_mismatch > 0) {
+            promotion_blockers.push_back("source_alignment_true_mismatch_present");
+        }
+        if (targets_total == 0 || matched != targets_total) {
+            promotion_blockers.push_back("source_alignment_unmatched_rows_present");
+        }
+        if (metric_dominant) {
+            promotion_blockers.push_back("metrics_only_exceeds_hybrid");
+        }
+        if (!richer_beats_metrics) {
+            promotion_blockers.push_back("richer_representation_not_stronger");
+        }
+        if (!matched_controls_complete) {
+            promotion_blockers.push_back("matched_controls_incomplete");
+        }
+        if (!lift_statistics_complete) {
+            promotion_blockers.push_back("missing_lift_statistics");
+        }
 
         std::string label = "sample-local signal";
         int rank = 0;
@@ -549,7 +598,10 @@ int main(int argc, char **argv) {
              << "    \"claim_is_proof\": false,\n"
              << "    \"claim_is_source_neighborhood_supported\": " << (rank >= 2 ? "true" : "false") << ",\n"
              << "    \"claim_is_candidate_pattern\": " << (rank >= 3 ? "true" : "false") << ",\n"
-             << "    \"interpretation\": \"" << collatz::json_escape(conclusion) << "\"\n"
+             << "    \"interpretation\": \"" << collatz::json_escape(conclusion) << "\",\n"
+             << "    \"promotion_blockers\": ";
+        write_string_array(json, promotion_blockers, "      ");
+        json << "\n"
              << "  },\n"
              << "  \"audit\": {\n"
              << "    \"active_feature_file\": \"" << collatz::json_escape(options.active_feature_file) << "\",\n"
