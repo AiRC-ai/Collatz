@@ -1,8 +1,8 @@
 {
   "schema_version": "evidence_public_summary_v1",
-  "run_id": "2026-05-20T22:52:26Z",
-  "git_commit": "330496a",
-  "generated_at_utc": "2026-05-20T22:52:26Z",
+  "run_id": "2026-05-20T23:11:31Z",
+  "git_commit": "a5d1a9b",
+  "generated_at_utc": "2026-05-20T23:11:31Z",
   "confidence": {
     "label": "range-stable signal",
     "rank": 1,
@@ -22,9 +22,9 @@
   },
   "audit": {
     "active_feature_file": "data/generated/features.bin",
-    "rows": 600000000,
+    "rows": 610000000,
     "range_start": 1,
-    "range_end": 600000000,
+    "range_end": 610000000,
     "feature_schema_version": "feature_v1",
     "binary_schema_version": "bin_v1",
     "full_audit_completed": true,
@@ -32,22 +32,22 @@
     "metadata_sha256": null
   },
   "coverage": {
-    "topology": {"rows": 100000, "percent_of_audit": 0.01666666667},
-    "stratified_evidence_sample": {"rows": 109008, "percent_of_audit": 0.018168, "sampling_note": "Stratified sample intentionally oversamples rare behavior."}
+    "topology": {"rows": 100000, "percent_of_audit": 0.01639344262},
+    "stratified_evidence_sample": {"rows": 109014, "percent_of_audit": 0.01787114754, "sampling_note": "Stratified sample intentionally oversamples rare behavior."}
   },
   "neural": {
     "latest_run": {"sample_rows": 100000, "gpu_used": true, "parallel_jobs_completed": 6},
     "leaderboard": [
       {"name": "GNN-only", "lift_percent": {"mean": null, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
-      {"name": "hybrid", "lift_percent": {"mean": 10.277, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
+      {"name": "hybrid", "lift_percent": {"mean": 10.256, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
       {"name": "image-only", "lift_percent": {"mean": null, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
-      {"name": "metrics-only", "lift_percent": {"mean": 12.548, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
-      {"name": "parity-sequence-only", "lift_percent": {"mean": 10.659, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
-      {"name": "residue-sequence-only", "lift_percent": {"mean": 8.687, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
+      {"name": "metrics-only", "lift_percent": {"mean": 12.618, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
+      {"name": "parity-sequence-only", "lift_percent": {"mean": 10.694, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
+      {"name": "residue-sequence-only", "lift_percent": {"mean": 8.694, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
       {"name": "shape-only", "lift_percent": {"mean": null, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}}
     ],
     "interpretation": {"signal_type": "metric-dominant signal", "reason": "metrics-only lift exceeds hybrid lift under the current evidence run", "may_promote_confidence": false},
-    "holdouts": {"weakest_range_lift_percent": 8.647554277, "fold_min_lift_percent": 9.027741704, "numeric_adjacency_lift_percent": 5.255},
+    "holdouts": {"weakest_range_lift_percent": 8.75031913, "fold_min_lift_percent": 8.829680189, "numeric_adjacency_lift_percent": 5.203},
     "retrieval": {}
   },
   "source_alignment": {

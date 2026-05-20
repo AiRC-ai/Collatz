@@ -8,12 +8,12 @@
   <g>
     <rect x="64" y="116" width="232" height="76" rx="8" fill="#121a33" stroke="#2a3a68"/>
     <text x="82" y="145" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">CURRENT AUDIT</text>
-    <text x="82" y="174" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">600M</text>
+    <text x="82" y="174" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">610M</text>
   </g>
   <g>
     <rect x="312" y="116" width="232" height="76" rx="8" fill="#121a33" stroke="#2a3a68"/>
     <text x="330" y="145" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">ITERATIONS</text>
-    <text x="330" y="174" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">46</text>
+    <text x="330" y="174" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">47</text>
   </g>
   <g>
     <rect x="560" y="116" width="232" height="76" rx="8" fill="#121a33" stroke="#2a3a68"/>
@@ -30,15 +30,15 @@
     <rect x="64" y="210" width="1072" height="250" rx="8" fill="#0b1020" stroke="#2a3a68"/>
     <line x1="82" y1="168" x2="82" y2="430" stroke="#253453"/>
     <line x1="82" y1="430" x2="1136" y2="430" stroke="#253453"/>
-    <text x="84" y="238" fill="#cbd5e1" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700">Cycle 1 to 46</text>
-    <text x="84" y="258" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Latest: 2026-05-20 22:36 UTC; source 5,086/5,191; best ablation metrics-only 12.548%.</text>
+    <text x="84" y="238" fill="#cbd5e1" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700">Cycle 1 to 47</text>
+    <text x="84" y="258" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Latest: 2026-05-20 23:08 UTC; source 5,086/5,191; best ablation metrics-only 12.618%.</text>
 
-    <polyline points="82.0,175.0 105.4,264.5 128.8,267.6 152.3,269.3 175.7,215.2 199.1,264.1 222.5,265.8 246.0,263.6 269.4,265.8 292.8,264.5 316.2,263.2 339.6,264.9 363.1,262.8 386.5,264.5 409.9,263.2 433.3,263.6 456.8,262.3 480.2,263.2 503.6,263.6 527.0,264.9 550.4,263.6 573.9,264.1 597.3,261.0 620.7,259.7 644.1,260.1 667.6,262.3 691.0,262.8 714.4,262.8 737.8,261.9 761.2,261.0 784.7,263.2 808.1,262.3 831.5,262.8 854.9,261.9 878.4,262.8 901.8,262.8 925.2,261.9 948.6,262.3 972.0,262.8 995.5,263.6 1018.9,261.4 1042.3,262.8 1065.7,261.9 1089.2,262.8 1112.6,264.1 1136.0,261.9" fill="none" stroke="#67e8f9" stroke-width="3"/>
-    <polyline points="82.0,216.7 105.4,216.7 128.8,216.7 152.3,216.7 175.7,216.7 199.1,216.7 222.5,216.7 246.0,216.7 269.4,216.7 292.8,216.7 316.2,216.7 339.6,216.7 363.1,216.7 386.5,250.3 409.9,250.3 433.3,250.3 456.8,250.3 480.2,250.3 503.6,250.3 527.0,250.3 550.4,250.3 573.9,250.3 597.3,250.3 620.7,250.3 644.1,250.3 667.6,250.3 691.0,250.3 714.4,250.3 737.8,250.3 761.2,250.3 784.7,250.3 808.1,250.3 831.5,250.3 854.9,250.3 878.4,250.3 901.8,250.3 925.2,250.3 948.6,250.3 972.0,250.3 995.5,250.3 1018.9,250.3 1042.3,250.3 1065.7,250.3 1089.2,250.3 1112.6,250.3 1136.0,250.3" fill="none" stroke="#f472b6" stroke-width="2.5" opacity="0.9"/>
+    <polyline points="82.0,175.0 104.9,264.5 127.8,267.6 150.7,269.3 173.7,215.2 196.6,264.1 219.5,265.8 242.4,263.6 265.3,265.8 288.2,264.5 311.1,263.2 334.0,264.9 357.0,262.8 379.9,264.5 402.8,263.2 425.7,263.6 448.6,262.3 471.5,263.2 494.4,263.6 517.3,264.9 540.3,263.6 563.2,264.1 586.1,261.0 609.0,259.7 631.9,260.1 654.8,262.3 677.7,262.8 700.7,262.8 723.6,261.9 746.5,261.0 769.4,263.2 792.3,262.3 815.2,262.8 838.1,261.9 861.0,262.8 884.0,262.8 906.9,261.9 929.8,262.3 952.7,262.8 975.6,263.6 998.5,261.4 1021.4,262.8 1044.3,261.9 1067.3,262.8 1090.2,264.1 1113.1,261.9 1136.0,261.9" fill="none" stroke="#67e8f9" stroke-width="3"/>
+    <polyline points="82.0,216.7 104.9,216.7 127.8,216.7 150.7,216.7 173.7,216.7 196.6,216.7 219.5,216.7 242.4,216.7 265.3,216.7 288.2,216.7 311.1,216.7 334.0,216.7 357.0,216.7 379.9,250.3 402.8,250.3 425.7,250.3 448.6,250.3 471.5,250.3 494.4,250.3 517.3,250.3 540.3,250.3 563.2,250.3 586.1,250.3 609.0,250.3 631.9,250.3 654.8,250.3 677.7,250.3 700.7,250.3 723.6,250.3 746.5,250.3 769.4,250.3 792.3,250.3 815.2,250.3 838.1,250.3 861.0,250.3 884.0,250.3 906.9,250.3 929.8,250.3 952.7,250.3 975.6,250.3 998.5,250.3 1021.4,250.3 1044.3,250.3 1067.3,250.3 1090.2,250.3 1113.1,250.3 1136.0,250.3" fill="none" stroke="#f472b6" stroke-width="2.5" opacity="0.9"/>
     <circle cx="1136.0" cy="261.9" r="5" fill="#67e8f9"/>
     <circle cx="1136.0" cy="250.3" r="5" fill="#f472b6"/>
     <text x="82" y="456" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">cycle 1</text>
-    <text x="1064" y="456" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">cycle 46</text>
+    <text x="1064" y="456" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">cycle 47</text>
   </g>
 
   <g>

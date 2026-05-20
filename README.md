@@ -29,11 +29,11 @@ numbers in the README.
 <!-- BEGIN GENERATED EVIDENCE SNAPSHOT -->
 - Confidence: `range-stable signal`
 - Meaning: The learned neighborhood signal survives current range and holdout checks, but it is not proof and is not yet source-neighborhood-supported.
-- Audit: `600,000,000` rows over `1..600,000,000`; full audit completed: `true`.
-- Coverage: topology `100,000` rows (`0.017%` of audit); stratified evidence sample `109,008` rows (`0.018%`).
+- Audit: `610,000,000` rows over `1..610,000,000`; full audit completed: `true`.
+- Coverage: topology `100,000` rows (`0.016%` of audit); stratified evidence sample `109,014` rows (`0.018%`).
 - Neural result: `100,000` sample rows; GPU used: `true`; parallel jobs completed: `6`.
-- Learned lift: weakest range `8.648%`, fold minimum `9.028%`, numeric-adjacency lift `5.255%`.
-- Best current ablation: `metrics-only at 12.548%`.
+- Learned lift: weakest range `8.750%`, fold minimum `8.830%`, numeric-adjacency lift `5.203%`.
+- Best current ablation: `metrics-only at 12.618%`.
 - Interpretation: `metric-dominant signal`; metrics-only lift exceeds hybrid lift under the current evidence run.
 - Promotion blockers: `oeis_source_family_incomplete, non_oeis_source_families_incomplete, source_alignment_unmatched_rows_present, metrics_only_exceeds_hybrid, richer_representation_not_stronger, matched_controls_incomplete, missing_lift_statistics`.
 - Source alignment: `5,086 / 5,191` matched; unknown unmatched rows `0`.
