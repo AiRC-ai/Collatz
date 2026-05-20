@@ -318,7 +318,7 @@ services:
       - --sample
       - /work/data/generated/stratified/samples.csv
       - --output-dir
-      - /work/data/generated/anomalies
+      - ${AUTOENCODER_OUTPUT_DIR:-/work/data/generated/anomalies}
       - --epochs
       - ${AUTOENCODER_EPOCHS:-50}
       - --latent-dims
@@ -470,7 +470,7 @@ services:
       - --edges
       - /work/data/generated/graphs/edges.csv
       - --output-dir
-      - /work/data/generated/gnn
+      - ${GNN_OUTPUT_DIR:-/work/data/generated/gnn}
       - --epochs
       - ${GNN_EPOCHS:-50}
       - --embedding-dims
@@ -516,6 +516,8 @@ services:
       - /work/data/generated/hypotheses/summary.json
       - --runner-status
       - /work/data/generated/runner/status.json
+      - --neural-status
+      - /work/data/generated/runner/neural_parallel_status.json
       - --full-audit
       - /work/data/generated/full_audit/summary.json
     ports:

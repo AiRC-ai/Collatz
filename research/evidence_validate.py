@@ -180,6 +180,13 @@ def neighbor_stats(rows: list[list[float]], labels: list[str], standardize: bool
     return {"row_count": len(rows), "purity": purity, "random_baseline": baseline, "lift": purity - baseline}
 
 
+def evaluation_runtime() -> tuple[str, int]:
+    eval_device_setting = os.getenv("EVIDENCE_EVAL_DEVICE", "auto")
+    eval_device = "cuda" if eval_device_setting != "cpu" and torch.cuda.is_available() else "cpu"
+    chunk_size = max(1, int(os.getenv("EVIDENCE_EVAL_CHUNK", "2048")))
+    return eval_device, chunk_size
+
+
 def subset_stats(
     name: str,
     starts: list[int],
@@ -341,6 +348,7 @@ def main() -> None:
 
     gnn_metrics = read_json(Path(args.gnn_metrics))
     full_audit = read_json(Path(args.full_audit))
+    eval_device, eval_chunk = evaluation_runtime()
     full_records = int(full_audit.get("records_read", 0) or 0)
     full_audit_coverage = float(full_audit.get("coverage_ratio", 0.0) or 0.0)
     neural_full_dataset_ratio = len(starts) / full_records if full_records else 0.0
@@ -364,6 +372,8 @@ def main() -> None:
         "full_dataset_max_total_steps_n": full_audit.get("max_total_steps_n"),
         "full_dataset_total_steps_mean": full_audit.get("total_steps_mean"),
         "full_dataset_total_steps_quantiles": full_audit.get("total_steps_quantiles"),
+        "evaluation_device": eval_device,
+        "evaluation_chunk": eval_chunk,
         "sample_reason_count": len(set(reasons_by_n.values())),
         "label_count": len(set(labels)),
         "contrastive_neighbor_purity": finite(learned.get("purity")),

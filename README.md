@@ -445,16 +445,17 @@ The cycle:
 7. Runs the deterministic full-dataset audit over the current binary feature
    file.
 8. Optionally runs a reviewed neural stage only when configured and GPU policy
-   allows it.
+   allows it. The recommended neural command is the parallel launcher, which
+   runs independent contrastive ablations and the autoencoder together.
 9. Runs the public privacy scan over tracked source/docs/templates.
 10. Appends a sanitized private ledger entry.
 11. Writes `data/generated/runner/status.json` for the Automation dashboard card.
 
 The runner status includes only public-safe fields: evidence score, score delta,
-cycle count, source target counts, CPU crunch state, GPU availability state, and
-neural stage state. The evidence score is not theorem probability. It is an
-empirical research score based on the current confidence gate, source-record
-match rate, and neural validation lift.
+cycle count, source target counts, CPU crunch state, GPU availability state,
+neural stage state, and parallel neural job counts. The evidence score is not
+theorem probability. It is an empirical research score based on the current
+confidence gate, source-record match rate, and neural validation lift.
 
 The full audit is deterministic dataset evidence. It proves the generated
 feature file was read and summarized end to end, but it does not prove the
@@ -480,12 +481,16 @@ COLLATZ_CPU_CRUNCH_THREADS=8
 COLLATZ_CPU_CRUNCH_COMMAND='docker compose run --rm scanner-cpu'
 COLLATZ_RUN_NEURAL=1
 COLLATZ_GPU_ALLOW_SHARED=1
-COLLATZ_NEURAL_COMMAND='docker compose --profile neural run --rm contrastive'
+COLLATZ_NEURAL_COMMAND='./ops/collatz-neural-parallel.sh'
+COLLATZ_PARALLEL_NEURAL_JOBS=4
+COLLATZ_PARALLEL_FEATURE_SETS='hybrid metrics parity residue tokens'
 ```
 
 The dashboard will then show whether CPU crunching is disabled, running, or
 complete, and whether the GPU neural stage is disabled, running, complete, or
 skipped because the GPU is unavailable, busy, or below the free-memory policy.
+When the parallel neural launcher is active, the dashboard also shows active
+neural jobs, completed jobs, GPU utilization, memory use, and power draw.
 
 Run the public privacy scan directly:
 

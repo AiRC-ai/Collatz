@@ -34,6 +34,7 @@ struct Options {
     std::string gnn_metadata = "data/generated/gnn/metrics.json";
     std::string hypothesis_summary = "data/generated/hypotheses/summary.json";
     std::string runner_status = "data/generated/runner/status.json";
+    std::string neural_status = "data/generated/runner/neural_parallel_status.json";
     std::string full_audit = "data/generated/full_audit/summary.json";
 };
 
@@ -44,7 +45,7 @@ void usage(std::ostream &out) {
         << "                   [--topology-manifest FILE] [--neighborhood-manifest FILE]\n"
         << "                   [--insights-manifest FILE] [--gnn-metadata FILE]\n"
         << "                   [--hypothesis-summary FILE] [--runner-status FILE]\n"
-        << "                   [--full-audit FILE]\n";
+        << "                   [--neural-status FILE] [--full-audit FILE]\n";
 }
 
 Options parse_args(int argc, char **argv) {
@@ -89,6 +90,8 @@ Options parse_args(int argc, char **argv) {
             options.hypothesis_summary = need_value("--hypothesis-summary");
         } else if (arg == "--runner-status") {
             options.runner_status = need_value("--runner-status");
+        } else if (arg == "--neural-status") {
+            options.neural_status = need_value("--neural-status");
         } else if (arg == "--full-audit") {
             options.full_audit = need_value("--full-audit");
         } else if (arg == "--help" || arg == "-h") {
@@ -413,6 +416,28 @@ std::string compact_runner_status_json(const Options &options) {
     return out.str();
 }
 
+std::string compact_neural_status_json(const Options &options) {
+    const std::string json = read_file(options.neural_status);
+    if (json.empty()) {
+        return "{\"state\":\"idle\",\"current_stage\":\"not configured\",\"updated_utc\":\"\",\"concurrency_limit\":0,\"active_jobs\":0,\"complete_jobs\":0,\"failed_jobs\":0,\"gpu_utilization_percent\":0,\"gpu_memory_used_mb\":0,\"gpu_memory_free_mb\":0,\"gpu_power_watts\":0,\"jobs\":[]}";
+    }
+    std::ostringstream out;
+    out << "{\"state\":" << safe_runner_value_or(json, "state", "\"idle\"")
+        << ",\"current_stage\":" << safe_runner_value_or(json, "current_stage", "\"idle\"")
+        << ",\"updated_utc\":" << safe_runner_value_or(json, "updated_utc", "\"\"")
+        << ",\"concurrency_limit\":" << safe_runner_value_or(json, "concurrency_limit", "0")
+        << ",\"active_jobs\":" << safe_runner_value_or(json, "active_jobs", "0")
+        << ",\"complete_jobs\":" << safe_runner_value_or(json, "complete_jobs", "0")
+        << ",\"failed_jobs\":" << safe_runner_value_or(json, "failed_jobs", "0")
+        << ",\"gpu_utilization_percent\":" << safe_runner_value_or(json, "gpu_utilization_percent", "0")
+        << ",\"gpu_memory_used_mb\":" << safe_runner_value_or(json, "gpu_memory_used_mb", "0")
+        << ",\"gpu_memory_free_mb\":" << safe_runner_value_or(json, "gpu_memory_free_mb", "0")
+        << ",\"gpu_power_watts\":" << safe_runner_value_or(json, "gpu_power_watts", "0")
+        << ",\"jobs\":" << limited_json_array(json_value_for_key(json, "jobs"), 8)
+        << "}";
+    return out.str();
+}
+
 std::string dashboard_progress_json(const Options &options) {
     const std::string scan = read_file(options.scan_metadata);
     const std::string gnn = read_file(options.gnn_metadata);
@@ -427,6 +452,7 @@ std::string dashboard_progress_json(const Options &options) {
            ",\"full_audit\":" + compact_full_audit_json(options) +
            ",\"gnn_metadata\":" + compact_object_from_json(gnn, {"status", "device", "epochs", "loss_final"}) +
            ",\"runner_status\":" + compact_runner_status_json(options) +
+           ",\"neural_status\":" + compact_neural_status_json(options) +
            "}";
 }
 
@@ -564,6 +590,7 @@ async function refresh() {
   const fullAudit = data.full_audit || {};
   const gnn = data.gnn_metadata || {};
   const runner = data.runner_status || {};
+  const neural = data.neural_status || {};
   const mode = progress.mode || progress.status || gnn.status || 'waiting';
   const processed = progress.processed ? `, ${compact(progress.processed)} processed` : '';
   const throughput = progress.throughput_per_sec ? ` at ${compact(progress.throughput_per_sec)}/s` : '';
@@ -589,7 +616,14 @@ async function refresh() {
   const gpuState = runner.gpu_state || 'unknown';
   const neuralStage = runner.neural_stage || 'disabled';
   const gpuFree = Number(runner.gpu_free_memory_mb || 0);
-  document.getElementById('gpuStage').textContent = gpuFree
+  const neuralActive = Number(neural.active_jobs || 0);
+  const neuralComplete = Number(neural.complete_jobs || 0);
+  const neuralFailed = Number(neural.failed_jobs || 0);
+  const gpuUtil = Number(neural.gpu_utilization_percent || 0);
+  const gpuUsed = Number(neural.gpu_memory_used_mb || 0);
+  document.getElementById('gpuStage').textContent = neuralActive || neuralComplete || neuralFailed
+    ? `${neuralActive} active / ${neuralComplete} done, ${gpuUtil.toFixed(0)}% GPU, ${compact(gpuUsed)} MB`
+    : gpuFree
     ? `${neuralStage} / ${gpuState} (${compact(gpuFree)} MB free)`
     : `${neuralStage} / ${gpuState}`;
   document.getElementById('sourceGate').textContent = runner.source_target_count ? `${compact(runner.matched_source_targets)} / ${compact(runner.source_target_count)}` : 'pending';

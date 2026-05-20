@@ -171,6 +171,13 @@ def evaluate_neighbors(embeddings: torch.Tensor, labels: list[str]) -> tuple[flo
     return purity, random_baseline, purity - random_baseline
 
 
+def evaluation_runtime() -> tuple[str, int]:
+    eval_device_setting = os.getenv("CONTRASTIVE_EVAL_DEVICE", "auto")
+    eval_device = "cuda" if eval_device_setting != "cpu" and torch.cuda.is_available() else "cpu"
+    chunk_size = max(1, int(os.getenv("CONTRASTIVE_EVAL_CHUNK", "2048")))
+    return eval_device, chunk_size
+
+
 def write_metrics(path: Path, metrics: dict[str, object]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".json.tmp")
@@ -252,6 +259,7 @@ def main() -> None:
     with torch.no_grad():
         z = model(x).detach().cpu()
     neighbor_purity, random_baseline, purity_lift = evaluate_neighbors(z, labels)
+    eval_device, eval_chunk = evaluation_runtime()
 
     embeddings_path = output_dir / "embeddings.csv"
     with embeddings_path.open("w", newline="") as handle:
@@ -281,6 +289,8 @@ def main() -> None:
         "neighbor_purity": neighbor_purity,
         "random_baseline_purity": random_baseline,
         "purity_lift": purity_lift,
+        "evaluation_device": eval_device,
+        "evaluation_chunk": eval_chunk,
         "outputs": {"embeddings": "embeddings.csv", "checkpoint": "encoder.pt"},
     }
     write_metrics(metrics_path, metrics)

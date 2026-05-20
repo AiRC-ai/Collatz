@@ -5,6 +5,7 @@
 /data/generated/
 /data/imported/
 /logs/*.jsonl
+/logs/neural-parallel/
 /results/*
 /checkpoints/*
 !/logs/README.md
