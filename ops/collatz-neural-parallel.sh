@@ -299,6 +299,8 @@ if [ "$RUN_EVIDENCE" = "1" ]; then
   write_status "running" "validating neural evidence"
   export EVIDENCE_EVAL_CHUNK="${EVIDENCE_EVAL_CHUNK:-2048}"
   export EVIDENCE_EVAL_DEVICE="${EVIDENCE_EVAL_DEVICE:-auto}"
+  export EVIDENCE_FOLDS="${EVIDENCE_FOLDS:-5}"
+  export EVIDENCE_SEEDS="${EVIDENCE_SEEDS:-5}"
   "${COMPOSE[@]}" --profile research run --rm evidence-validation > "$LOG_DIR/evidence-validation.log" 2>&1
 fi
 

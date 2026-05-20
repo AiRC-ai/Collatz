@@ -404,7 +404,7 @@ void write_alignment(const Options &options, const std::vector<Point> &points, c
         coverage.present = true;
         ++coverage.targets;
         max_source_n = std::max(max_source_n, target.n);
-        const std::string duplicate_key = target.source + ":" + std::to_string(target.n);
+        const std::string duplicate_key = family_key + ":" + target.source_kind + ":" + std::to_string(target.n);
         const bool duplicate = seen_source_rows.count(duplicate_key) != 0;
         seen_source_rows.insert(duplicate_key);
         const auto found = point_by_n.find(target.n);

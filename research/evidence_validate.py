@@ -34,6 +34,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--token-bins", type=int, default=int(os.getenv("EVIDENCE_TOKEN_BINS", "64")))
     parser.add_argument("--range-bands", type=int, default=int(os.getenv("EVIDENCE_RANGE_BANDS", "4")))
     parser.add_argument("--folds", type=int, default=int(os.getenv("EVIDENCE_FOLDS", "3")))
+    parser.add_argument("--seeds", type=int, default=int(os.getenv("EVIDENCE_SEEDS", "1")))
     parser.add_argument("--seed", type=int, default=20260521)
     parser.add_argument(
         "--ablation",
@@ -377,6 +378,10 @@ def parse_ablation(item: str) -> tuple[str, Path]:
 
 def main() -> None:
     args = parse_args()
+    if args.folds < 2:
+        raise SystemExit("--folds must be at least 2")
+    if args.seeds < 1:
+        raise SystemExit("--seeds must be at least 1")
     random.seed(args.seed)
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -427,14 +432,18 @@ def main() -> None:
             residue_groups.append(item)
 
     fold_groups: list[dict[str, object]] = []
-    shuffled = list(range(len(starts)))
-    random.shuffle(shuffled)
-    folds = max(2, args.folds)
-    for fold in range(folds):
-        indices = [index for pos, index in enumerate(shuffled) if pos % folds == fold]
-        item = subset_stats(f"random_fold_{fold}", starts, labels, learned_rows, indices)
-        if item is not None:
-            fold_groups.append(item)
+    folds = args.folds
+    for seed_offset in range(args.seeds):
+        shuffled = list(range(len(starts)))
+        random.Random(args.seed + seed_offset).shuffle(shuffled)
+        for fold in range(folds):
+            indices = [index for pos, index in enumerate(shuffled) if pos % folds == fold]
+            name = f"random_fold_{fold}" if args.seeds == 1 else f"seed_{seed_offset}_fold_{fold}"
+            item = subset_stats(name, starts, labels, learned_rows, indices)
+            if item is not None:
+                if args.seeds > 1:
+                    item["seed_index"] = seed_offset
+                fold_groups.append(item)
 
     learned_ablation_stats = []
     default_metrics = read_json(Path(args.contrastive_metrics))
@@ -553,8 +562,8 @@ def main() -> None:
         "fold_count": fold_count,
         "fold_min_lift": finite(fold_min_lift),
         "fold_mean_lift": finite(fold_mean_lift),
-        "n_seeds": 1,
-        "n_folds": args.folds,
+        "n_seeds": args.seeds,
+        "n_folds": folds,
         "lift_statistics": {
             "mean": finite(lift_summary["mean"]),
             "std": finite(lift_summary["std"]),

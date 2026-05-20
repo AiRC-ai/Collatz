@@ -277,13 +277,16 @@ Build an evidence-first stratified sample over the full binary scan:
   --output-dir data/generated/stratified \
   --clusters data/generated/topology/clusters.csv \
   --representatives data/generated/representatives.csv \
-  --starts data/generated/graphs/starts.csv
+  --starts data/generated/graphs/starts.csv \
+  --source-targets data/generated/source_validation/public_source_targets.csv
 ```
 
 This writes `samples.csv` and `metadata.json`. Every selected start has one or
 more selection reasons: random baseline, range band, residue bucket, record-like
 ladder, high stopping time, high peak behavior, topology representative, or GNN
-representative.
+representative. Public source targets are included explicitly so source
+alignment is measured against real projection rows rather than a missing-sample
+artifact.
 
 Export a Graph Neural Network-ready trajectory graph:
 
@@ -302,14 +305,15 @@ Generate a deterministic baseline topology map from metric embeddings:
 
 ```sh
 ./build/collatz_embedding_analyze \
-  --input data/generated/ml_1_100m/metrics.csv \
+  --input data/generated/ml_stratified/metrics_safe.csv \
   --output-dir data/generated/topology \
   --clusters 16
 ```
 
 This writes a 2D PCA-style projection, k-means cluster summaries, and
-`embedding_topology.json` for the dashboard. It is a baseline sanity map before
-UMAP/RAPIDS/FAISS/GNN training.
+`embedding_topology.json` for the dashboard. The public topology should be built
+from the source-covered safe-metric export so evidence alignment, README claims,
+and dashboard claims stay tied to the same public-safe sample.
 
 Build nearest-neighbor neighborhoods around each topology cluster
 representative:
@@ -404,7 +408,9 @@ Compare public source-validation starts against topology neighborhoods:
 ```
 
 This writes `source_alignment.json`, `source_targets.csv`, and
-`unmatched_rows.csv`. Use the generated evidence snapshot above for current
+`unmatched_rows.csv`. Source targets are deduped by source family, source kind,
+and start value before public alignment; duplicate provenance is kept in the
+source-target metadata. Use the generated evidence snapshot above for current
 source target counts and promotion blockers; those values are intentionally
 derived from canonical JSON rather than repeated by hand.
 

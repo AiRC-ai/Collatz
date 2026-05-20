@@ -23,6 +23,18 @@ def read_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
+def control_key(row: dict[str, str]) -> tuple[str, ...]:
+    n = int(row["n"])
+    return (
+        row["bit_length"],
+        row["range_band"],
+        str(n % 32),
+        row["total_steps_bucket"],
+        row["peak_ratio_bucket"],
+        row["first_drop_bucket"],
+    )
+
+
 def main() -> None:
     if len(sys.argv) != 6:
         raise SystemExit(
@@ -77,6 +89,25 @@ def main() -> None:
         "peak_ratio_bucket",
         "first_drop_bucket",
     }, "matched control flags missing")
+    require(pair_metrics.get("control_fields") == [
+        "bit_length",
+        "range_band",
+        "residue_class",
+        "total_steps_bucket",
+        "peak_ratio_bucket",
+        "first_drop_bucket",
+    ], "hard-negative controls must include residue_class, not source_family")
+    require(all(value == bool(pair_metrics.get("matched_control_pass")) for value in controls.values()),
+            "matched-control flags must follow the sampler threshold result")
+    family_by_n = {int(row["n"]): row for row in family_rows}
+    for row in read_csv(pair_dir / "hard_negatives.csv"):
+        anchor = family_by_n[int(row["n"])]
+        negative = family_by_n[int(row["negative_n"])]
+        require(control_key(anchor) == control_key(negative), "hard negative does not match every control field")
+        require(anchor["tail_hash"] != negative["tail_hash"], "hard negative shares tail_hash")
+        require(anchor["coalescence_family_id"] != negative["coalescence_family_id"], "hard negative shares coalescence family")
+        require(anchor["parity_motif_hash"] != negative["parity_motif_hash"], "hard negative shares parity motif")
+        require(anchor["residue_motif_hash"] != negative["residue_motif_hash"], "hard negative shares residue motif")
 
     image_meta = json.loads((image_dir / "metadata.json").read_text())
     require(image_meta.get("schema_version") == "image_tensor_v1", "image tensor schema mismatch")

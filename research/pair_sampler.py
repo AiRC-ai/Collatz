@@ -14,7 +14,7 @@ from pathlib import Path
 CONTROL_FIELDS = [
     "bit_length",
     "range_band",
-    "source_family",
+    "residue_class",
     "total_steps_bucket",
     "peak_ratio_bucket",
     "first_drop_bucket",
@@ -36,8 +36,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-dir", default="/work/data/generated/ml_pairs")
     parser.add_argument("--hard-negatives", type=int, default=8)
     parser.add_argument("--max-pairs-per-type", type=int, default=200000)
+    parser.add_argument("--min-match-rate", type=float, default=0.80)
     parser.add_argument("--seed", type=int, default=20260520)
-    return parser.parse_args()
+    args = parser.parse_args()
+    if not 0.0 <= args.min_match_rate <= 1.0:
+        raise SystemExit("--min-match-rate must be between 0 and 1")
+    return args
 
 
 def read_csv_by_n(path: Path) -> dict[int, dict[str, str]]:
@@ -62,6 +66,11 @@ def read_metric_starts(path: Path) -> set[int]:
         for row in reader:
             starts.add(int(row["n"]))
     return starts
+
+
+def attach_derived_controls(rows: dict[int, dict[str, str]]) -> None:
+    for n, row in rows.items():
+        row.setdefault("residue_class", str(n % 32))
 
 
 def pair_key(a: int, b: int, pair_type: str) -> tuple[int, int, str]:
@@ -126,6 +135,7 @@ def main() -> None:
         labels = {n: row for n, row in labels.items() if n in metric_starts}
     if not labels:
         raise RuntimeError("no usable family labels found")
+    attach_derived_controls(labels)
 
     pairs: set[tuple[int, int, str]] = set()
     distribution: Counter[str] = Counter()
@@ -161,6 +171,7 @@ def main() -> None:
     write_pairs(output_dir / "positive_pairs.csv", pairs)
 
     match_rate = matched / requested if requested else 0.0
+    controls_pass = requested > 0 and match_rate >= args.min_match_rate
     metrics = {
         "dataset_type": "collatz_pair_sampler",
         "tool": "research/pair_sampler.py",
@@ -171,13 +182,15 @@ def main() -> None:
         "hard_negative_count": len(hard_negatives),
         "hard_negatives_per_anchor": args.hard_negatives,
         "hard_negative_match_rate": match_rate,
+        "matched_control_min_match_rate": args.min_match_rate,
+        "matched_control_pass": controls_pass,
         "matched_controls": {
-            "bit_length": match_rate > 0.0,
-            "range_band": match_rate > 0.0,
-            "residue_class": match_rate > 0.0,
-            "stopping_time_bucket": match_rate > 0.0,
-            "peak_ratio_bucket": match_rate > 0.0,
-            "first_drop_bucket": match_rate > 0.0,
+            "bit_length": controls_pass,
+            "range_band": controls_pass,
+            "residue_class": controls_pass,
+            "stopping_time_bucket": controls_pass,
+            "peak_ratio_bucket": controls_pass,
+            "first_drop_bucket": controls_pass,
         },
         "positive_pair_distribution": dict(sorted(distribution.items())),
         "control_fields": CONTROL_FIELDS,

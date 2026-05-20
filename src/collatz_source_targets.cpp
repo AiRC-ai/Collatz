@@ -49,13 +49,8 @@ struct FamilyCounter {
     std::size_t rows_skipped_above_max_n = 0;
     std::size_t rows_bad = 0;
     std::size_t rows_mismatch = 0;
+    std::size_t rows_duplicate_suppressed = 0;
     std::size_t overflow_tokens = 0;
-};
-
-struct Counters {
-    std::map<std::string, FamilyCounter> family;
-    std::set<std::string> families_written;
-    std::size_t skipped_overflow_or_unfinished = 0;
 };
 
 struct TargetRow {
@@ -68,6 +63,14 @@ struct TargetRow {
     std::string source_url;
     std::string retrieved_utc;
     std::string parser;
+};
+
+struct Counters {
+    std::map<std::string, FamilyCounter> family;
+    std::set<std::string> families_written;
+    std::set<std::string> emitted_dedupe_keys;
+    std::vector<TargetRow> duplicate_rows;
+    std::size_t skipped_overflow_or_unfinished = 0;
 };
 
 void usage(std::ostream &out) {
@@ -249,6 +252,40 @@ void write_target(std::ofstream &out, const TargetRow &row) {
         << ',' << row.source_url << ',' << row.retrieved_utc << ',' << row.parser << '\n';
 }
 
+std::string source_family_key(std::string_view source) {
+    if (source.rfind("OEIS_", 0) == 0) {
+        return "oeis";
+    }
+    if (source.rfind("Roosendaal_", 0) == 0) {
+        return "roosendaal";
+    }
+    if (source.rfind("Oliveira_e_Silva_", 0) == 0) {
+        return "oliveira_e_silva";
+    }
+    if (source.rfind("Barina_", 0) == 0) {
+        return "barina";
+    }
+    return std::string(source);
+}
+
+std::string dedupe_key(const TargetRow &row) {
+    return source_family_key(row.source) + ":" + row.source_kind + ":" + std::to_string(row.n);
+}
+
+bool write_target_once(std::ofstream &out, Counters &counters, const TargetRow &row) {
+    auto &counter = counters.family[row.source];
+    const auto key = dedupe_key(row);
+    if (!counters.emitted_dedupe_keys.insert(key).second) {
+        ++counter.rows_duplicate_suppressed;
+        counters.duplicate_rows.push_back(row);
+        return false;
+    }
+    write_target(out, row);
+    ++counter.rows_written;
+    counters.families_written.insert(row.source);
+    return true;
+}
+
 bool write_computed_target(
     const Options &options,
     std::ofstream &out,
@@ -276,12 +313,9 @@ bool write_computed_target(
         return false;
     }
 
-    write_target(out, {std::string(source), feature.n, feature.total_steps, feature.peak.low,
-                       std::string(source_kind), source_rank, std::string(source_url), retrieved_utc,
-                       std::string(parser)});
-    ++counter.rows_written;
-    counters.families_written.insert(std::string(source));
-    return true;
+    return write_target_once(out, counters, {std::string(source), feature.n, feature.total_steps, feature.peak.low,
+                                             std::string(source_kind), source_rank, std::string(source_url), retrieved_utc,
+                                             std::string(parser)});
 }
 
 void process_stopping_file(const Options &options, std::ofstream &out, Counters &counters, const std::string &retrieved_utc) {
@@ -321,10 +355,9 @@ void process_stopping_file(const Options &options, std::ofstream &out, Counters 
             continue;
         }
 
-        write_target(out, {std::string(kOeisStoppingSource), feature.n, feature.total_steps, feature.peak.low,
-                           "total_stopping_time", n, "https://oeis.org/A006577/b006577.txt", retrieved_utc, "oeis_b_file_v1"});
-        ++counter.rows_written;
-        counters.families_written.insert(std::string(kOeisStoppingSource));
+        write_target_once(out, counters, {std::string(kOeisStoppingSource), feature.n, feature.total_steps, feature.peak.low,
+                                          "total_stopping_time", n, "https://oeis.org/A006577/b006577.txt", retrieved_utc,
+                                          "oeis_b_file_v1"});
     }
 }
 
@@ -501,6 +534,14 @@ std::size_t future_source_targets(const Counters &counters) {
     return total;
 }
 
+std::size_t duplicate_rows_suppressed(const Counters &counters) {
+    std::size_t total = 0;
+    for (const auto &[_, counter] : counters.family) {
+        total += counter.rows_duplicate_suppressed;
+    }
+    return total;
+}
+
 void write_family_counter_json(std::ofstream &out, const Counters &counters) {
     out << "  \"families\": {\n";
     std::size_t i = 0;
@@ -511,6 +552,7 @@ void write_family_counter_json(std::ofstream &out, const Counters &counters) {
             << ",\"future_source_targets\":" << counter.rows_skipped_above_max_n
             << ",\"rows_bad\":" << counter.rows_bad
             << ",\"rows_mismatch\":" << counter.rows_mismatch
+            << ",\"rows_duplicate_suppressed\":" << counter.rows_duplicate_suppressed
             << ",\"overflow_tokens\":" << counter.overflow_tokens
             << "}";
         if (++i != counters.family.size()) {
@@ -519,6 +561,28 @@ void write_family_counter_json(std::ofstream &out, const Counters &counters) {
         out << '\n';
     }
     out << "  },\n";
+}
+
+void write_duplicate_report(const Options &options, const Counters &counters) {
+    const std::string path = options.output + ".duplicates.csv";
+    collatz::ensure_parent_dir(path);
+    std::ofstream out(path);
+    if (!out) {
+        throw std::runtime_error("failed to open duplicate source-target report: " + path);
+    }
+    out << "source_family,source,source_kind,n,total_steps,peak_low,source_rank,source_url,retrieved_utc,parser\n";
+    for (const auto &row : counters.duplicate_rows) {
+        out << source_family_key(row.source) << ','
+            << row.source << ','
+            << row.source_kind << ','
+            << row.n << ','
+            << row.total_steps << ','
+            << row.peak_low << ','
+            << row.source_rank << ','
+            << row.source_url << ','
+            << row.retrieved_utc << ','
+            << row.parser << '\n';
+    }
 }
 
 void write_metadata(const Options &options, const Counters &counters) {
@@ -547,9 +611,12 @@ void write_metadata(const Options &options, const Counters &counters) {
         << "  \"rows_written\": " << rows_written(counters) << ",\n"
         << "  \"source_family_count\": " << counters.families_written.size() << ",\n"
         << "  \"future_source_targets\": " << future_source_targets(counters) << ",\n"
+        << "  \"duplicate_rows_suppressed\": " << duplicate_rows_suppressed(counters) << ",\n"
         << "  \"skipped_overflow_or_unfinished\": " << counters.skipped_overflow_or_unfinished << ",\n";
     write_family_counter_json(out, counters);
-    out << "  \"header\": \"source,n,total_steps,peak_low,source_kind,source_rank,source_url,retrieved_utc,parser\"\n"
+    out << "  \"duplicates_output\": \"" << collatz::json_escape(options.output + ".duplicates.csv") << "\",\n"
+        << "  \"dedupe_key\": \"source_family + source_kind + n\",\n"
+        << "  \"header\": \"source,n,total_steps,peak_low,source_kind,source_rank,source_url,retrieved_utc,parser\"\n"
         << "}\n";
 }
 
@@ -585,10 +652,12 @@ int main(int argc, char **argv) {
                                      kOliveiraStoppingSource, "stopping_record",
                                      "https://sweet.ua.pt/tos/3x%2B1.html");
         out.close();
+        write_duplicate_report(options, counters);
         write_metadata(options, counters);
 
         std::cout << "source_targets=" << rows_written(counters)
                   << " source_families=" << counters.families_written.size()
+                  << " duplicate_rows_suppressed=" << duplicate_rows_suppressed(counters)
                   << " future_source_targets=" << future_source_targets(counters)
                   << " output=" << options.output
                   << "\n";

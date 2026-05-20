@@ -127,6 +127,13 @@ add_test(NAME collatz_source_targets_fixtures
         --generic-record-limit 10
 )
 
+add_test(NAME collatz_source_targets_dedupe_fixture
+    COMMAND python3 "${CMAKE_SOURCE_DIR}/tools/test_source_targets_dedupe.py"
+        "${CMAKE_BINARY_DIR}/source_targets_fixture.csv"
+        "${CMAKE_BINARY_DIR}/source_targets_fixture.metadata.json"
+)
+set_tests_properties(collatz_source_targets_dedupe_fixture PROPERTIES DEPENDS collatz_source_targets_fixtures)
+
 add_test(NAME collatz_source_align_extended_fixture
     COMMAND collatz_source_align
         --projection "${COLLATZ_SOURCE_FIXTURES}/projection_fixture.csv"

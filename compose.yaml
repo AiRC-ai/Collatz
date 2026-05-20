@@ -157,6 +157,8 @@ services:
       - /work/data/generated/representatives.csv
       - --starts
       - /work/data/generated/graphs/starts.csv
+      - --source-targets
+      - ${STRATIFIED_SOURCE_TARGETS:-/work/data/generated/source_validation/public_source_targets.csv}
       - --random-count
       - ${STRATIFIED_RANDOM_COUNT:-4096}
       - --global-top
@@ -234,6 +236,8 @@ services:
       - /work/data/generated/ml_pairs
       - --hard-negatives
       - ${PAIR_HARD_NEGATIVES:-8}
+      - --min-match-rate
+      - ${PAIR_MIN_MATCH_RATE:-0.80}
     volumes:
       - ./data:/work/data
       - ./logs:/work/logs
@@ -289,7 +293,7 @@ services:
     command:
       - /work/build/collatz_embedding_analyze
       - --input
-      - /work/data/generated/ml/metrics.csv
+      - /work/data/generated/ml_stratified/metrics_safe.csv
       - --output-dir
       - /work/data/generated/topology
       - --clusters
@@ -551,6 +555,8 @@ services:
     environment:
       EVIDENCE_EVAL_CHUNK: ${EVIDENCE_EVAL_CHUNK:-2048}
       EVIDENCE_EVAL_DEVICE: ${EVIDENCE_EVAL_DEVICE:-auto}
+      EVIDENCE_FOLDS: ${EVIDENCE_FOLDS:-5}
+      EVIDENCE_SEEDS: ${EVIDENCE_SEEDS:-5}
     gpus: all
     volumes:
       - ./data:/work/data

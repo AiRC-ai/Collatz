@@ -24,6 +24,7 @@ if [ "$DRY_RUN" -eq 1 ]; then
   echo "dry-run stage: build tools if needed"
   echo "dry-run stage: fetch public source records"
   echo "dry-run stage: generate expanded source targets"
+  echo "dry-run stage: refresh source-covered topology projection"
   echo "dry-run stage: align source targets to current topology"
   echo "dry-run stage: regenerate hypothesis summary"
   echo "dry-run stage: optionally run one CPU crunch scan batch if configured"
@@ -55,9 +56,12 @@ SOURCE_OUTPUT="${COLLATZ_SOURCE_OUTPUT:-data/generated/source_validation/public_
 SOURCE_METADATA="${COLLATZ_SOURCE_METADATA:-$SOURCE_OUTPUT.metadata.json}"
 SOURCE_ALIGNMENT_DIR="${COLLATZ_SOURCE_ALIGNMENT_DIR:-data/generated/source_alignment}"
 PROJECTION_FILE="${COLLATZ_PROJECTION_FILE:-data/generated/topology/projection.csv}"
+TOPOLOGY_DIR="${COLLATZ_TOPOLOGY_DIR:-data/generated/topology}"
 HYPOTHESES_DIR="${COLLATZ_HYPOTHESES_DIR:-data/generated/hypotheses}"
 INSIGHTS_FILE="${COLLATZ_INSIGHTS_FILE:-data/generated/insights/insights.json}"
-STRATIFIED_METADATA="${COLLATZ_STRATIFIED_METADATA:-data/generated/stratified/metadata.json}"
+STRATIFIED_DIR="${COLLATZ_STRATIFIED_DIR:-data/generated/stratified}"
+STRATIFIED_METADATA="${COLLATZ_STRATIFIED_METADATA:-$STRATIFIED_DIR/metadata.json}"
+ML_STRATIFIED_DIR="${COLLATZ_ML_STRATIFIED_DIR:-data/generated/ml_stratified}"
 CONTRASTIVE_METRICS="${COLLATZ_CONTRASTIVE_METRICS:-data/generated/contrastive/metrics.json}"
 AUTOENCODER_METRICS="${COLLATZ_AUTOENCODER_METRICS:-data/generated/anomalies/metrics.json}"
 GNN_METRICS="${COLLATZ_GNN_METRICS:-data/generated/gnn/metrics.json}"
@@ -292,19 +296,62 @@ decompress_optional() {
 }
 
 build_if_needed() {
-  if [ -x "$BUILD_DIR/collatz_source_targets" ] &&
-     [ -x "$BUILD_DIR/collatz_source_align" ] &&
-     [ -x "$BUILD_DIR/collatz_hypothesis_analyze" ] &&
-     [ -x "$BUILD_DIR/collatz_evidence_publish" ] &&
-     [ -x "$BUILD_DIR/collatz_full_audit" ]; then
-    return
-  fi
   cmake -S . -B "$BUILD_DIR"
   if [ -n "${COLLATZ_BUILD_JOBS:-}" ]; then
     cmake --build "$BUILD_DIR" --parallel "$COLLATZ_BUILD_JOBS"
   else
     cmake --build "$BUILD_DIR" --parallel
   fi
+}
+
+refresh_source_covered_topology() {
+  if [ "${COLLATZ_REFRESH_SOURCE_TOPOLOGY:-1}" != "1" ]; then
+    echo "source-covered topology refresh skipped"
+    return
+  fi
+  local stratified_args topology_args topology_clusters representatives starts
+  topology_clusters="$TOPOLOGY_DIR/clusters.csv"
+  representatives="${COLLATZ_REPRESENTATIVES_FILE:-data/generated/representatives.csv}"
+  starts="${COLLATZ_GRAPH_STARTS_FILE:-data/generated/graphs/starts.csv}"
+  stratified_args=(
+    "$BUILD_DIR/collatz_stratified_sample"
+    --input "$FEATURE_FILE"
+    --output-dir "$STRATIFIED_DIR"
+    --random-count "${STRATIFIED_RANDOM_COUNT:-100000}"
+    --global-top "${STRATIFIED_GLOBAL_TOP:-2048}"
+    --residue-top "${STRATIFIED_RESIDUE_TOP:-128}"
+    --range-bands "${STRATIFIED_RANGE_BANDS:-16}"
+    --range-top "${STRATIFIED_RANGE_TOP:-128}"
+  )
+  if [ -f "$topology_clusters" ]; then
+    stratified_args+=(--clusters "$topology_clusters")
+  fi
+  if [ -f "$representatives" ]; then
+    stratified_args+=(--representatives "$representatives")
+  fi
+  if [ -f "$starts" ]; then
+    stratified_args+=(--starts "$starts")
+  fi
+  if [ -f "$SOURCE_OUTPUT" ]; then
+    stratified_args+=(--source-targets "$SOURCE_OUTPUT")
+  fi
+  "${stratified_args[@]}" || fail_cycle "refresh source-covered topology projection" "$?"
+
+  "$BUILD_DIR/collatz_embed_export" \
+    --input "$FEATURE_FILE" \
+    --sample-file "$STRATIFIED_DIR/samples.csv" \
+    --output-dir "$ML_STRATIFIED_DIR" \
+    --sketch-dims "${EMBED_SKETCH_DIMS:-128}" \
+    --metric-mode safe || fail_cycle "refresh source-covered topology projection" "$?"
+
+  topology_args=(
+    "$BUILD_DIR/collatz_embedding_analyze"
+    --input "$ML_STRATIFIED_DIR/metrics_safe.csv"
+    --output-dir "$TOPOLOGY_DIR"
+    --clusters "${TOPOLOGY_CLUSTERS:-16}"
+    --preview-points "${TOPOLOGY_PREVIEW_POINTS:-5000}"
+  )
+  "${topology_args[@]}" || fail_cycle "refresh source-covered topology projection" "$?"
 }
 
 regenerate_hypothesis_summary() {
@@ -486,6 +533,9 @@ stage "generate expanded source targets"
   --stopping-limit "${COLLATZ_SOURCE_STOPPING_LIMIT:-5000}" \
   --path-record-limit "${COLLATZ_SOURCE_PATH_RECORD_LIMIT:-100}" \
   --generic-record-limit "${COLLATZ_SOURCE_GENERIC_LIMIT:-250}" || fail_cycle "generate expanded source targets" "$?"
+
+stage "refresh source-covered topology projection"
+refresh_source_covered_topology
 
 stage "align source targets"
 "$BUILD_DIR/collatz_source_align" \

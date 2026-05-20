@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cctype>
 #include <cstdint>
 #include <cstdlib>
 #include <filesystem>
@@ -24,6 +25,7 @@ struct Options {
     std::string clusters;
     std::string representatives;
     std::string starts;
+    std::string source_targets;
     std::size_t random_count = 4096;
     std::size_t global_top = 256;
     std::size_t residue_top = 16;
@@ -55,6 +57,7 @@ void usage(std::ostream &out) {
         << "  --clusters FILE          optional topology clusters.csv for loose/tight reps\n"
         << "  --representatives FILE   optional representatives.csv to preserve prior reps\n"
         << "  --starts FILE            optional graph starts.csv for GNN starts\n"
+        << "  --source-targets FILE    optional public source target CSV to force source starts into the sample\n"
         << "  --random-count N         deterministic random baseline rows (default 4096)\n"
         << "  --global-top N           global top rows per score family (default 256)\n"
         << "  --residue-top N          top total-step rows per residue_mod32 (default 16)\n"
@@ -93,6 +96,8 @@ Options parse_args(int argc, char **argv) {
             options.representatives = need_value("--representatives");
         } else if (arg == "--starts") {
             options.starts = need_value("--starts");
+        } else if (arg == "--source-targets") {
+            options.source_targets = need_value("--source-targets");
         } else if (arg == "--random-count") {
             options.random_count = parse_size_arg(need_value("--random-count"), "--random-count", true);
         } else if (arg == "--global-top") {
@@ -274,6 +279,86 @@ void read_n_category_file(const std::string &path, const std::string &default_re
     }
 }
 
+std::string sanitize_reason_token(const std::string &text) {
+    std::string out;
+    out.reserve(text.size());
+    for (const unsigned char ch : text) {
+        if (std::isalnum(ch) != 0) {
+            out.push_back(static_cast<char>(std::tolower(ch)));
+        } else if (!out.empty() && out.back() != '_') {
+            out.push_back('_');
+        }
+    }
+    while (!out.empty() && out.back() == '_') {
+        out.pop_back();
+    }
+    return out.empty() ? "unknown" : out;
+}
+
+std::string source_family_key(const std::string &source) {
+    if (source.rfind("OEIS_", 0) == 0) {
+        return "oeis";
+    }
+    if (source.rfind("Roosendaal_", 0) == 0) {
+        return "roosendaal";
+    }
+    if (source.rfind("Oliveira_e_Silva_", 0) == 0) {
+        return "oliveira_e_silva";
+    }
+    if (source.rfind("Barina_", 0) == 0) {
+        return "barina";
+    }
+    return sanitize_reason_token(source);
+}
+
+void read_source_targets_file(const std::string &path, std::unordered_map<std::uint64_t, std::set<std::string>> &wanted) {
+    if (path.empty()) {
+        return;
+    }
+    std::ifstream in(path);
+    if (!in) {
+        return;
+    }
+    std::string header;
+    if (!std::getline(in, header)) {
+        return;
+    }
+    const auto columns = split_csv_line(header);
+    auto find_column = [&](const std::string &name) -> int {
+        for (std::size_t i = 0; i < columns.size(); ++i) {
+            if (columns[i] == name) {
+                return static_cast<int>(i);
+            }
+        }
+        return -1;
+    };
+    const int source_index = find_column("source");
+    const int n_index = find_column("n");
+    const int kind_index = find_column("source_kind");
+    if (source_index < 0 || n_index < 0) {
+        throw std::runtime_error("source target input needs source and n columns: " + path);
+    }
+
+    std::string line;
+    while (std::getline(in, line)) {
+        if (line.empty()) {
+            continue;
+        }
+        const auto parts = split_csv_line(line);
+        if (source_index >= static_cast<int>(parts.size()) || n_index >= static_cast<int>(parts.size())) {
+            continue;
+        }
+        const auto n = collatz::parse_u64(parts[static_cast<std::size_t>(n_index)]);
+        if (!n || *n == 0) {
+            continue;
+        }
+        const std::string kind = kind_index >= 0 && kind_index < static_cast<int>(parts.size())
+                                     ? sanitize_reason_token(parts[static_cast<std::size_t>(kind_index)])
+                                     : "source_record";
+        wanted[*n].insert("source_target_" + source_family_key(parts[static_cast<std::size_t>(source_index)]) + "_" + kind);
+    }
+}
+
 void read_clusters_file(const std::string &path, std::unordered_map<std::uint64_t, std::set<std::string>> &wanted) {
     if (path.empty()) {
         return;
@@ -429,6 +514,7 @@ int main(int argc, char **argv) {
         read_clusters_file(options.clusters, wanted);
         read_n_category_file(options.representatives, "representative", wanted);
         read_n_category_file(options.starts, "gnn_start", wanted);
+        read_source_targets_file(options.source_targets, wanted);
 
         const auto available = collatz::binary_record_count(options.input);
         const auto wanted_records = options.limit == 0 ? available : std::min<std::uint64_t>(available, options.limit);
