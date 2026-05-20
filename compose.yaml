@@ -292,12 +292,23 @@ services:
       - /work/data/generated/stratified/samples.csv
       - --output-dir
       - ${CONTRASTIVE_OUTPUT_DIR:-/work/data/generated/contrastive}
+      - --limit
+      - ${CONTRASTIVE_LIMIT:-25000}
       - --epochs
       - ${CONTRASTIVE_EPOCHS:-40}
+      - --batch-size
+      - ${CONTRASTIVE_BATCH_SIZE:-512}
+      - --hidden-dims
+      - ${CONTRASTIVE_HIDDEN_DIMS:-192}
       - --embedding-dims
       - ${CONTRASTIVE_EMBEDDING_DIMS:-64}
+      - --token-bins
+      - ${CONTRASTIVE_TOKEN_BINS:-64}
       - --feature-set
       - ${CONTRASTIVE_FEATURE_SET:-hybrid}
+    environment:
+      CONTRASTIVE_EVAL_CHUNK: ${CONTRASTIVE_EVAL_CHUNK:-2048}
+      CONTRASTIVE_EVAL_DEVICE: ${CONTRASTIVE_EVAL_DEVICE:-auto}
     gpus: all
     volumes:
       - ./data:/work/data
@@ -319,10 +330,20 @@ services:
       - /work/data/generated/stratified/samples.csv
       - --output-dir
       - ${AUTOENCODER_OUTPUT_DIR:-/work/data/generated/anomalies}
+      - --limit
+      - ${AUTOENCODER_LIMIT:-25000}
       - --epochs
       - ${AUTOENCODER_EPOCHS:-50}
+      - --batch-size
+      - ${AUTOENCODER_BATCH_SIZE:-512}
+      - --hidden-dims
+      - ${AUTOENCODER_HIDDEN_DIMS:-128}
       - --latent-dims
       - ${AUTOENCODER_LATENT_DIMS:-24}
+      - --top-anomalies
+      - ${AUTOENCODER_TOP_ANOMALIES:-128}
+    environment:
+      AUTOENCODER_LIMIT: ${AUTOENCODER_LIMIT:-25000}
     gpus: all
     volumes:
       - ./data:/work/data
@@ -364,6 +385,9 @@ services:
       - residue=/work/data/generated/contrastive_residue/metrics.json
       - --ablation
       - tokens=/work/data/generated/contrastive_tokens/metrics.json
+    environment:
+      EVIDENCE_EVAL_CHUNK: ${EVIDENCE_EVAL_CHUNK:-2048}
+      EVIDENCE_EVAL_DEVICE: ${EVIDENCE_EVAL_DEVICE:-auto}
     gpus: all
     volumes:
       - ./data:/work/data
