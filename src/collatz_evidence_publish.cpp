@@ -27,6 +27,7 @@ struct Options {
     std::string ablation_report = "data/generated/evidence_validation/ablation_report.csv";
     std::string source_alignment = "data/generated/source_alignment/source_alignment.json";
     std::string runner_status = "data/generated/runner/status.json";
+    std::string neural_status = "data/generated/runner/neural_parallel_status.json";
     std::string output = "data/generated/evidence/latest_public_summary.json";
     std::string hypothesis_summary_output = "data/generated/hypotheses/summary.json";
     std::string active_feature_file = "data/generated/features.bin";
@@ -50,6 +51,7 @@ void usage(std::ostream &out) {
         << "  --ablation-report FILE         evidence validation ablation CSV\n"
         << "  --source-alignment FILE        source alignment summary JSON\n"
         << "  --runner-status FILE           optional public-safe runner status JSON\n"
+        << "  --neural-status FILE           optional public-safe parallel neural status JSON\n"
         << "  --active-feature-file LABEL    relative public feature-file label\n"
         << "  --git-commit SHA               source commit label\n"
         << "  --output FILE                  canonical public summary output\n"
@@ -80,6 +82,8 @@ Options parse_args(int argc, char **argv) {
             options.source_alignment = need_value("--source-alignment");
         } else if (arg == "--runner-status") {
             options.runner_status = need_value("--runner-status");
+        } else if (arg == "--neural-status") {
+            options.neural_status = need_value("--neural-status");
         } else if (arg == "--active-feature-file") {
             options.active_feature_file = need_value("--active-feature-file");
         } else if (arg == "--git-commit") {
@@ -459,6 +463,7 @@ int main(int argc, char **argv) {
         const std::string validation = read_file_or_empty(options.validation_metrics);
         const std::string source_alignment = read_file_or_empty(options.source_alignment);
         const std::string runner = read_file_or_empty(options.runner_status);
+        const std::string neural_status = read_file_or_empty(options.neural_status);
         const auto leaderboard = read_leaderboard(options.ablation_report);
 
         const std::uint64_t audit_rows = json_u64_or(full_audit, "records_read");
@@ -477,7 +482,8 @@ int main(int argc, char **argv) {
         const double range_min_lift = json_double_or(validation, "range_min_lift");
         const double fold_min_lift = json_double_or(validation, "fold_min_lift");
         const double residue_mean_lift = json_double_or(validation, "residue_mean_lift");
-        const std::uint64_t parallel_jobs_completed = json_u64_or(runner, "complete_jobs", 0);
+        const std::uint64_t parallel_jobs_completed =
+            std::max(json_u64_or(runner, "complete_jobs", 0), json_u64_or(neural_status, "complete_jobs", 0));
         const bool gpu_used = json_string_or(validation, "evaluation_device") == "cuda";
 
         const std::uint64_t targets_total = json_u64_or(source_alignment, "target_count");

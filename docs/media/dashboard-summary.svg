@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
   <title id="title">Collatz evidence dashboard snapshot</title>
-  <desc id="desc">Static dashboard-style summary of the current public Collatz evidence state with confidence, evidence bars, source check, topology preview, and next experiment.</desc>
+  <desc id="desc">Static public README snapshot rendered from the canonical public evidence JSON.</desc>
   <defs>
     <linearGradient id="panel" x1="0" x2="1" y1="0" y2="1">
       <stop offset="0" stop-color="#121a34"/>
@@ -20,84 +20,75 @@
   </defs>
 
   <rect width="1200" height="680" fill="#080d1a"/>
-  <circle cx="1030" cy="105" r="170" fill="#11305d" opacity=".22"/>
-  <circle cx="70" cy="610" r="210" fill="#312e81" opacity=".16"/>
-
   <text x="64" y="66" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="34" font-weight="800">3xN1 Collatz Evidence Dashboard</text>
-  <text x="64" y="96" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="16">Static public README snapshot. No live runtime or infrastructure details are shown.</text>
+  <text x="64" y="96" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="16">Generated from data/generated/evidence/latest_public_summary.json. No live runtime or infrastructure details are shown.</text>
 
   <g filter="url(#softShadow)">
     <rect x="64" y="132" width="260" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="84" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">CONFIDENCE</text>
-    <text x="84" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="25" font-weight="800">range-stable</text>
-    <text x="84" y="226" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700">signal</text>
+    <text x="84" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">CONFIDENCE</text>
+    <text x="84" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="23" font-weight="800">range-stable signal</text>
+    <text x="84" y="226" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700">empirical, not proof</text>
 
     <rect x="348" y="132" width="260" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="368" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">SCAN SUMMARY</text>
-    <text x="368" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">200M</text>
-    <text x="458" y="202" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="17">audited rows</text>
-    <text x="368" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">full-file audit + 100K neural starts</text>
+    <text x="368" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">AUDIT</text>
+    <text x="368" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">480M</text>
+    <text x="458" y="202" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="17">rows</text>
+    <text x="368" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">range 1..480,000,000</text>
 
     <rect x="632" y="132" width="260" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="652" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">SOURCE CHECK</text>
-    <text x="652" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">5,091 / 5,191</text>
-    <text x="652" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">public source targets aligned</text>
+    <text x="652" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">SOURCE CHECK</text>
+    <text x="652" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">5,086 / 5,191</text>
+    <text x="652" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">97.977% public targets matched</text>
 
     <rect x="916" y="132" width="220" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="936" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">LIMIT</text>
+    <text x="936" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">LIMIT</text>
     <text x="936" y="199" fill="#facc15" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="800">not a proof</text>
-    <text x="936" y="224" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">partial source gate</text>
+    <text x="936" y="224" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">gate blockers remain</text>
   </g>
 
   <g filter="url(#softShadow)">
     <rect x="64" y="278" width="520" height="310" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="88" y="314" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="800">Evidence Bars</text>
-    <text x="88" y="338" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Learned neighborhoods are compared against random and numeric-adjacency baselines.</text>
+    <text x="88" y="314" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="800">Neural Evidence</text>
+    <text x="88" y="338" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Lift values compare learned neighborhoods against controlled baselines.</text>
 
-    <text x="88" y="384" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Learned nearest-neighbor purity</text>
+    <text x="88" y="384" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Best ablation: metrics-only</text>
     <rect x="88" y="398" width="372" height="18" rx="9" fill="#1f2a44"/>
-    <rect x="88" y="398" width="353" height="18" rx="9" fill="url(#green)"/>
-    <text x="474" y="413" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">94.79%</text>
+    <rect x="88" y="398" width="323" height="18" rx="9" fill="url(#green)"/>
+    <text x="474" y="413" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">12.507%</text>
 
-    <text x="88" y="444" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Numeric-adjacency baseline</text>
+    <text x="88" y="444" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Hybrid representation</text>
     <rect x="88" y="458" width="372" height="18" rx="9" fill="#1f2a44"/>
-    <rect x="88" y="458" width="333" height="18" rx="9" fill="#60a5fa"/>
-    <text x="474" y="473" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">89.45%</text>
+    <rect x="88" y="458" width="264" height="18" rx="9" fill="#60a5fa"/>
+    <text x="474" y="473" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">10.244%</text>
 
-    <text x="88" y="504" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Random-label baseline</text>
+    <text x="88" y="504" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Weakest range holdout</text>
     <rect x="88" y="518" width="372" height="18" rx="9" fill="#1f2a44"/>
-    <rect x="88" y="518" width="316" height="18" rx="9" fill="#a78bfa"/>
-    <text x="474" y="533" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">84.82%</text>
-
-    <text x="88" y="562" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Lift over random: +9.968 percentage points</text>
+    <rect x="88" y="518" width="201" height="18" rx="9" fill="#a78bfa"/>
+    <text x="474" y="533" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">7.804%</text>
+    <text x="88" y="562" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Numeric-adjacency lift: 5.332%</text>
   </g>
 
   <g filter="url(#softShadow)">
     <rect x="616" y="278" width="520" height="310" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="640" y="314" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="800">Topology And Trajectory Preview</text>
-    <text x="640" y="338" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Compact visual cues for embedding neighborhoods and shared-tail graph structure.</text>
+    <text x="640" y="314" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="800">Current Finding</text>
+    <text x="640" y="342" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">metrics-only is currently strongest at 12.507%, while hybrid</text>
+    <text x="640" y="362" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">is 10.244%. This keeps the interpretation metric-dominant.</text>
 
-    <rect x="640" y="364" width="210" height="154" rx="8" fill="#070b16" stroke="#263450"/>
-    <text x="656" y="390" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="1.4">EMBEDDING MAP</text>
-    <g opacity=".95">
-      <circle cx="675" cy="430" r="4" fill="#5eead4"/><circle cx="710" cy="420" r="3" fill="#5eead4"/><circle cx="735" cy="446" r="3" fill="#5eead4"/>
-      <circle cx="790" cy="414" r="4" fill="#f472b6"/><circle cx="816" cy="438" r="3" fill="#f472b6"/><circle cx="770" cy="456" r="3" fill="#f472b6"/>
-      <circle cx="690" cy="482" r="3" fill="#facc15"/><circle cx="728" cy="492" r="4" fill="#facc15"/><circle cx="760" cy="478" r="3" fill="#facc15"/>
-      <circle cx="810" cy="492" r="3" fill="#60a5fa"/><circle cx="830" cy="470" r="4" fill="#60a5fa"/>
-    </g>
+    <rect x="640" y="374" width="448" height="64" rx="8" fill="#070b16" stroke="#263450"/>
+    <text x="660" y="400" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">COVERAGE</text>
+    <text x="660" y="424" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Topology 100,000 rows (0.021%); stratified sample 109,031 rows (0.023%).</text>
 
-    <rect x="878" y="364" width="210" height="154" rx="8" fill="#070b16" stroke="#263450"/>
-    <text x="894" y="390" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="1.4">TRAJECTORY GRAPH</text>
-    <path d="M904 472 C930 424, 962 476, 988 430 S1046 430, 1070 402" fill="none" stroke="#5eead4" stroke-width="2"/>
-    <path d="M904 492 C936 462, 956 500, 990 458 S1038 452, 1070 430" fill="none" stroke="#a78bfa" stroke-width="2"/>
-    <circle cx="904" cy="472" r="5" fill="#facc15"/><circle cx="940" cy="442" r="4" fill="#5eead4"/><circle cx="988" cy="430" r="4" fill="#f472b6"/>
-    <circle cx="1030" cy="417" r="4" fill="#60a5fa"/><circle cx="1070" cy="402" r="5" fill="#86efac"/>
-    <circle cx="904" cy="492" r="4" fill="#f472b6"/><circle cx="970" cy="476" r="4" fill="#facc15"/><circle cx="1070" cy="430" r="4" fill="#5eead4"/>
+    <rect x="640" y="456" width="448" height="64" rx="8" fill="#070b16" stroke="#263450"/>
+    <text x="660" y="482" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">PROMOTION BLOCKERS</text>
+    <text x="660" y="504" fill="#facc15" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">oeis_source_family_incomplete,</text>
+    <text x="660" y="522" fill="#facc15" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">non_oeis_source_families_incomplete, +5 more</text>
 
     <rect x="640" y="540" width="448" height="1" fill="#263450"/>
     <text x="640" y="566" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Next falsification test</text>
-    <text x="640" y="590" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Run independent seeded samples, source-record checks, and GNN/image ablations.</text>
+    <text x="640" y="590" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Classify unmatched source targets, expand non-OEIS source imports, then</text>
+    <text x="640" y="607" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">rerun source-neighborhood, path-image, GNN, and matched-control</text>
+    <text x="640" y="624" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">ablations.</text>
   </g>
 
-  <text x="64" y="642" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Public artifact: static research summary only. Runtime hosts, private addresses, and local infrastructure are intentionally omitted.</text>
+  <text x="64" y="642" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Generated at 2026-05-20T16:24:42Z from public-safe canonical evidence. Operations telemetry never raises confidence.</text>
 </svg>

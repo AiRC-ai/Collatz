@@ -189,6 +189,12 @@ add_test(NAME readme_snapshot_committed_block
         "--check-readme"
 )
 
+add_test(NAME dashboard_summary_svg_fixture
+    COMMAND "${CMAKE_SOURCE_DIR}/tools/render_dashboard_summary.py"
+        "--input" "${CMAKE_SOURCE_DIR}/fixtures/evidence_small/expected_latest_public_summary.json"
+        "--output" "${CMAKE_BINARY_DIR}/dashboard-summary-fixture.svg"
+)
+
 add_test(NAME evidence_contract_fixture
     COMMAND "${CMAKE_SOURCE_DIR}/tools/test_evidence_contract.py"
 )

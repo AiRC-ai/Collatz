@@ -41,6 +41,7 @@ cd "$REPO_DIR"
 
 RUNNER_DIR="${COLLATZ_RUNNER_DIR:-data/generated/runner}"
 STATUS_FILE="${COLLATZ_RUNNER_STATUS:-$RUNNER_DIR/status.json}"
+NEURAL_STATUS_FILE="${COLLATZ_NEURAL_STATUS:-$RUNNER_DIR/neural_parallel_status.json}"
 HISTORY_FILE="${COLLATZ_RUNNER_HISTORY:-$RUNNER_DIR/history.jsonl}"
 LOCK_DIR="${COLLATZ_RUNNER_LOCK:-$RUNNER_DIR/lock}"
 BUILD_DIR="${COLLATZ_BUILD_DIR:-build}"
@@ -326,6 +327,7 @@ publish_canonical_evidence() {
     --ablation-report "${COLLATZ_ABLATION_REPORT:-data/generated/evidence_validation/ablation_report.csv}" \
     --source-alignment "$SOURCE_ALIGNMENT_DIR/source_alignment.json" \
     --runner-status "$STATUS_FILE" \
+    --neural-status "$NEURAL_STATUS_FILE" \
     --active-feature-file "${COLLATZ_PUBLIC_FEATURE_LABEL:-data/generated/features.bin}" \
     --git-commit "$git_commit" \
     --output "$PUBLIC_EVIDENCE_FILE" \

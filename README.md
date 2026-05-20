@@ -27,14 +27,14 @@ numbers in the README.
 <!-- BEGIN GENERATED EVIDENCE SNAPSHOT -->
 - Confidence: `range-stable signal`
 - Meaning: The learned neighborhood signal survives current range and holdout checks, but it is not proof and is not yet source-neighborhood-supported.
-- Audit: `200,000,000` rows over `1..200,000,000`; full audit completed: `true`.
-- Coverage: topology `100,000` rows (`0.050%` of audit); stratified evidence sample `108,000` rows (`0.054%`).
+- Audit: `480,000,000` rows over `1..480,000,000`; full audit completed: `true`.
+- Coverage: topology `100,000` rows (`0.021%` of audit); stratified evidence sample `109,031` rows (`0.023%`).
 - Neural result: `100,000` sample rows; GPU used: `true`; parallel jobs completed: `6`.
-- Learned lift: weakest range `7.459%`, fold minimum `8.604%`, numeric-adjacency lift `5.341%`.
-- Best current ablation: `metrics-only at 12.165%`.
+- Learned lift: weakest range `7.804%`, fold minimum `9.097%`, numeric-adjacency lift `5.332%`.
+- Best current ablation: `metrics-only at 12.507%`.
 - Interpretation: `metric-dominant signal`; metrics-only lift exceeds hybrid lift under the current evidence run.
-- Promotion blockers: `non_oeis_source_families_incomplete, source_alignment_unknown_rows_present, source_alignment_unmatched_rows_present, metrics_only_exceeds_hybrid, richer_representation_not_stronger, matched_controls_incomplete, missing_lift_statistics`.
-- Source alignment: `5,091 / 5,191` matched; unknown unmatched rows `100`.
+- Promotion blockers: `oeis_source_family_incomplete, non_oeis_source_families_incomplete, source_alignment_unmatched_rows_present, metrics_only_exceeds_hybrid, richer_representation_not_stronger, matched_controls_incomplete, missing_lift_statistics`.
+- Source alignment: `5,086 / 5,191` matched; unknown unmatched rows `0`.
 - Next experiment: Classify unmatched source targets, expand non-OEIS source imports, then rerun source-neighborhood, path-image, GNN, and matched-control ablations.
 - This is empirical evidence, not a Collatz proof.
 <!-- END GENERATED EVIDENCE SNAPSHOT -->
@@ -238,6 +238,18 @@ Regenerate the README path-image atlas from the real encoder:
 The committed atlas is deliberately generated from a specific trajectory rather
 than drawn by hand, so it is reproducible and auditable.
 
+Regenerate the README dashboard image from the canonical public evidence JSON:
+
+```sh
+python3 tools/render_dashboard_summary.py \
+  --input data/generated/evidence/latest_public_summary.json \
+  --output docs/media/dashboard-summary.svg
+```
+
+The committed dashboard SVG is a static public summary. It is rendered from the
+same canonical evidence file as the README snapshot, and it intentionally omits
+live runtime and infrastructure details.
+
 Select representative starts for research review:
 
 ```sh
@@ -368,9 +380,9 @@ Compare public source-validation starts against topology neighborhoods:
 ```
 
 This writes `source_alignment.json`, `source_targets.csv`, and
-`unmatched_rows.csv`. The current canonical snapshot reports `5,091 / 5,191`
-public validation starts matched, with `100` unknown unmatched rows that block
-promotion beyond `range-stable signal`.
+`unmatched_rows.csv`. Use the generated evidence snapshot above for current
+source target counts and promotion blockers; those values are intentionally
+derived from canonical JSON rather than repeated by hand.
 
 The stronger confidence gate is deliberately conservative:
 
@@ -392,6 +404,7 @@ Publish the canonical evidence JSON and derived dashboard summary:
   --validation-metrics data/generated/evidence_validation/metrics.json \
   --ablation-report data/generated/evidence_validation/ablation_report.csv \
   --source-alignment data/generated/source_alignment/source_alignment.json \
+  --neural-status data/generated/runner/neural_parallel_status.json \
   --output data/generated/evidence/latest_public_summary.json
 ```
 
