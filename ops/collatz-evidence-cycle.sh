@@ -28,6 +28,7 @@ if [ "$DRY_RUN" -eq 1 ]; then
   echo "dry-run stage: regenerate hypothesis summary"
   echo "dry-run stage: optionally run one CPU crunch scan batch if configured"
   echo "dry-run stage: optionally run one neural stage if GPU is available and configured"
+  echo "dry-run stage: refresh hypothesis summary after crunch stages"
   echo "dry-run stage: run public privacy scan"
   echo "dry-run stage: append sanitized iteration ledger"
   echo "dry-run stage: write public-safe runner status"
@@ -290,6 +291,18 @@ build_if_needed() {
   fi
 }
 
+regenerate_hypothesis_summary() {
+  "$BUILD_DIR/collatz_hypothesis_analyze" \
+    --insights "$INSIGHTS_FILE" \
+    --stratified-metadata "$STRATIFIED_METADATA" \
+    --contrastive-metrics "$CONTRASTIVE_METRICS" \
+    --autoencoder-metrics "$AUTOENCODER_METRICS" \
+    --gnn-metrics "$GNN_METRICS" \
+    --validation-metrics "$VALIDATION_METRICS" \
+    --source-alignment "$SOURCE_ALIGNMENT_DIR/source_alignment.json" \
+    --output-dir "$HYPOTHESES_DIR"
+}
+
 gpu_available() {
   if ! command -v nvidia-smi >/dev/null 2>&1; then
     GPU_STATE="not_available"
@@ -427,15 +440,7 @@ stage "align source targets"
   --neighbors "${COLLATZ_SOURCE_ALIGNMENT_NEIGHBORS:-8}" || fail_cycle "align source targets" "$?"
 
 stage "regenerate hypothesis summary"
-"$BUILD_DIR/collatz_hypothesis_analyze" \
-  --insights "$INSIGHTS_FILE" \
-  --stratified-metadata "$STRATIFIED_METADATA" \
-  --contrastive-metrics "$CONTRASTIVE_METRICS" \
-  --autoencoder-metrics "$AUTOENCODER_METRICS" \
-  --gnn-metrics "$GNN_METRICS" \
-  --validation-metrics "$VALIDATION_METRICS" \
-  --source-alignment "$SOURCE_ALIGNMENT_DIR/source_alignment.json" \
-  --output-dir "$HYPOTHESES_DIR" || fail_cycle "regenerate hypothesis summary" "$?"
+regenerate_hypothesis_summary || fail_cycle "regenerate hypothesis summary" "$?"
 
 stage "optional cpu crunch scan"
 run_cpu_crunch_if_configured
@@ -455,6 +460,9 @@ else
   NEURAL_STAGE="disabled"
   echo "neural stage skipped: not configured"
 fi
+
+stage "refresh post-crunch hypothesis summary"
+regenerate_hypothesis_summary || fail_cycle "refresh post-crunch hypothesis summary" "$?"
 
 stage "run public privacy scan"
 if [ -x ops/privacy-scan.sh ]; then
