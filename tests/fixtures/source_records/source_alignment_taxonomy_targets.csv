@@ -1,0 +1,10 @@
+source,n,total_steps,peak_low,source_kind,source_rank,source_url,retrieved_utc,parser
+Tax_matched,1,0,1,total_stopping_time,1,https://oeis.org/A006577/b006577.txt,2026-05-20T00:00:00Z,fixture
+Tax_missing_topology,5,5,16,total_stopping_time,5,https://oeis.org/A006577/b006577.txt,2026-05-20T00:00:00Z,fixture
+Tax_step_mismatch,2,99,2,total_stopping_time,2,https://oeis.org/A006577/b006577.txt,2026-05-20T00:00:00Z,fixture
+Tax_peak_mismatch,3,7,999,total_stopping_time,3,https://oeis.org/A006577/b006577.txt,2026-05-20T00:00:00Z,fixture
+Tax_true_mismatch,4,99,999,total_stopping_time,4,https://oeis.org/A006577/b006577.txt,2026-05-20T00:00:00Z,fixture
+Tax_above_range,999999999,25,304,total_stopping_time,999999999,https://oeis.org/A006577/b006577.txt,2026-05-20T00:00:00Z,fixture
+Tax_duplicate,7,16,52,total_stopping_time,7,https://oeis.org/A006577/b006577.txt,2026-05-20T00:00:00Z,fixture
+Tax_duplicate,7,16,52,total_stopping_time,7,https://oeis.org/A006577/b006577.txt,2026-05-20T00:00:00Z,fixture
+Tax_parser,x,1,1,total_stopping_time,0,https://oeis.org/A006577/b006577.txt,2026-05-20T00:00:00Z,fixture

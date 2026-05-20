@@ -442,6 +442,8 @@ services:
       - /work/data/generated/topology/projection.csv
       - --source-samples
       - ${SOURCE_SAMPLES:-/work/data/generated/source_validation/public_source_targets.csv}
+      - --feature-bin
+      - ${FEATURE_BIN:-/work/data/generated/features.bin}
       - --output-dir
       - /work/data/generated/source_alignment
       - --neighbors
@@ -457,25 +459,23 @@ services:
       context: .
       dockerfile: docker/Dockerfile.cpu
     command:
-      - /work/build/collatz_hypothesis_analyze
-      - --insights
-      - /work/data/generated/insights/insights.json
-      - --stratified-metadata
-      - /work/data/generated/stratified/metadata.json
-      - --contrastive-metrics
-      - /work/data/generated/contrastive/metrics.json
-      - --autoencoder-metrics
-      - /work/data/generated/anomalies/metrics.json
-      - --gnn-metrics
-      - /work/data/generated/gnn/metrics.json
-      - --validation-metrics
-      - /work/data/generated/evidence_validation/metrics.json
+      - /work/build/collatz_evidence_publish
       - --full-audit
       - /work/data/generated/full_audit/summary.json
+      - --stratified-metadata
+      - /work/data/generated/stratified/metadata.json
+      - --topology-manifest
+      - /work/data/generated/topology/embedding_topology.json
+      - --validation-metrics
+      - /work/data/generated/evidence_validation/metrics.json
+      - --ablation-report
+      - /work/data/generated/evidence_validation/ablation_report.csv
       - --source-alignment
       - /work/data/generated/source_alignment/source_alignment.json
-      - --output-dir
-      - /work/data/generated/hypotheses
+      - --output
+      - /work/data/generated/evidence/latest_public_summary.json
+      - --hypothesis-summary-output
+      - /work/data/generated/hypotheses/summary.json
     volumes:
       - ./data:/work/data
       - ./logs:/work/logs
@@ -544,6 +544,8 @@ services:
       - /work/data/generated/runner/neural_parallel_status.json
       - --full-audit
       - /work/data/generated/full_audit/summary.json
+      - --evidence-summary
+      - /work/data/generated/evidence/latest_public_summary.json
     ports:
       - "${WEB_PORT:-8080}:8080"
     volumes:

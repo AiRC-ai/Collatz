@@ -59,13 +59,12 @@ The generated table keeps the compatibility header
 `source,n,total_steps,peak_low`, followed by provenance columns:
 `source_kind,source_rank,source_url,retrieved_utc,parser`.
 
-The current checked public state remains a source-aligned candidate from the
-expanded OEIS target table: 5,019 rows matched in a 100K embedded topology
-check and covered all 16 topology clusters. The next stronger gate requires
-agreement from at least three independent source families: OEIS plus at least
-two of Roosendaal, Oliveira e Silva, and Barina. If any imported target is
-missing from the current topology, the dashboard must keep the lower confidence
-and report the missing count as the next falsification target.
+The current canonical public state remains a `range-stable signal`, not a
+source-neighborhood-supported candidate. The source gate reports matched and
+unmatched rows plus a reason-bucket taxonomy. Unknown unmatched rows and any
+true mismatch block confidence promotion. The next stronger gate requires
+complete OEIS coverage plus at least two complete non-OEIS source families:
+Roosendaal, Oliveira e Silva, and Barina.
 
 Large imports should be named with source and retrieval date, for example:
 

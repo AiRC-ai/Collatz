@@ -1,0 +1,6 @@
+kind,name,row_count,purity,random_baseline,lift
+learned,hybrid,100000,0.17468,0.075,0.09968
+learned,metrics,100000,0.19665,0.075,0.12165
+learned,parity,100000,0.188,0.075,0.113
+learned,residue,100000,0.120,0.075,0.045
+learned,tokens,100000,0.140,0.075,0.065

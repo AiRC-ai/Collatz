@@ -76,6 +76,9 @@ target_link_libraries(collatz_source_align PRIVATE collatz_core)
 add_executable(collatz_source_targets src/collatz_source_targets.cpp)
 target_link_libraries(collatz_source_targets PRIVATE collatz_core)
 
+add_executable(collatz_evidence_publish src/collatz_evidence_publish.cpp)
+target_link_libraries(collatz_evidence_publish PRIVATE collatz_core)
+
 add_executable(collatz_selftest tests/collatz_selftest.cpp)
 target_link_libraries(collatz_selftest PRIVATE collatz_core)
 
@@ -143,6 +146,40 @@ add_test(NAME collatz_hypothesis_multi_source_fixture
         --validation-metrics "${COLLATZ_SOURCE_FIXTURES}/validation_metrics_fixture.json"
         --source-alignment "${COLLATZ_SOURCE_FIXTURES}/source_alignment_multi_fixture.json"
         --output-dir "${CMAKE_BINARY_DIR}/hypothesis_multi_source_fixture"
+)
+
+add_test(NAME collatz_source_align_taxonomy_fixture
+    COMMAND collatz_source_align
+        --projection "${COLLATZ_SOURCE_FIXTURES}/projection_fixture.csv"
+        --source-samples "${COLLATZ_SOURCE_FIXTURES}/source_alignment_taxonomy_targets.csv"
+        --feature-bin "${CMAKE_BINARY_DIR}/full_audit_fixture.bin"
+        --output-dir "${CMAKE_BINARY_DIR}/source_alignment_taxonomy_fixture"
+        --neighbors 3
+)
+set_tests_properties(collatz_source_align_taxonomy_fixture PROPERTIES DEPENDS collatz_full_audit_fixture_scan)
+
+add_test(NAME collatz_evidence_publish_fixture
+    COMMAND collatz_evidence_publish
+        --full-audit "${CMAKE_BINARY_DIR}/full_audit_fixture.summary.json"
+        --stratified-metadata "${CMAKE_SOURCE_DIR}/fixtures/evidence_small/stratified_metadata.json"
+        --topology-manifest "${CMAKE_SOURCE_DIR}/fixtures/evidence_small/topology.json"
+        --validation-metrics "${CMAKE_SOURCE_DIR}/fixtures/evidence_small/evidence_validation_metrics.json"
+        --ablation-report "${CMAKE_SOURCE_DIR}/fixtures/evidence_small/ablation_report.csv"
+        --source-alignment "${CMAKE_SOURCE_DIR}/fixtures/evidence_small/source_alignment.json"
+        --output "${CMAKE_BINARY_DIR}/latest_public_summary.json"
+        --git-commit fixture
+)
+set_tests_properties(collatz_evidence_publish_fixture PROPERTIES DEPENDS collatz_full_audit_fixture)
+
+add_test(NAME evidence_summary_validation_fixture
+    COMMAND "${CMAKE_SOURCE_DIR}/tools/validate_evidence_summary.py"
+        "${CMAKE_SOURCE_DIR}/fixtures/evidence_small/expected_latest_public_summary.json"
+)
+
+add_test(NAME readme_snapshot_fixture
+    COMMAND "${CMAKE_SOURCE_DIR}/tools/render_readme_snapshot.py"
+        "--input" "${CMAKE_SOURCE_DIR}/fixtures/evidence_small/expected_latest_public_summary.json"
+        "--expect" "${CMAKE_SOURCE_DIR}/fixtures/evidence_small/expected_readme_snapshot.md"
 )
 
 if(COLLATZ_ENABLE_TORCH)

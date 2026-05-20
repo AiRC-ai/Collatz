@@ -36,6 +36,7 @@ struct Options {
     std::string runner_status = "data/generated/runner/status.json";
     std::string neural_status = "data/generated/runner/neural_parallel_status.json";
     std::string full_audit = "data/generated/full_audit/summary.json";
+    std::string evidence_summary = "data/generated/evidence/latest_public_summary.json";
 };
 
 void usage(std::ostream &out) {
@@ -45,7 +46,8 @@ void usage(std::ostream &out) {
         << "                   [--topology-manifest FILE] [--neighborhood-manifest FILE]\n"
         << "                   [--insights-manifest FILE] [--gnn-metadata FILE]\n"
         << "                   [--hypothesis-summary FILE] [--runner-status FILE]\n"
-        << "                   [--neural-status FILE] [--full-audit FILE]\n";
+        << "                   [--neural-status FILE] [--full-audit FILE]\n"
+        << "                   [--evidence-summary FILE]\n";
 }
 
 Options parse_args(int argc, char **argv) {
@@ -94,6 +96,8 @@ Options parse_args(int argc, char **argv) {
             options.neural_status = need_value("--neural-status");
         } else if (arg == "--full-audit") {
             options.full_audit = need_value("--full-audit");
+        } else if (arg == "--evidence-summary") {
+            options.evidence_summary = need_value("--evidence-summary");
         } else if (arg == "--help" || arg == "-h") {
             usage(std::cout);
             std::exit(0);
@@ -441,7 +445,12 @@ std::string compact_neural_status_json(const Options &options) {
 std::string dashboard_progress_json(const Options &options) {
     const std::string scan = read_file(options.scan_metadata);
     const std::string gnn = read_file(options.gnn_metadata);
-    return "{\"progress\":" + latest_progress_json(options) +
+    std::string evidence = read_file(options.evidence_summary);
+    if (evidence.empty()) {
+        evidence = "{\"schema_version\":\"evidence_public_summary_v1\",\"confidence\":{\"label\":\"sample-local signal\",\"interpretation\":\"Canonical evidence summary is not available yet.\"}}";
+    }
+    return "{\"evidence\":" + evidence +
+           ",\"operations\":{\"progress\":" + latest_progress_json(options) +
            ",\"scan_metadata\":" + compact_object_from_json(scan, {"dataset_records_observed", "completed_utc"}) +
            ",\"graph_manifest\":" + compact_graph_manifest_json(options) +
            ",\"topology_manifest\":" + compact_topology_manifest_json(options) +
@@ -453,7 +462,7 @@ std::string dashboard_progress_json(const Options &options) {
            ",\"gnn_metadata\":" + compact_object_from_json(gnn, {"status", "device", "epochs", "loss_final"}) +
            ",\"runner_status\":" + compact_runner_status_json(options) +
            ",\"neural_status\":" + compact_neural_status_json(options) +
-           "}";
+           "}}";
 }
 
 std::string html_page() {
@@ -580,25 +589,29 @@ function fixed(value, digits) {
 async function refresh() {
   const response = await fetch('/api/progress');
   const data = await response.json();
-  const progress = data.progress || {};
-  const scan = data.scan_metadata || {};
-  const graph = data.graph_manifest || {};
-  const topology = data.topology_manifest || {};
-  const neighborhoods = data.neighborhood_manifest || {};
-  const insights = data.insights_manifest || {};
-  const hypotheses = data.hypothesis_summary || {};
-  const fullAudit = data.full_audit || {};
-  const gnn = data.gnn_metadata || {};
-  const runner = data.runner_status || {};
-  const neural = data.neural_status || {};
+  const evidence = data.evidence || {};
+  const operations = data.operations || {};
+  const progress = operations.progress || {};
+  const scan = operations.scan_metadata || {};
+  const graph = operations.graph_manifest || {};
+  const topology = operations.topology_manifest || {};
+  const fullAudit = operations.full_audit || {};
+  const gnn = operations.gnn_metadata || {};
+  const runner = operations.runner_status || {};
+  const neuralOps = operations.neural_status || {};
+  const confidence = evidence.confidence || {};
+  const audit = evidence.audit || {};
+  const coverage = evidence.coverage || {};
+  const neuralEvidence = evidence.neural || {};
+  const sourceAlignment = evidence.source_alignment || {};
   const mode = progress.mode || progress.status || gnn.status || 'waiting';
   const processed = progress.processed ? `, ${compact(progress.processed)} processed` : '';
   const throughput = progress.throughput_per_sec ? ` at ${compact(progress.throughput_per_sec)}/s` : '';
   document.getElementById('status').textContent = `${mode}${processed}${throughput}`;
-  document.getElementById('records').textContent = compact(scan.dataset_records_observed);
+  document.getElementById('records').textContent = compact(audit.rows || scan.dataset_records_observed);
   const auditRows = Number(fullAudit.records_read || runner.full_audit_records || 0);
   const auditState = runner.full_audit_state || (auditRows ? 'complete' : 'missing');
-  document.getElementById('fullAudit').textContent = auditRows ? `${compact(auditRows)} ${auditState}` : auditState;
+  document.getElementById('fullAudit').textContent = audit.rows ? `${compact(audit.rows)} canonical` : (auditRows ? `${compact(auditRows)} ${auditState}` : auditState);
   document.getElementById('throughput').textContent = progress.throughput_per_sec ? `${compact(progress.throughput_per_sec)}/s` : 'idle';
   const score = Number(runner.evidence_score || 0);
   const delta = Number(runner.evidence_delta || 0);
@@ -616,26 +629,40 @@ async function refresh() {
   const gpuState = runner.gpu_state || 'unknown';
   const neuralStage = runner.neural_stage || 'disabled';
   const gpuFree = Number(runner.gpu_free_memory_mb || 0);
-  const neuralActive = Number(neural.active_jobs || 0);
-  const neuralComplete = Number(neural.complete_jobs || 0);
-  const neuralFailed = Number(neural.failed_jobs || 0);
-  const gpuUtil = Number(neural.gpu_utilization_percent || 0);
-  const gpuUsed = Number(neural.gpu_memory_used_mb || 0);
+  const neuralActive = Number(neuralOps.active_jobs || 0);
+  const neuralComplete = Number(neuralOps.complete_jobs || 0);
+  const neuralFailed = Number(neuralOps.failed_jobs || 0);
+  const gpuUtil = Number(neuralOps.gpu_utilization_percent || 0);
+  const gpuUsed = Number(neuralOps.gpu_memory_used_mb || 0);
   document.getElementById('gpuStage').textContent = neuralActive || neuralComplete || neuralFailed
     ? `${neuralActive} active / ${neuralComplete} done, ${gpuUtil.toFixed(0)}% GPU, ${compact(gpuUsed)} MB`
     : gpuFree
     ? `${neuralStage} / ${gpuState} (${compact(gpuFree)} MB free)`
     : `${neuralStage} / ${gpuState}`;
-  document.getElementById('sourceGate').textContent = runner.source_target_count ? `${compact(runner.matched_source_targets)} / ${compact(runner.source_target_count)}` : 'pending';
+  document.getElementById('sourceGate').textContent = sourceAlignment.targets_total ? `${compact(sourceAlignment.matched)} / ${compact(sourceAlignment.targets_total)}` : 'pending';
   document.getElementById('graph').textContent = `${compact(graph.node_count)} / ${compact(graph.edge_count)} edges`;
-  document.getElementById('aiConfidence').textContent = hypotheses.confidence_level || insights.confidence || 'pending';
-  document.getElementById('aiConclusion').textContent = hypotheses.conclusion || insights.conclusion || 'waiting for insights';
-  document.getElementById('aiCoverage').textContent = hypotheses.coverage || 'waiting for hypotheses';
-  document.getElementById('aiEvidence').textContent = hypotheses.strongest_evidence || insights.meaning || 'waiting for hypotheses';
-  document.getElementById('aiLimit').textContent = hypotheses.weakest_limit || insights.limit || 'waiting for insights';
-  document.getElementById('aiNeural').textContent = hypotheses.latest_neural_result || 'waiting for neural metrics';
-  document.getElementById('aiSource').textContent = hypotheses.source_alignment || 'waiting for source alignment';
-  document.getElementById('aiNextStep').textContent = hypotheses.next_experiment || insights.next_step || 'waiting for insights';
+  document.getElementById('aiConfidence').textContent = confidence.label || 'pending';
+  document.getElementById('aiConclusion').textContent = confidence.interpretation || 'waiting for canonical evidence';
+  const topologyCoverage = coverage.topology || {};
+  const stratifiedCoverage = coverage.stratified_evidence_sample || {};
+  document.getElementById('aiCoverage').textContent = audit.rows
+    ? `${compact(audit.rows)} audited rows; topology ${fixed(topologyCoverage.percent_of_audit, 3)}%; stratified sample ${fixed(stratifiedCoverage.percent_of_audit, 3)}%.`
+    : 'waiting for canonical audit coverage';
+  const holdouts = neuralEvidence.holdouts || {};
+  document.getElementById('aiEvidence').textContent = holdouts.weakest_range_lift_percent !== undefined
+    ? `Lift over random is represented in the leaderboard; range minimum ${fixed(holdouts.weakest_range_lift_percent, 3)}%, fold minimum ${fixed(holdouts.fold_min_lift_percent, 3)}%, numeric-adjacency lift ${fixed(holdouts.numeric_adjacency_lift_percent, 3)}%.`
+    : 'waiting for neural holdout evidence';
+  const neuralInterpretation = neuralEvidence.interpretation || {};
+  document.getElementById('aiLimit').textContent = neuralInterpretation.reason || 'waiting for canonical limitation';
+  const latestRun = neuralEvidence.latest_run || {};
+  document.getElementById('aiNeural').textContent = latestRun.sample_rows
+    ? `${compact(latestRun.sample_rows)} sample rows, ${latestRun.parallel_jobs_completed || 0} parallel jobs, GPU used: ${latestRun.gpu_used ? 'yes' : 'no'}.`
+    : 'waiting for neural metrics';
+  const unknown = sourceAlignment.unmatched_breakdown?.unknown || 0;
+  document.getElementById('aiSource').textContent = sourceAlignment.targets_total
+    ? `${compact(sourceAlignment.matched)} of ${compact(sourceAlignment.targets_total)} public source targets matched; unknown unmatched rows: ${compact(unknown)}.`
+    : 'waiting for source alignment';
+  document.getElementById('aiNextStep').textContent = evidence.next_experiment?.summary || 'waiting for canonical next experiment';
   drawTopology(topology);
   drawGraph(graph);
 }

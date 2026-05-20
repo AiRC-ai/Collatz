@@ -30,6 +30,7 @@ if [ "$DRY_RUN" -eq 1 ]; then
   echo "dry-run stage: run deterministic full dataset audit"
   echo "dry-run stage: optionally run one neural stage if GPU is available and configured"
   echo "dry-run stage: refresh hypothesis summary after crunch stages"
+  echo "dry-run stage: publish canonical evidence summary"
   echo "dry-run stage: run public privacy scan"
   echo "dry-run stage: append sanitized iteration ledger"
   echo "dry-run stage: write public-safe runner status"
@@ -59,6 +60,7 @@ AUTOENCODER_METRICS="${COLLATZ_AUTOENCODER_METRICS:-data/generated/anomalies/met
 GNN_METRICS="${COLLATZ_GNN_METRICS:-data/generated/gnn/metrics.json}"
 VALIDATION_METRICS="${COLLATZ_VALIDATION_METRICS:-data/generated/evidence_validation/metrics.json}"
 FULL_AUDIT_FILE="${COLLATZ_FULL_AUDIT_FILE:-data/generated/full_audit/summary.json}"
+PUBLIC_EVIDENCE_FILE="${COLLATZ_PUBLIC_EVIDENCE_FILE:-data/generated/evidence/latest_public_summary.json}"
 LEDGER_FILE="${COLLATZ_LEDGER_FILE:-logs/iteration-ledger.jsonl}"
 MAX_N="${COLLATZ_SOURCE_MAX_N:-100000000}"
 GPU_MIN_FREE_MB="${COLLATZ_GPU_MIN_FREE_MB:-4096}"
@@ -214,8 +216,8 @@ read_json_decimal() {
 
 evidence_base_for_confidence() {
   case "$1" in
-    "multi-source-aligned candidate") echo 85 ;;
-    "source-aligned candidate") echo 75 ;;
+    "candidate pattern") echo 85 ;;
+    "source-neighborhood-supported") echo 75 ;;
     "range-stable signal") echo 62 ;;
     "sample-local signal") echo 35 ;;
     *) echo 10 ;;
@@ -288,6 +290,7 @@ build_if_needed() {
   if [ -x "$BUILD_DIR/collatz_source_targets" ] &&
      [ -x "$BUILD_DIR/collatz_source_align" ] &&
      [ -x "$BUILD_DIR/collatz_hypothesis_analyze" ] &&
+     [ -x "$BUILD_DIR/collatz_evidence_publish" ] &&
      [ -x "$BUILD_DIR/collatz_full_audit" ]; then
     return
   fi
@@ -310,6 +313,23 @@ regenerate_hypothesis_summary() {
     --full-audit "$FULL_AUDIT_FILE" \
     --source-alignment "$SOURCE_ALIGNMENT_DIR/source_alignment.json" \
     --output-dir "$HYPOTHESES_DIR"
+}
+
+publish_canonical_evidence() {
+  local git_commit
+  git_commit="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)"
+  "$BUILD_DIR/collatz_evidence_publish" \
+    --full-audit "$FULL_AUDIT_FILE" \
+    --stratified-metadata "$STRATIFIED_METADATA" \
+    --topology-manifest "${COLLATZ_TOPOLOGY_MANIFEST:-data/generated/topology/embedding_topology.json}" \
+    --validation-metrics "$VALIDATION_METRICS" \
+    --ablation-report "${COLLATZ_ABLATION_REPORT:-data/generated/evidence_validation/ablation_report.csv}" \
+    --source-alignment "$SOURCE_ALIGNMENT_DIR/source_alignment.json" \
+    --runner-status "$STATUS_FILE" \
+    --active-feature-file "${COLLATZ_PUBLIC_FEATURE_LABEL:-data/generated/features.bin}" \
+    --git-commit "$git_commit" \
+    --output "$PUBLIC_EVIDENCE_FILE" \
+    --hypothesis-summary-output "$HYPOTHESES_DIR/summary.json"
 }
 
 run_full_audit() {
@@ -495,6 +515,9 @@ fi
 
 stage "refresh post-crunch hypothesis summary"
 regenerate_hypothesis_summary || fail_cycle "refresh post-crunch hypothesis summary" "$?"
+
+stage "publish canonical evidence summary"
+publish_canonical_evidence || fail_cycle "publish canonical evidence summary" "$?"
 
 stage "run public privacy scan"
 if [ -x ops/privacy-scan.sh ]; then

@@ -2,7 +2,9 @@
 /build-*/
 /cmake-build-*/
 /collatz_plot
-/data/generated/
+/data/generated/*
+!/data/generated/evidence/
+!/data/generated/evidence/latest_public_summary.json
 /data/imported/
 /logs/*.jsonl
 /logs/neural-parallel/

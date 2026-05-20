@@ -231,7 +231,7 @@ levels only:
 - `pipeline-check`: the artifact path works, but the result is not yet evidence.
 - `sample-local signal`: a pattern appears in one sample or baseline view.
 - `range-stable signal`: the pattern survives independent numeric ranges.
-- `source-aligned candidate`: the pattern is consistent with trusted external
-  records or known record setters.
+- `source-neighborhood-supported`: trusted public validation starts agree with
+  the learned topology-neighborhood gate.
 - `candidate pattern`: the pattern survives holdouts and feature ablations and
   is worth deeper mathematical inspection.

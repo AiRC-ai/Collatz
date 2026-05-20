@@ -16,46 +16,42 @@ The new performance path is C++20 with fixed-width integer fast paths. Python is
 not used for classical Collatz scanning, dataset generation, progress serving,
 or validation.
 
-## Current Dashboard Snapshot
+## Current Evidence Snapshot
 
 ![Current Collatz evidence dashboard snapshot](docs/media/dashboard-summary.svg)
 
-Latest checked state:
+The block below is generated from
+`data/generated/evidence/latest_public_summary.json`. Do not hand-edit evidence
+numbers in the README.
 
+<!-- BEGIN GENERATED EVIDENCE SNAPSHOT -->
 - Confidence: `range-stable signal`
-- Conclusion: the learned path-family signal survives current holdouts, but it
-  is still not a proof or source-aligned candidate.
-- Coverage: the full audit covers `200,000,000` binary rows; topology covers
-  `0.050%` of audited/scanned rows; the stratified evidence sample covers
-  `0.054%` directly while intentionally oversampling rare
-  behaviors.
-- Full audit: the deterministic C++ audit reads every binary feature row and
-  supplies the denominator for neural coverage and holdout claims.
-- Strongest evidence: learned embeddings beat random by `9.968%`, numeric
-  adjacency by `5.341%`, and the weakest range holdout still has `7.459%`
-  lift.
-- Latest neural result: the RTX/CUDA parallel run completed `6` neural jobs over
-  a `100,000` row stratified sample. Hybrid contrastive lift is `9.968%`;
-  metrics-only is the strongest current ablation at `12.165%`; fold minimum
-  lift is `8.604%`.
-- Source check: `5,091 / 5,191` public validation starts currently align with
-  the topology source-neighborhood gate.
-- Current limitation: source-record alignment is still partial. Roosendaal,
-  Oliveira e Silva, and Barina imports need to agree before the claim gets
-  promoted beyond a range-stable signal.
-- Next experiment: expand source-record imports beyond OEIS, then rerun
-  source-neighborhood, path-image, and GNN ablations.
-- Automation: a private-safe evidence runner can refresh generated source
-  targets, source alignment, hypotheses, and dashboard status on a timer. The
-  runner writes public-safe state only; it does not auto-commit or auto-push.
-- GPU utilization: the parallel launcher runs hybrid, metrics, parity, residue,
-  token contrastive encoders, and autoencoder anomaly training at the same time
-  with isolated outputs. In the latest runtime check, this reached a sampled
-  `100%` GPU-utilization burst during the parallel contrastive phase.
+- Meaning: The learned neighborhood signal survives current range and holdout checks, but it is not proof and is not yet source-neighborhood-supported.
+- Audit: `200,000,000` rows over `1..200,000,000`; full audit completed: `true`.
+- Coverage: topology `100,000` rows (`0.050%` of audit); stratified evidence sample `108,000` rows (`0.054%`).
+- Neural result: `100,000` sample rows; GPU used: `true`; parallel jobs completed: `6`.
+- Learned lift: weakest range `7.459%`, fold minimum `8.604%`, numeric-adjacency lift `5.341%`.
+- Best current ablation: `metrics-only at 12.165%`.
+- Interpretation: `metric-dominant signal`; metrics-only lift exceeds hybrid lift under the current evidence run.
+- Source alignment: `5,091 / 5,191` matched; unknown unmatched rows `100`.
+- Next experiment: Classify unmatched source targets, expand non-OEIS source imports, then rerun source-neighborhood, path-image, GNN, and matched-control ablations.
+- This is empirical evidence, not a Collatz proof.
+<!-- END GENERATED EVIDENCE SNAPSHOT -->
 
 The dashboard is intentionally compact: it should answer what the AI currently
 believes, how confident it is, what evidence supports that, what limits the
 claim, and what experiment should falsify or strengthen it next.
+
+Longer operating notes live in:
+
+- [Evidence contract](docs/EVIDENCE.md)
+- [Source alignment](docs/SOURCE_ALIGNMENT.md)
+- [Neural pipeline](docs/NEURAL_PIPELINE.md)
+- [Dashboard](docs/DASHBOARD.md)
+- [Limitations](docs/LIMITATIONS.md)
+- [Runner](docs/RUNNER.md)
+- [Reproducibility](docs/REPRODUCIBILITY.md)
+- [Build notes](docs/BUILD.md)
 
 ## Visual Research Artifacts
 
@@ -102,6 +98,7 @@ This builds:
 - `build/collatz_hypothesis_analyze`
 - `build/collatz_source_targets`
 - `build/collatz_source_align`
+- `build/collatz_evidence_publish`
 
 Run validation:
 
@@ -365,42 +362,40 @@ Compare public source-validation starts against topology neighborhoods:
 ./build/collatz_source_align \
   --projection data/generated/topology/projection.csv \
   --source-samples data/generated/source_validation/public_source_targets.csv \
+  --feature-bin data/generated/features.bin \
   --output-dir data/generated/source_alignment
 ```
 
-This writes `source_alignment.json` and `source_targets.csv`. The current
-public source target table expands the source check from a smoke test to 5,019
-OEIS-derived validation starts. It can support a `source-aligned candidate`,
-but it still needs larger Roosendaal, Oliveira e Silva, and Barina imports
-before the claim gets stronger.
+This writes `source_alignment.json`, `source_targets.csv`, and
+`unmatched_rows.csv`. The current canonical snapshot reports `5,091 / 5,191`
+public validation starts matched, with `100` unknown unmatched rows that block
+promotion beyond `range-stable signal`.
 
 The stronger confidence gate is deliberately conservative:
 
-- `source-aligned candidate`: range-stable model evidence plus public source
-  alignment from fewer than three independent source families.
-- `multi-source-aligned candidate`: range-stable model evidence plus full
-  agreement from OEIS and at least two of Roosendaal, Oliveira e Silva, and
-  Barina.
-- Any missing imported source target keeps the conclusion at the lower current
-  confidence and reports the missing count as the next falsification target.
+- `source-neighborhood-supported`: range-stable model evidence plus complete
+  OEIS coverage, at least two complete non-OEIS source families, no true
+  mismatches, and no unknown unmatched rows.
+- `candidate pattern`: source-neighborhood-supported evidence plus richer
+  representation models beating metrics-only under matched controls.
+- `proof`: unavailable unless there is a formal independently checkable proof
+  artifact.
 
-Generate the AI hypothesis ledger and dashboard summary:
+Publish the canonical evidence JSON and derived dashboard summary:
 
 ```sh
-./build/collatz_hypothesis_analyze \
-  --insights data/generated/insights/insights.json \
+./build/collatz_evidence_publish \
+  --full-audit data/generated/full_audit/summary.json \
   --stratified-metadata data/generated/stratified/metadata.json \
-  --contrastive-metrics data/generated/contrastive/metrics.json \
-  --autoencoder-metrics data/generated/anomalies/metrics.json \
-  --gnn-metrics data/generated/gnn/metrics.json \
+  --topology-manifest data/generated/topology/embedding_topology.json \
   --validation-metrics data/generated/evidence_validation/metrics.json \
+  --ablation-report data/generated/evidence_validation/ablation_report.csv \
   --source-alignment data/generated/source_alignment/source_alignment.json \
-  --output-dir data/generated/hypotheses
+  --output data/generated/evidence/latest_public_summary.json
 ```
 
-This writes `hypotheses.jsonl` and `summary.json`. The dashboard uses this as
-the compact AI conclusion layer: confidence level, coverage, strongest evidence,
-weakest limitation, latest neural result, and next experiment.
+This writes `latest_public_summary.json` as the public source of truth and a
+compact `hypotheses/summary.json` derived from the same canonical evidence.
 
 Train a research-only Graph Neural Network embedding over the exported graph:
 
@@ -418,14 +413,15 @@ Start the progress web server:
 ./build/collatz_web \
   --host 127.0.0.1 \
   --port 8080 \
-  --runner-status data/generated/runner/status.json
+  --runner-status data/generated/runner/status.json \
+  --evidence-summary data/generated/evidence/latest_public_summary.json
 ```
 
 Then open `http://127.0.0.1:8080`.
-The dashboard reads compact scanner, topology, graph, GNN, hypothesis, and
-automation status fields when those files exist. The API intentionally returns
-only public-safe runner fields such as state, stage, source target count,
-matched source count, and next stage.
+The dashboard API separates canonical `evidence` from live `operations`.
+Operations include scanner, topology preview, GNN preview, CPU, GPU, neural job,
+and runner status fields. Operations telemetry never raises the confidence
+label.
 
 ## Background Evidence Runner
 
@@ -447,7 +443,7 @@ The cycle:
 2. Downloads public source files into ignored `data/imported/`.
 3. Generates expanded source targets under ignored `data/generated/`.
 4. Aligns source targets against the current topology.
-5. Regenerates the hypothesis summary used by the dashboard.
+5. Publishes the canonical evidence summary used by README and dashboard claims.
 6. Optionally runs a CPU crunch scan batch when configured.
 7. Runs the deterministic full-dataset audit over the current binary feature
    file.

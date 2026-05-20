@@ -1,0 +1,30 @@
+{
+  "dataset_type": "collatz_source_alignment",
+  "tool": "collatz_source_align",
+  "alignment_status": "partial-source-match",
+  "target_count": 5,
+  "matched_targets": 4,
+  "missing_targets": 1,
+  "matched_fraction": 0.8,
+  "source_family_count": 4,
+  "matched_cluster_count": 4,
+  "unmatched_breakdown": {
+    "above_active_scan_range": 0,
+    "missing_from_topology_sample": 0,
+    "parser_error": 0,
+    "step_convention_mismatch": 0,
+    "peak_convention_mismatch": 0,
+    "true_mismatch": 0,
+    "missing_topology_node": 0,
+    "duplicated_source_row": 0,
+    "future_source_target": 0,
+    "unknown": 1
+  },
+  "unknown_unmatched_percent": 100.0,
+  "source_family_coverage": {
+    "oeis": {"present": true, "complete": true, "targets": 2, "matched": 2, "unmatched": 0},
+    "roosendaal": {"present": true, "complete": false, "targets": 1, "matched": 0, "unmatched": 1},
+    "oliveira_e_silva": {"present": true, "complete": true, "targets": 1, "matched": 1, "unmatched": 0},
+    "barina": {"present": true, "complete": true, "targets": 1, "matched": 1, "unmatched": 0}
+  }
+}

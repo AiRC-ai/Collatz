@@ -432,7 +432,7 @@ int main(int argc, char **argv) {
                       " with lift " + percent(best_lift) + "."
                 : "No evidence validation metrics were found.",
             "Passing holdouts shows empirical stability, not proof; the signal can still be an artifact of the selected feature labels.",
-            "Reject or demote the claim if new seeded samples, source-aligned records, or feature ablations lose lift.",
+            "Reject or demote the claim if new seeded samples, source-neighborhood records, or feature ablations lose lift.",
             validation_status == "complete"
                 ? "Run independent seeded stratified samples and compare source-record neighborhoods."
                 : "Run research/evidence_validate.py after contrastive and ablation runs.",
@@ -444,9 +444,9 @@ int main(int argc, char **argv) {
                 ? "Known source validation targets are now checked against embedding neighborhoods."
                 : "Source-record neighborhood comparison has not run yet.",
             alignment_status == "multi-source-aligned"
-                ? "multi-source-aligned candidate"
+                ? "source-neighborhood-supported"
                 : alignment_status == "public-source-aligned"
-                ? "source-aligned candidate"
+                ? "range-stable signal"
                 : alignment_status == "source-smoke-aligned" ? "sample-local signal" : "pipeline-check",
             alignment_status != "missing"
                 ? std::to_string(matched_source_targets) + " of " + std::to_string(source_target_count) +
@@ -471,10 +471,7 @@ int main(int argc, char **argv) {
         }
         if (confidence_level == "range-stable signal" && alignment_status == "multi-source-aligned" &&
             source_target_count >= 25 && source_family_count >= 3) {
-            confidence_level = "multi-source-aligned candidate";
-        } else if (confidence_level == "range-stable signal" && alignment_status == "public-source-aligned" &&
-                   source_target_count >= 25) {
-            confidence_level = "source-aligned candidate";
+            confidence_level = "source-neighborhood-supported";
         }
 
         std::string latest_neural_result = "No learned contrastive or anomaly model has completed yet.";
@@ -519,22 +516,18 @@ int main(int argc, char **argv) {
                       : "This is still empirical structure: source-record alignment and independent new seeded samples are the next falsification gates."
                 : "No claim is promoted beyond empirical pattern evidence until the full audit, independent range/residue holdouts, and feature-ablation checks agree.";
         const std::string conclusion =
-            confidence_level == "multi-source-aligned candidate"
-                ? "The AI evidence engine has a multi-source-aligned candidate: the learned path-family signal survives current holdouts and agrees with multiple public source families, but it is still not a proof."
-                : confidence_level == "source-aligned candidate"
-                ? "The AI evidence engine has a source-aligned candidate: the learned path-family signal survives current holdouts and matches public source targets, but it is still not a proof."
+            confidence_level == "source-neighborhood-supported"
+                ? "The AI evidence engine has source-neighborhood-supported evidence: the learned path-family signal survives current holdouts and agrees with multiple public source families, but it is still not a proof."
                 : confidence_level == "range-stable signal"
-                ? "The AI evidence engine has a range-stable learned path-family signal across current holdouts, but it is still not a proof or source-aligned candidate."
+                ? "The AI evidence engine has a range-stable learned path-family signal across current holdouts, but it is still not a proof or source-neighborhood-supported candidate."
                 : contrastive_status == "complete" && purity_lift > 0.05
                       ? "The AI evidence engine has a sample-local learned path-family signal; it needs holdout and ablation validation before promotion."
                       : selected_rows > 0
                             ? "The system has moved from a narrow topology sample to evidence-first pattern testing; conclusions remain sample-local."
                             : "The current dashboard is still a pipeline/topology check until the stratified evidence sample is generated.";
         const std::string next_experiment =
-            confidence_level == "multi-source-aligned candidate"
+            confidence_level == "source-neighborhood-supported"
                 ? "Run source-anchored path-image and GNN ablations, then test whether independent seeded samples keep the same source neighborhoods."
-                : confidence_level == "source-aligned candidate"
-                ? "Add Roosendaal, Oliveira e Silva, and Barina record imports, then rerun source-neighborhood, path-image, and GNN ablations."
                 : confidence_level == "range-stable signal"
                 ? alignment_status == "source-smoke-aligned"
                       ? "Import larger dated Roosendaal/Oliveira/Barina/OEIS source records, then rerun source-neighborhood alignment."

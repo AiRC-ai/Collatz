@@ -1,0 +1,5 @@
+{
+  "dataset_type": "collatz_embedding_topology",
+  "point_count": 100000,
+  "cluster_count": 16
+}

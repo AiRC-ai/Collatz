@@ -1,0 +1,263 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/AiRC-ai/Collatz/schemas/evidence_public_summary_v1.json",
+  "title": "Collatz public evidence summary",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "run_id",
+    "git_commit",
+    "generated_at_utc",
+    "confidence",
+    "audit",
+    "coverage",
+    "neural",
+    "source_alignment",
+    "next_experiment",
+    "public_safety"
+  ],
+  "properties": {
+    "schema_version": { "const": "evidence_public_summary_v1" },
+    "run_id": { "type": "string", "minLength": 1 },
+    "git_commit": { "type": "string", "minLength": 1 },
+    "generated_at_utc": { "type": "string", "minLength": 1 },
+    "confidence": {
+      "type": "object",
+      "required": [
+        "label",
+        "rank",
+        "claim_is_proof",
+        "claim_is_source_neighborhood_supported",
+        "claim_is_candidate_pattern",
+        "interpretation"
+      ],
+      "properties": {
+        "label": {
+          "enum": [
+            "sample-local signal",
+            "range-stable signal",
+            "source-neighborhood-supported",
+            "candidate pattern",
+            "proof"
+          ]
+        },
+        "rank": { "type": "integer", "minimum": 0, "maximum": 4 },
+        "claim_is_proof": { "type": "boolean" },
+        "claim_is_source_neighborhood_supported": { "type": "boolean" },
+        "claim_is_candidate_pattern": { "type": "boolean" },
+        "interpretation": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "audit": {
+      "type": "object",
+      "required": [
+        "active_feature_file",
+        "rows",
+        "range_start",
+        "range_end",
+        "feature_schema_version",
+        "binary_schema_version",
+        "full_audit_completed",
+        "feature_file_sha256",
+        "metadata_sha256"
+      ],
+      "properties": {
+        "active_feature_file": { "type": "string" },
+        "rows": { "type": "integer", "minimum": 0 },
+        "range_start": { "type": "integer", "minimum": 0 },
+        "range_end": { "type": "integer", "minimum": 0 },
+        "feature_schema_version": { "type": "string" },
+        "binary_schema_version": { "type": "string" },
+        "full_audit_completed": { "type": "boolean" },
+        "feature_file_sha256": { "type": ["string", "null"] },
+        "metadata_sha256": { "type": ["string", "null"] }
+      },
+      "additionalProperties": false
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["topology", "stratified_evidence_sample"],
+      "properties": {
+        "topology": { "$ref": "#/$defs/coveragePair" },
+        "stratified_evidence_sample": {
+          "allOf": [{ "$ref": "#/$defs/coveragePair" }],
+          "required": ["rows", "percent_of_audit", "sampling_note"]
+        }
+      }
+    },
+    "neural": {
+      "type": "object",
+      "required": ["latest_run", "leaderboard", "interpretation", "holdouts"],
+      "properties": {
+        "latest_run": {
+          "type": "object",
+          "required": ["sample_rows", "gpu_used", "parallel_jobs_completed"],
+          "properties": {
+            "sample_rows": { "type": "integer", "minimum": 0 },
+            "gpu_used": { "type": "boolean" },
+            "parallel_jobs_completed": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "leaderboard": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/leaderboardEntry" }
+        },
+        "interpretation": {
+          "type": "object",
+          "required": ["signal_type", "reason", "may_promote_confidence"],
+          "properties": {
+            "signal_type": { "type": "string" },
+            "reason": { "type": "string" },
+            "may_promote_confidence": { "type": "boolean" }
+          }
+        },
+        "holdouts": {
+          "type": "object",
+          "required": [
+            "weakest_range_lift_percent",
+            "fold_min_lift_percent",
+            "numeric_adjacency_lift_percent"
+          ],
+          "properties": {
+            "weakest_range_lift_percent": { "type": "number" },
+            "fold_min_lift_percent": { "type": "number" },
+            "numeric_adjacency_lift_percent": { "type": "number" }
+          }
+        }
+      }
+    },
+    "source_alignment": {
+      "type": "object",
+      "required": [
+        "targets_total",
+        "matched",
+        "unmatched",
+        "matched_fraction",
+        "source_family_coverage",
+        "unmatched_breakdown",
+        "unknown_unmatched_percent"
+      ],
+      "properties": {
+        "targets_total": { "type": "integer", "minimum": 0 },
+        "matched": { "type": "integer", "minimum": 0 },
+        "unmatched": { "type": "integer", "minimum": 0 },
+        "matched_fraction": { "type": "number", "minimum": 0, "maximum": 1 },
+        "source_family_coverage": { "type": "object" },
+        "unmatched_breakdown": { "$ref": "#/$defs/unmatchedBreakdown" },
+        "unknown_unmatched_percent": { "type": "number", "minimum": 0 }
+      }
+    },
+    "next_experiment": {
+      "type": "object",
+      "required": ["summary", "falsification_target"],
+      "properties": {
+        "summary": { "type": "string", "minLength": 1 },
+        "falsification_target": { "type": "string", "minLength": 1 }
+      }
+    },
+    "public_safety": {
+      "type": "object",
+      "required": [
+        "sanitized",
+        "contains_hostnames",
+        "contains_internal_ips",
+        "contains_usernames",
+        "contains_absolute_local_paths",
+        "contains_raw_internal_command_traces"
+      ],
+      "properties": {
+        "sanitized": { "const": true },
+        "contains_hostnames": { "const": false },
+        "contains_internal_ips": { "const": false },
+        "contains_usernames": { "const": false },
+        "contains_absolute_local_paths": { "const": false },
+        "contains_raw_internal_command_traces": { "const": false }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "coveragePair": {
+      "type": "object",
+      "required": ["rows", "percent_of_audit"],
+      "properties": {
+        "rows": { "type": "integer", "minimum": 0 },
+        "percent_of_audit": { "type": "number", "minimum": 0 },
+        "sampling_note": { "type": "string" }
+      }
+    },
+    "leaderboardEntry": {
+      "type": "object",
+      "required": [
+        "name",
+        "lift_percent",
+        "n_folds",
+        "n_seeds",
+        "n_samples",
+        "matched_controls"
+      ],
+      "properties": {
+        "name": { "type": "string" },
+        "lift_percent": {
+          "type": "object",
+          "required": ["mean", "std", "ci_95"],
+          "properties": {
+            "mean": { "type": ["number", "null"] },
+            "std": { "type": ["number", "null"] },
+            "ci_95": { "type": ["number", "null"] }
+          }
+        },
+        "n_folds": { "type": ["integer", "null"] },
+        "n_seeds": { "type": ["integer", "null"] },
+        "n_samples": { "type": "integer", "minimum": 0 },
+        "matched_controls": {
+          "type": "object",
+          "required": [
+            "bit_length",
+            "range_band",
+            "residue_class",
+            "stopping_time_bucket",
+            "peak_ratio_bucket",
+            "first_drop_bucket"
+          ],
+          "properties": {
+            "bit_length": { "type": "boolean" },
+            "range_band": { "type": "boolean" },
+            "residue_class": { "type": "boolean" },
+            "stopping_time_bucket": { "type": "boolean" },
+            "peak_ratio_bucket": { "type": "boolean" },
+            "first_drop_bucket": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "unmatchedBreakdown": {
+      "type": "object",
+      "required": [
+        "above_active_scan_range",
+        "missing_from_topology_sample",
+        "parser_error",
+        "step_convention_mismatch",
+        "peak_convention_mismatch",
+        "true_mismatch",
+        "missing_topology_node",
+        "duplicated_source_row",
+        "future_source_target",
+        "unknown"
+      ],
+      "properties": {
+        "above_active_scan_range": { "type": "integer", "minimum": 0 },
+        "missing_from_topology_sample": { "type": "integer", "minimum": 0 },
+        "parser_error": { "type": "integer", "minimum": 0 },
+        "step_convention_mismatch": { "type": "integer", "minimum": 0 },
+        "peak_convention_mismatch": { "type": "integer", "minimum": 0 },
+        "true_mismatch": { "type": "integer", "minimum": 0 },
+        "missing_topology_node": { "type": "integer", "minimum": 0 },
+        "duplicated_source_row": { "type": "integer", "minimum": 0 },
+        "future_source_target": { "type": "integer", "minimum": 0 },
+        "unknown": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

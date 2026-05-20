@@ -1,0 +1,6 @@
+{
+  "dataset_type": "collatz_stratified_sample",
+  "selected_rows": 108000,
+  "input_records_read": 200000000,
+  "reason_count": 120
+}

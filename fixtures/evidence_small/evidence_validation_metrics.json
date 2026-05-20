@@ -1,0 +1,15 @@
+{
+  "dataset_type": "collatz_evidence_validation",
+  "status": "complete",
+  "confidence_level": "range-stable signal",
+  "sample_rows": 100000,
+  "full_dataset_records": 200000000,
+  "evaluation_device": "cuda",
+  "contrastive_lift": 0.09968,
+  "contrastive_minus_numeric": 0.05341,
+  "range_min_lift": 0.07459,
+  "fold_min_lift": 0.08604,
+  "residue_mean_lift": 0.07214,
+  "best_ablation": "metrics",
+  "best_lift": 0.12165
+}
