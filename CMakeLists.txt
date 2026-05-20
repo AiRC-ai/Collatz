@@ -43,6 +43,9 @@ target_link_libraries(collatz_embed_export PRIVATE collatz_core)
 add_executable(collatz_path_image src/collatz_path_image.cpp)
 target_link_libraries(collatz_path_image PRIVATE collatz_core)
 
+add_executable(collatz_path_image_atlas src/collatz_path_image_atlas.cpp)
+target_link_libraries(collatz_path_image_atlas PRIVATE collatz_core)
+
 add_executable(collatz_select_representatives src/collatz_select_representatives.cpp)
 target_link_libraries(collatz_select_representatives PRIVATE collatz_core)
 

@@ -26,6 +26,7 @@ if [ "$DRY_RUN" -eq 1 ]; then
   echo "dry-run stage: generate expanded source targets"
   echo "dry-run stage: align source targets to current topology"
   echo "dry-run stage: regenerate hypothesis summary"
+  echo "dry-run stage: optionally run one CPU crunch scan batch if configured"
   echo "dry-run stage: optionally run one neural stage if GPU is available and configured"
   echo "dry-run stage: run public privacy scan"
   echo "dry-run stage: append sanitized iteration ledger"
@@ -37,9 +38,13 @@ cd "$REPO_DIR"
 
 RUNNER_DIR="${COLLATZ_RUNNER_DIR:-data/generated/runner}"
 STATUS_FILE="${COLLATZ_RUNNER_STATUS:-$RUNNER_DIR/status.json}"
+HISTORY_FILE="${COLLATZ_RUNNER_HISTORY:-$RUNNER_DIR/history.jsonl}"
 LOCK_DIR="${COLLATZ_RUNNER_LOCK:-$RUNNER_DIR/lock}"
 BUILD_DIR="${COLLATZ_BUILD_DIR:-build}"
 IMPORT_DIR="${COLLATZ_IMPORT_DIR:-data/imported}"
+FEATURE_FILE="${COLLATZ_FEATURE_FILE:-data/generated/features.bin}"
+PROGRESS_FILE="${COLLATZ_PROGRESS_FILE:-logs/progress.jsonl}"
+SCAN_METADATA="${COLLATZ_SCAN_METADATA:-data/generated/features.bin.metadata.json}"
 SOURCE_OUTPUT="${COLLATZ_SOURCE_OUTPUT:-data/generated/source_validation/public_source_targets.csv}"
 SOURCE_METADATA="${COLLATZ_SOURCE_METADATA:-$SOURCE_OUTPUT.metadata.json}"
 SOURCE_ALIGNMENT_DIR="${COLLATZ_SOURCE_ALIGNMENT_DIR:-data/generated/source_alignment}"
@@ -54,8 +59,26 @@ VALIDATION_METRICS="${COLLATZ_VALIDATION_METRICS:-data/generated/evidence_valida
 LEDGER_FILE="${COLLATZ_LEDGER_FILE:-logs/iteration-ledger.jsonl}"
 MAX_N="${COLLATZ_SOURCE_MAX_N:-100000000}"
 GPU_MIN_FREE_MB="${COLLATZ_GPU_MIN_FREE_MB:-4096}"
+GPU_ALLOW_SHARED="${COLLATZ_GPU_ALLOW_SHARED:-0}"
+RUN_CPU_CRUNCH="${COLLATZ_RUN_CPU_CRUNCH:-0}"
+CPU_CRUNCH_END="${COLLATZ_CPU_CRUNCH_END:-}"
+CPU_CRUNCH_STEP="${COLLATZ_CPU_CRUNCH_STEP:-10000000}"
+CPU_CRUNCH_THREADS="${COLLATZ_CPU_CRUNCH_THREADS:-$(getconf _NPROCESSORS_ONLN 2>/dev/null || echo 8)}"
+CPU_CRUNCH_CHUNK_SIZE="${COLLATZ_CPU_CRUNCH_CHUNK_SIZE:-250000}"
+CPU_CRUNCH_MAX_STEPS="${COLLATZ_CPU_CRUNCH_MAX_STEPS:-10000000}"
 RUN_NEURAL="${COLLATZ_RUN_NEURAL:-0}"
 NEURAL_COMMAND="${COLLATZ_NEURAL_COMMAND:-}"
+EVIDENCE_SCORE=0
+EVIDENCE_DELTA=0
+SOURCE_MATCH_RATE=0
+CYCLE_COUNT=0
+CPU_CRUNCH_STATE="disabled"
+CPU_THREADS="$CPU_CRUNCH_THREADS"
+CPU_TARGET_END=0
+GPU_STATE="unknown"
+GPU_FREE_MEMORY_MB=0
+GPU_COMPUTE_PROCESS_COUNT=0
+NEURAL_STAGE="disabled"
 
 mkdir -p "$RUNNER_DIR"
 if ! mkdir "$LOCK_DIR" 2>/dev/null; then
@@ -87,9 +110,20 @@ write_status() {
     printf '  "last_finished_utc": "%s",\n' "$(json_escape "$now")"
     printf '  "last_success": %s,\n' "$last_success"
     printf '  "last_error_summary": "%s",\n' "$(json_escape "$error_summary")"
-    printf '  "active_experiment": "source-record neighborhood alignment",\n'
+    printf '  "active_experiment": "source alignment plus optional CPU/GPU crunch",\n'
     printf '  "source_target_count": %s,\n' "$source_target_count"
     printf '  "matched_source_targets": %s,\n' "$matched_source_targets"
+    printf '  "source_match_rate": %s,\n' "$SOURCE_MATCH_RATE"
+    printf '  "evidence_score": %s,\n' "$EVIDENCE_SCORE"
+    printf '  "evidence_delta": %s,\n' "$EVIDENCE_DELTA"
+    printf '  "cycle_count": %s,\n' "$CYCLE_COUNT"
+    printf '  "cpu_crunch_state": "%s",\n' "$(json_escape "$CPU_CRUNCH_STATE")"
+    printf '  "cpu_threads": %s,\n' "$CPU_THREADS"
+    printf '  "cpu_target_end": %s,\n' "$CPU_TARGET_END"
+    printf '  "gpu_state": "%s",\n' "$(json_escape "$GPU_STATE")"
+    printf '  "gpu_free_memory_mb": %s,\n' "$GPU_FREE_MEMORY_MB"
+    printf '  "gpu_compute_process_count": %s,\n' "$GPU_COMPUTE_PROCESS_COUNT"
+    printf '  "neural_stage": "%s",\n' "$(json_escape "$NEURAL_STAGE")"
     printf '  "next_stage": "%s"\n' "$(json_escape "$next_stage")"
     printf '}\n'
   } > "$STATUS_FILE.tmp"
@@ -131,6 +165,96 @@ read_json_number() {
   ' "$file"
 }
 
+read_json_string() {
+  local key="$1"
+  local file="$2"
+  if [ ! -f "$file" ]; then
+    echo ""
+    return
+  fi
+  awk -v key="\"$key\"" -F'"' '
+    index($0, key) {
+      print $4
+      found=1
+      exit
+    }
+    END { if (found != 1) print "" }
+  ' "$file"
+}
+
+read_json_decimal() {
+  local key="$1"
+  local file="$2"
+  if [ ! -f "$file" ]; then
+    echo 0
+    return
+  fi
+  awk -v key="\"$key\"" '
+    BEGIN { found=0 }
+    index($0, key) {
+      value=$0
+      sub(/^.*: */, "", value)
+      gsub(/[^0-9.eE+-]/, "", value)
+      if (value == "") value=0
+      print value
+      found=1
+      exit
+    }
+    END { if (found == 0) print 0 }
+  ' "$file"
+}
+
+evidence_base_for_confidence() {
+  case "$1" in
+    "multi-source-aligned candidate") echo 85 ;;
+    "source-aligned candidate") echo 75 ;;
+    "range-stable signal") echo 62 ;;
+    "sample-local signal") echo 35 ;;
+    *) echo 10 ;;
+  esac
+}
+
+last_history_value() {
+  local key="$1"
+  if [ ! -f "$HISTORY_FILE" ]; then
+    echo 0
+    return
+  fi
+  tail -n 1 "$HISTORY_FILE" | awk -v key="\"$key\"" '
+    {
+      value=$0
+      sub("^.*" key "[ ]*:[ ]*", "", value)
+      sub(",.*$", "", value)
+      gsub(/[^0-9.eE+-]/, "", value)
+      if (value == "") value=0
+      print value
+    }
+  '
+}
+
+update_evidence_score() {
+  local alignment_json="$SOURCE_ALIGNMENT_DIR/source_alignment.json"
+  local summary_json="$HYPOTHESES_DIR/summary.json"
+  local target_count matched confidence base previous previous_cycle validation_lift neural_bonus
+  target_count="$(read_json_number target_count "$alignment_json")"
+  matched="$(read_json_number matched_targets "$alignment_json")"
+  confidence="$(read_json_string confidence_level "$summary_json")"
+  base="$(evidence_base_for_confidence "$confidence")"
+  previous="$(last_history_value evidence_score)"
+  previous_cycle="$(last_history_value cycle_count)"
+  validation_lift="$(read_json_decimal contrastive_lift "$VALIDATION_METRICS")"
+  neural_bonus="$(awk -v lift="$validation_lift" 'BEGIN { if (lift < 0) lift = 0; if (lift > 0.30) lift = 0.30; printf "%.4f", lift * 20.0 }')"
+
+  SOURCE_MATCH_RATE="$(awk -v matched="$matched" -v total="$target_count" 'BEGIN { if (total > 0) printf "%.4f", matched / total; else printf "0.0000" }')"
+  EVIDENCE_SCORE="$(awk -v base="$base" -v source="$SOURCE_MATCH_RATE" -v neural="$neural_bonus" 'BEGIN { score = base + source * 10.0 + neural; if (score > 99) score = 99; printf "%.2f", score }')"
+  EVIDENCE_DELTA="$(awk -v current="$EVIDENCE_SCORE" -v previous="$previous" 'BEGIN { printf "%.2f", current - previous }')"
+  CYCLE_COUNT="$(awk -v previous="$previous_cycle" 'BEGIN { printf "%d", previous + 1 }')"
+  mkdir -p "$(dirname "$HISTORY_FILE")"
+  printf '{"timestamp":"%s","cycle_count":%s,"evidence_score":%s,"evidence_delta":%s,"confidence_level":"%s","source_match_rate":%s,"source_target_count":%s,"matched_source_targets":%s}\n' \
+    "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$CYCLE_COUNT" "$EVIDENCE_SCORE" "$EVIDENCE_DELTA" \
+    "$(json_escape "${confidence:-pipeline-check}")" "$SOURCE_MATCH_RATE" "$target_count" "$matched" >> "$HISTORY_FILE"
+}
+
 download_required() {
   local url="$1"
   local dest="$2"
@@ -168,13 +292,84 @@ build_if_needed() {
 
 gpu_available() {
   if ! command -v nvidia-smi >/dev/null 2>&1; then
+    GPU_STATE="not_available"
+    GPU_FREE_MEMORY_MB=0
+    GPU_COMPUTE_PROCESS_COUNT=0
     return 1
   fi
   local busy
   busy="$(nvidia-smi --query-compute-apps=pid --format=csv,noheader 2>/dev/null | awk 'NF { c++ } END { print c+0 }')"
   local free_mb
   free_mb="$(nvidia-smi --query-gpu=memory.free --format=csv,noheader,nounits 2>/dev/null | awk 'NR==1 { print int($1) }')"
-  [ "${busy:-1}" -eq 0 ] && [ "${free_mb:-0}" -ge "$GPU_MIN_FREE_MB" ]
+  GPU_COMPUTE_PROCESS_COUNT="${busy:-0}"
+  GPU_FREE_MEMORY_MB="${free_mb:-0}"
+  if [ "${free_mb:-0}" -lt "$GPU_MIN_FREE_MB" ]; then
+    GPU_STATE="low_memory"
+    return 1
+  fi
+  if [ "${busy:-0}" -gt 0 ] && [ "$GPU_ALLOW_SHARED" != "1" ]; then
+    GPU_STATE="busy"
+    return 1
+  fi
+  if [ "${busy:-0}" -gt 0 ]; then
+    GPU_STATE="shared"
+  else
+    GPU_STATE="available"
+  fi
+  return 0
+}
+
+current_feature_records() {
+  if [ -x "$BUILD_DIR/collatzctl" ] && [ -f "$FEATURE_FILE" ]; then
+    "$BUILD_DIR/collatzctl" inspect-bin "$FEATURE_FILE" 2>/dev/null | awk '
+      /"records"/ {
+        value=$0
+        sub(/^.*"records":/, "", value)
+        sub(/[^0-9].*$/, "", value)
+        print value
+        found=1
+      }
+      END { if (found != 1) print 0 }
+    '
+    return
+  fi
+  read_json_number dataset_records_observed "$SCAN_METADATA"
+}
+
+run_cpu_crunch_if_configured() {
+  if [ "$RUN_CPU_CRUNCH" != "1" ]; then
+    CPU_CRUNCH_STATE="disabled"
+    return
+  fi
+  local current_records target_end
+  current_records="$(current_feature_records)"
+  if [ -n "$CPU_CRUNCH_END" ]; then
+    target_end="$CPU_CRUNCH_END"
+  else
+    target_end="$(awk -v current="${current_records:-0}" -v step="$CPU_CRUNCH_STEP" 'BEGIN { printf "%d", current + step }')"
+  fi
+  if [ "${target_end:-0}" -le "${current_records:-0}" ]; then
+    CPU_CRUNCH_STATE="complete"
+    CPU_TARGET_END="${target_end:-0}"
+    return
+  fi
+  CPU_CRUNCH_STATE="running"
+  CPU_THREADS="$CPU_CRUNCH_THREADS"
+  CPU_TARGET_END="$target_end"
+  write_status "running" "cpu crunch scan" false "" "optional neural stage"
+  "$BUILD_DIR/collatz_scan_cpu" \
+    --start 1 \
+    --end "$target_end" \
+    --output "$FEATURE_FILE" \
+    --progress "$PROGRESS_FILE" \
+    --metadata "$SCAN_METADATA" \
+    --chunk-size "$CPU_CRUNCH_CHUNK_SIZE" \
+    --max-steps "$CPU_CRUNCH_MAX_STEPS" \
+    --threads "$CPU_CRUNCH_THREADS" \
+    --format bin \
+    --resume \
+    --mode-label cpu-crunch || fail_cycle "cpu crunch scan" "$?"
+  CPU_CRUNCH_STATE="complete"
 }
 
 append_ledger() {
@@ -190,6 +385,9 @@ append_ledger() {
 }
 
 LAST_STARTED_UTC="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+EVIDENCE_SCORE="$(last_history_value evidence_score)"
+SOURCE_MATCH_RATE="$(last_history_value source_match_rate)"
+CYCLE_COUNT="$(last_history_value cycle_count)"
 write_status "running" "starting" false "" "build tools"
 
 stage "build tools"
@@ -239,14 +437,22 @@ stage "regenerate hypothesis summary"
   --source-alignment "$SOURCE_ALIGNMENT_DIR/source_alignment.json" \
   --output-dir "$HYPOTHESES_DIR" || fail_cycle "regenerate hypothesis summary" "$?"
 
+stage "optional cpu crunch scan"
+run_cpu_crunch_if_configured
+
 stage "optional neural stage"
 if [ "$RUN_NEURAL" = "1" ] && [ -n "$NEURAL_COMMAND" ]; then
   if gpu_available; then
+    NEURAL_STAGE="running"
+    write_status "running" "optional neural stage" false "" "run public privacy scan"
     bash -lc "$NEURAL_COMMAND" || fail_cycle "optional neural stage" "$?"
+    NEURAL_STAGE="complete"
   else
-    echo "neural stage skipped: gpu unavailable or busy"
+    NEURAL_STAGE="skipped_${GPU_STATE}"
+    echo "neural stage skipped: gpu unavailable, low memory, or busy"
   fi
 else
+  NEURAL_STAGE="disabled"
   echo "neural stage skipped: not configured"
 fi
 
@@ -258,6 +464,7 @@ else
 fi
 
 stage "append sanitized ledger"
+update_evidence_score || fail_cycle "append sanitized ledger" "$?"
 append_ledger || fail_cycle "append sanitized ledger" "$?"
 
 TARGET_COUNT="$(read_json_number target_count "$SOURCE_ALIGNMENT_DIR/source_alignment.json")"

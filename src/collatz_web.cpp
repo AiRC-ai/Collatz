@@ -363,7 +363,7 @@ std::string safe_runner_value_or(const std::string &json, const std::string &key
 std::string compact_runner_status_json(const Options &options) {
     const std::string json = read_file(options.runner_status);
     if (json.empty()) {
-        return "{\"state\":\"idle\",\"current_stage\":\"not configured\",\"last_started_utc\":\"\",\"last_finished_utc\":\"\",\"last_success\":false,\"last_error_summary\":\"\",\"active_experiment\":\"source alignment\",\"source_target_count\":0,\"matched_source_targets\":0,\"next_stage\":\"run evidence cycle\"}";
+        return "{\"state\":\"idle\",\"current_stage\":\"not configured\",\"last_started_utc\":\"\",\"last_finished_utc\":\"\",\"last_success\":false,\"last_error_summary\":\"\",\"active_experiment\":\"source alignment plus optional CPU/GPU crunch\",\"source_target_count\":0,\"matched_source_targets\":0,\"source_match_rate\":0,\"evidence_score\":0,\"evidence_delta\":0,\"cycle_count\":0,\"cpu_crunch_state\":\"disabled\",\"cpu_threads\":0,\"cpu_target_end\":0,\"gpu_state\":\"unknown\",\"gpu_free_memory_mb\":0,\"gpu_compute_process_count\":0,\"neural_stage\":\"disabled\",\"next_stage\":\"run evidence cycle\"}";
     }
     std::ostringstream out;
     out << "{\"state\":" << safe_runner_value_or(json, "state", "\"idle\"")
@@ -372,9 +372,20 @@ std::string compact_runner_status_json(const Options &options) {
         << ",\"last_finished_utc\":" << safe_runner_value_or(json, "last_finished_utc", "\"\"")
         << ",\"last_success\":" << safe_runner_value_or(json, "last_success", "false")
         << ",\"last_error_summary\":" << safe_runner_value_or(json, "last_error_summary", "\"\"")
-        << ",\"active_experiment\":" << safe_runner_value_or(json, "active_experiment", "\"source alignment\"")
+        << ",\"active_experiment\":" << safe_runner_value_or(json, "active_experiment", "\"source alignment plus optional CPU/GPU crunch\"")
         << ",\"source_target_count\":" << safe_runner_value_or(json, "source_target_count", "0")
         << ",\"matched_source_targets\":" << safe_runner_value_or(json, "matched_source_targets", "0")
+        << ",\"source_match_rate\":" << safe_runner_value_or(json, "source_match_rate", "0")
+        << ",\"evidence_score\":" << safe_runner_value_or(json, "evidence_score", "0")
+        << ",\"evidence_delta\":" << safe_runner_value_or(json, "evidence_delta", "0")
+        << ",\"cycle_count\":" << safe_runner_value_or(json, "cycle_count", "0")
+        << ",\"cpu_crunch_state\":" << safe_runner_value_or(json, "cpu_crunch_state", "\"disabled\"")
+        << ",\"cpu_threads\":" << safe_runner_value_or(json, "cpu_threads", "0")
+        << ",\"cpu_target_end\":" << safe_runner_value_or(json, "cpu_target_end", "0")
+        << ",\"gpu_state\":" << safe_runner_value_or(json, "gpu_state", "\"unknown\"")
+        << ",\"gpu_free_memory_mb\":" << safe_runner_value_or(json, "gpu_free_memory_mb", "0")
+        << ",\"gpu_compute_process_count\":" << safe_runner_value_or(json, "gpu_compute_process_count", "0")
+        << ",\"neural_stage\":" << safe_runner_value_or(json, "neural_stage", "\"disabled\"")
         << ",\"next_stage\":" << safe_runner_value_or(json, "next_stage", "\"run evidence cycle\"")
         << "}";
     return out.str();
@@ -414,7 +425,7 @@ std::string html_page() {
     h3 { margin: 0 0 6px; font-size: 12px; color: #9aa7c7; text-transform: uppercase; letter-spacing: .08em; }
     .subtle { margin: 6px 0 0; color: #9aa7c7; font-size: 14px; }
     .status { color: #83e6a5; font-size: 13px; white-space: nowrap; }
-    .grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; margin-bottom: 16px; }
     .panel { border: 1px solid #27314f; border-radius: 8px; padding: 13px; background: #111832; min-width: 0; }
     .label { color: #9aa7c7; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
     .value { margin-top: 6px; font-size: 21px; font-weight: 760; overflow-wrap: anywhere; line-height: 1.05; }
@@ -451,9 +462,13 @@ std::string html_page() {
   </header>
   <section class="grid">
     <div class="panel"><div class="label">Dataset</div><div id="records" class="value">0</div></div>
-    <div class="panel"><div class="label">Scan Peak</div><div id="maxsteps" class="value">0</div></div>
+    <div class="panel"><div class="label">Throughput</div><div id="throughput" class="value">0/s</div></div>
+    <div class="panel"><div class="label">Evidence Score</div><div id="evidenceScore" class="value">0</div></div>
     <div class="panel"><div class="label">Topology</div><div id="topology" class="value">0 / 0</div></div>
     <div class="panel"><div class="label">Automation</div><div id="automation" class="value">idle</div></div>
+    <div class="panel"><div class="label">CPU Crunch</div><div id="cpuCrunch" class="value">disabled</div></div>
+    <div class="panel"><div class="label">GPU / Neural</div><div id="gpuStage" class="value">disabled</div></div>
+    <div class="panel"><div class="label">Source Gate</div><div id="sourceGate" class="value">0 / 0</div></div>
     <div class="panel"><div class="label">GNN Graph</div><div id="graph" class="value">0 / 0</div></div>
     <div class="panel"><div class="label">Confidence</div><div id="aiConfidence" class="value">pending</div></div>
   </section>
@@ -529,11 +544,27 @@ async function refresh() {
   const throughput = progress.throughput_per_sec ? ` at ${compact(progress.throughput_per_sec)}/s` : '';
   document.getElementById('status').textContent = `${mode}${processed}${throughput}`;
   document.getElementById('records').textContent = compact(scan.dataset_records_observed);
-  document.getElementById('maxsteps').textContent = `${progress.max_total_steps ?? 0}@${compact(progress.max_total_steps_n)}`;
+  document.getElementById('throughput').textContent = progress.throughput_per_sec ? `${compact(progress.throughput_per_sec)}/s` : 'idle';
+  const score = Number(runner.evidence_score || 0);
+  const delta = Number(runner.evidence_delta || 0);
+  const deltaText = delta > 0 ? ` +${delta.toFixed(2)}` : delta < 0 ? ` ${delta.toFixed(2)}` : ' +0.00';
+  document.getElementById('evidenceScore').textContent = score ? `${score.toFixed(2)}${deltaText}` : 'pending';
   document.getElementById('topology').textContent = `${compact(topology.point_count)} / ${compact(topology.cluster_count)} clusters`;
   const stage = runner.current_stage || runner.next_stage || 'idle';
-  const sourceCount = runner.source_target_count ? ` ${compact(runner.matched_source_targets)}/${compact(runner.source_target_count)}` : '';
-  document.getElementById('automation').textContent = `${runner.state || 'idle'}: ${stage}${sourceCount}`;
+  document.getElementById('automation').textContent = `${runner.state || 'idle'}: ${stage}`;
+  const cpuState = runner.cpu_crunch_state || 'disabled';
+  const cpuThreads = Number(runner.cpu_threads || 0);
+  const cpuTarget = Number(runner.cpu_target_end || 0);
+  document.getElementById('cpuCrunch').textContent = cpuState === 'running'
+    ? `${cpuThreads || '?'} threads -> ${compact(cpuTarget)}`
+    : cpuState;
+  const gpuState = runner.gpu_state || 'unknown';
+  const neuralStage = runner.neural_stage || 'disabled';
+  const gpuFree = Number(runner.gpu_free_memory_mb || 0);
+  document.getElementById('gpuStage').textContent = gpuFree
+    ? `${neuralStage} / ${gpuState} (${compact(gpuFree)} MB free)`
+    : `${neuralStage} / ${gpuState}`;
+  document.getElementById('sourceGate').textContent = runner.source_target_count ? `${compact(runner.matched_source_targets)} / ${compact(runner.source_target_count)}` : 'pending';
   document.getElementById('graph').textContent = `${compact(graph.node_count)} / ${compact(graph.edge_count)} edges`;
   document.getElementById('aiConfidence').textContent = hypotheses.confidence_level || insights.confidence || 'pending';
   document.getElementById('aiConclusion').textContent = hypotheses.conclusion || insights.conclusion || 'waiting for insights';
@@ -626,7 +657,7 @@ function drawGraph(graph) {
   });
 }
 refresh();
-setInterval(refresh, 5000);
+setInterval(refresh, 2000);
 </script>
 </body>
 </html>

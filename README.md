@@ -59,7 +59,11 @@ and source-alignment summaries.
 The path-as-image route turns trajectories into visual tensors for clustering,
 autoencoders, contrastive learning, and anomaly review.
 
-![Collatz path image atlas preview](docs/media/path-image-atlas.svg)
+![Real Collatz path-image tensor atlas generated from n=27](docs/media/path-image-atlas.svg)
+
+This atlas is not a mockup. It is generated from the actual C++ path-image
+encoder for `n=27`; every pixel comes from the computed trajectory and the same
+recurrence/GAF/MTF/parity/residue transforms used by `collatz_path_image`.
 
 ## Build
 
@@ -77,6 +81,7 @@ This builds:
 - `build/collatz_train`
 - `build/collatz_embed_export`
 - `build/collatz_path_image`
+- `build/collatz_path_image_atlas`
 - `build/collatz_select_representatives`
 - `build/collatz_stratified_sample`
 - `build/collatz_graph_export`
@@ -212,6 +217,18 @@ Or render representatives from a binary feature file:
 
 The image utility writes recurrence plots, Gramian Angular Fields, Markov
 Transition Fields, parity rasters, residue rasters, and a `manifest.json`.
+
+Regenerate the README path-image atlas from the real encoder:
+
+```sh
+./build/collatz_path_image_atlas \
+  --n 27 \
+  --output docs/media/path-image-atlas.svg \
+  --size 32
+```
+
+The committed atlas is deliberately generated from a specific trajectory rather
+than drawn by hand, so it is reproducible and auditable.
 
 Select representative starts for research review:
 
@@ -421,11 +438,18 @@ The cycle:
 3. Generates expanded source targets under ignored `data/generated/`.
 4. Aligns source targets against the current topology.
 5. Regenerates the hypothesis summary used by the dashboard.
-6. Optionally runs a reviewed neural stage only when configured and GPU policy
+6. Optionally runs a CPU crunch scan batch when configured.
+7. Optionally runs a reviewed neural stage only when configured and GPU policy
    allows it.
-7. Runs the public privacy scan over tracked source/docs/templates.
-8. Appends a sanitized private ledger entry.
-9. Writes `data/generated/runner/status.json` for the Automation dashboard card.
+8. Runs the public privacy scan over tracked source/docs/templates.
+9. Appends a sanitized private ledger entry.
+10. Writes `data/generated/runner/status.json` for the Automation dashboard card.
+
+The runner status includes only public-safe fields: evidence score, score delta,
+cycle count, source target counts, CPU crunch state, GPU availability state, and
+neural stage state. The evidence score is not theorem probability. It is an
+empirical research score based on the current confidence gate, source-record
+match rate, and neural validation lift.
 
 Example user-level systemd templates are in `ops/`:
 
@@ -436,6 +460,22 @@ Example user-level systemd templates are in `ops/`:
 The example timer runs every 30 minutes. The environment file is meant to be
 copied to an untracked private location and adjusted there. The runner does not
 auto-commit or auto-push public Git changes.
+
+To keep a private machine actively crunching between evidence cycles, enable the
+optional CPU and neural stages in that untracked environment file:
+
+```sh
+COLLATZ_RUN_CPU_CRUNCH=1
+COLLATZ_CPU_CRUNCH_STEP=10000000
+COLLATZ_CPU_CRUNCH_THREADS=8
+COLLATZ_RUN_NEURAL=1
+COLLATZ_GPU_ALLOW_SHARED=1
+COLLATZ_NEURAL_COMMAND='docker compose --profile neural run --rm contrastive'
+```
+
+The dashboard will then show whether CPU crunching is disabled, running, or
+complete, and whether the GPU neural stage is disabled, running, complete, or
+skipped because the GPU is unavailable, busy, or below the free-memory policy.
 
 Run the public privacy scan directly:
 
