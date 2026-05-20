@@ -29,24 +29,24 @@
   <g filter="url(#softShadow)">
     <rect x="64" y="132" width="260" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
     <text x="84" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">CONFIDENCE</text>
-    <text x="84" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="25" font-weight="800">source-aligned</text>
-    <text x="84" y="226" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700">candidate</text>
+    <text x="84" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="25" font-weight="800">range-stable</text>
+    <text x="84" y="226" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700">signal</text>
 
     <rect x="348" y="132" width="260" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
     <text x="368" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">SCAN SUMMARY</text>
-    <text x="368" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">100M</text>
+    <text x="368" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">150M</text>
     <text x="458" y="202" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="17">feature rows</text>
-    <text x="368" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">5,531 stratified evidence starts</text>
+    <text x="368" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">50K neural evidence starts</text>
 
     <rect x="632" y="132" width="260" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
     <text x="652" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">SOURCE CHECK</text>
-    <text x="652" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">5,019 / 5,019</text>
-    <text x="652" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">public source targets matched</text>
+    <text x="652" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">5,091 / 5,191</text>
+    <text x="652" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">public source targets aligned</text>
 
     <rect x="916" y="132" width="220" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
     <text x="936" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">LIMIT</text>
     <text x="936" y="199" fill="#facc15" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="800">not a proof</text>
-    <text x="936" y="224" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">needs more sources</text>
+    <text x="936" y="224" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">partial source gate</text>
   </g>
 
   <g filter="url(#softShadow)">
@@ -56,20 +56,20 @@
 
     <text x="88" y="384" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Learned nearest-neighbor purity</text>
     <rect x="88" y="398" width="372" height="18" rx="9" fill="#1f2a44"/>
-    <rect x="88" y="398" width="281" height="18" rx="9" fill="url(#green)"/>
-    <text x="474" y="413" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">75.61%</text>
+    <rect x="88" y="398" width="351" height="18" rx="9" fill="url(#green)"/>
+    <text x="474" y="413" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">94.28%</text>
 
     <text x="88" y="444" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Numeric-adjacency baseline</text>
     <rect x="88" y="458" width="372" height="18" rx="9" fill="#1f2a44"/>
-    <rect x="88" y="458" width="252" height="18" rx="9" fill="#60a5fa"/>
-    <text x="474" y="473" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">67.87%</text>
+    <rect x="88" y="458" width="331" height="18" rx="9" fill="#60a5fa"/>
+    <text x="474" y="473" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">89.11%</text>
 
     <text x="88" y="504" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Random-label baseline</text>
     <rect x="88" y="518" width="372" height="18" rx="9" fill="#1f2a44"/>
-    <rect x="88" y="518" width="206" height="18" rx="9" fill="#a78bfa"/>
-    <text x="474" y="533" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">55.47%</text>
+    <rect x="88" y="518" width="315" height="18" rx="9" fill="#a78bfa"/>
+    <text x="474" y="533" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">84.72%</text>
 
-    <text x="88" y="562" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Lift over random: +20.141 percentage points</text>
+    <text x="88" y="562" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Lift over random: +9.557 percentage points</text>
   </g>
 
   <g filter="url(#softShadow)">

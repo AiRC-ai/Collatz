@@ -22,22 +22,22 @@ or validation.
 
 Latest checked state:
 
-- Confidence: `source-aligned candidate`
-- Conclusion: the learned path-family signal survives current holdouts and now
-  matches the expanded public source target set, but it is still not a proof.
-- Coverage: topology covers `0.100%` of scanned rows; the stratified evidence
-  sample covers `0.006%` directly while intentionally oversampling rare
+- Confidence: `range-stable signal`
+- Conclusion: the learned path-family signal survives current holdouts, but it
+  is still not a proof or source-aligned candidate.
+- Coverage: topology covers `0.067%` of scanned rows; the stratified evidence
+  sample covers `0.036%` directly while intentionally oversampling rare
   behaviors.
-- Strongest evidence: learned embeddings beat random by `20.141%`, numeric
-  adjacency by `7.738%`, and the weakest range holdout still has `14.537%`
+- Strongest evidence: learned embeddings beat random by `9.557%`, numeric
+  adjacency by `5.168%`, and the weakest range holdout still has `6.428%`
   lift.
-- Latest neural result: contrastive lift `20.141%`, range minimum lift
-  `14.537%`, fold minimum lift `14.021%`.
-- Source check: `5,019 / 5,019` public OEIS-derived validation starts matched
-  across all `16` topology clusters in a 100K embedded topology check.
-- Current limitation: this is source-aligned against public OEIS target rows,
-  but Roosendaal, Oliveira e Silva, and Barina record imports still need to
-  agree before the claim gets stronger.
+- Latest neural result: contrastive lift `9.557%`, range minimum lift `6.428%`,
+  fold minimum lift `8.070%`.
+- Source check: `5,091 / 5,191` public validation starts currently align with
+  the topology source-neighborhood gate.
+- Current limitation: source-record alignment is still partial. Roosendaal,
+  Oliveira e Silva, and Barina imports need to agree before the claim gets
+  promoted beyond a range-stable signal.
 - Next experiment: expand source-record imports beyond OEIS, then rerun
   source-neighborhood, path-image, and GNN ablations.
 - Automation: a private-safe evidence runner can refresh generated source
