@@ -8,17 +8,17 @@
   <g>
     <rect x="64" y="116" width="232" height="76" rx="8" fill="#121a33" stroke="#2a3a68"/>
     <text x="82" y="145" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">CURRENT AUDIT</text>
-    <text x="82" y="174" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">620M</text>
+    <text x="82" y="174" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">670M</text>
   </g>
   <g>
     <rect x="312" y="116" width="232" height="76" rx="8" fill="#121a33" stroke="#2a3a68"/>
     <text x="330" y="145" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">ITERATIONS</text>
-    <text x="330" y="174" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">49</text>
+    <text x="330" y="174" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">53</text>
   </g>
   <g>
     <rect x="560" y="116" width="232" height="76" rx="8" fill="#121a33" stroke="#2a3a68"/>
     <text x="578" y="145" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">EVIDENCE SCORE</text>
-    <text x="578" y="174" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">87.07</text>
+    <text x="578" y="174" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">73.86</text>
   </g>
   <g>
     <rect x="808" y="116" width="328" height="76" rx="8" fill="#121a33" stroke="#2a3a68"/>
@@ -30,16 +30,15 @@
     <rect x="64" y="210" width="1072" height="250" rx="8" fill="#0b1020" stroke="#2a3a68"/>
     <line x1="82" y1="168" x2="82" y2="430" stroke="#253453"/>
     <line x1="82" y1="430" x2="1136" y2="430" stroke="#253453"/>
-    <text x="84" y="238" fill="#cbd5e1" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700">Cycle 1 to 49</text>
-    <text x="84" y="258" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Latest: 2026-05-21 00:25 UTC; source 5,186/5,186; best ablation metrics-only 12.619%.</text>
+    <text x="84" y="238" fill="#cbd5e1" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700">Cycle 1 to 53</text>
+    <text x="84" y="258" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Latest: 2026-05-21 02:15 UTC; source 5,086/5,191; best ablation metrics-only 12.564%.</text>
 
-    <rect x="1131.2" y="168.0" width="9.7" height="262.0" fill="#334155" opacity="0.45"/>
-    <polyline points="82.0,340.4 104.0,371.8 125.9,372.9 147.9,373.5 169.8,354.5 191.8,371.7 213.8,372.3 235.7,371.5 257.7,372.3 279.6,371.8 301.6,371.4 323.5,372.0 345.5,371.2 367.5,371.8 389.4,371.4 411.4,371.5 433.3,371.1 455.3,371.4 477.2,371.5 499.2,372.0 521.2,371.5 543.1,371.7 565.1,370.6 587.0,370.1 609.0,370.3 631.0,371.1 652.9,371.2 674.9,371.2 696.8,370.9 718.8,370.6 740.8,371.4 762.7,371.1 784.7,371.2 806.6,370.9 828.6,371.2 850.5,371.2 872.5,370.9 894.5,371.1 916.4,371.2 938.4,371.5 960.3,370.8 982.3,371.2 1004.2,370.9 1026.2,371.2 1048.2,371.7 1070.1,370.9 1092.1,370.9 1114.0,371.2 1136.0,168.0" fill="none" stroke="#67e8f9" stroke-width="3"/>
-    <polyline points="82.0,370.3 104.0,370.3 125.9,370.3 147.9,370.3 169.8,370.3 191.8,370.3 213.8,370.3 235.7,370.3 257.7,370.3 279.6,370.3 301.6,370.3 323.5,370.3 345.5,370.3 367.5,379.7 389.4,379.7 411.4,379.7 433.3,379.7 455.3,379.7 477.2,379.7 499.2,379.7 521.2,379.7 543.1,379.7 565.1,379.7 587.0,379.7 609.0,379.7 631.0,379.7 652.9,379.7 674.9,379.7 696.8,379.7 718.8,379.7 740.8,379.7 762.7,379.7 784.7,379.7 806.6,379.7 828.6,379.7 850.5,379.7 872.5,379.7 894.5,379.7 916.4,379.7 938.4,379.7 960.3,379.7 982.3,379.7 1004.2,379.7 1026.2,379.7 1048.2,379.7 1070.1,379.7 1092.1,379.7 1114.0,379.7 1136.0,168.0" fill="none" stroke="#f472b6" stroke-width="2.5" opacity="0.9"/>
-    <circle cx="1136.0" cy="168.0" r="5" fill="#67e8f9"/>
-    <circle cx="1136.0" cy="168.0" r="5" fill="#f472b6"/>
+    <polyline points="82.0,175.0 102.3,264.5 122.5,267.6 142.8,269.3 163.1,215.2 183.3,264.1 203.6,265.8 223.9,263.6 244.2,265.8 264.4,264.5 284.7,263.2 305.0,264.9 325.2,262.8 345.5,264.5 365.8,263.2 386.0,263.6 406.3,262.3 426.6,263.2 446.8,263.6 467.1,264.9 487.4,263.6 507.7,264.1 527.9,261.0 548.2,259.7 568.5,260.1 588.7,262.3 609.0,262.8 629.3,262.8 649.5,261.9 669.8,261.0 690.1,263.2 710.3,262.3 730.6,262.8 750.9,261.9 771.2,262.8 791.4,262.8 811.7,261.9 832.0,262.3 852.2,262.8 872.5,263.6 892.8,261.4 913.0,262.8 933.3,261.9 953.6,262.8 973.8,264.1 994.1,261.9 1014.4,261.9 1034.7,262.8 1054.9,261.4 1075.2,263.2 1095.5,262.8 1115.7,261.4 1136.0,261.4" fill="none" stroke="#67e8f9" stroke-width="3"/>
+    <polyline points="82.0,216.7 102.3,216.7 122.5,216.7 142.8,216.7 163.1,216.7 183.3,216.7 203.6,216.7 223.9,216.7 244.2,216.7 264.4,216.7 284.7,216.7 305.0,216.7 325.2,216.7 345.5,250.3 365.8,250.3 386.0,250.3 406.3,250.3 426.6,250.3 446.8,250.3 467.1,250.3 487.4,250.3 507.7,250.3 527.9,250.3 548.2,250.3 568.5,250.3 588.7,250.3 609.0,250.3 629.3,250.3 649.5,250.3 669.8,250.3 690.1,250.3 710.3,250.3 730.6,250.3 750.9,250.3 771.2,250.3 791.4,250.3 811.7,250.3 832.0,250.3 852.2,250.3 872.5,250.3 892.8,250.3 913.0,250.3 933.3,250.3 953.6,250.3 973.8,250.3 994.1,250.3 1014.4,250.3 1034.7,250.3 1054.9,250.3 1075.2,250.3 1095.5,250.3 1115.7,250.3 1136.0,250.3" fill="none" stroke="#f472b6" stroke-width="2.5" opacity="0.9"/>
+    <circle cx="1136.0" cy="261.4" r="5" fill="#67e8f9"/>
+    <circle cx="1136.0" cy="250.3" r="5" fill="#f472b6"/>
     <text x="82" y="456" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">cycle 1</text>
-    <text x="1064" y="456" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">cycle 49</text>
+    <text x="1064" y="456" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">cycle 53</text>
   </g>
 
   <g>
@@ -50,5 +49,5 @@
     <rect x="398" y="478" width="18" height="13" fill="#334155" opacity="0.45"/>
     <text x="424" y="489" fill="#cbd5e1" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Audit rows</text>
   </g>
-  <text x="64" y="528" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Audit row bars use recorded history. Generated from sanitized runner history plus canonical evidence; operational telemetry does not raise confidence.</text>
+  <text x="64" y="528" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Audit row history will populate on future cycles; headline shows the current canonical audit. Generated from sanitized runner history plus canonical evidence; operational telemetry does not raise confidence.</text>
 </svg>
