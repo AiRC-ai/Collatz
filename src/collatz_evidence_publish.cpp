@@ -627,8 +627,21 @@ int main(int argc, char **argv) {
             metric_dominant
                 ? "metrics-only lift exceeds hybrid lift under the current evidence run"
                 : "hybrid lift is not below metrics-only under the current evidence run";
-        const std::string next_summary =
-            "Classify unmatched source targets, expand non-OEIS source imports, then rerun source-neighborhood, path-image, GNN, and matched-control ablations.";
+        std::string next_summary;
+        if (targets_total == 0 || matched != targets_total || unknown > 0 || true_mismatch > 0 ||
+            !oeis_complete || supplemental_complete < 2) {
+            next_summary =
+                "Classify unmatched source targets, expand non-OEIS source imports, then rerun source-neighborhood, path-image, GNN, and matched-control ablations.";
+        } else if (!matched_controls_complete || !lift_statistics_complete) {
+            next_summary =
+                "Run matched hard-negative family-pair training with at least 5 seeds by 5 folds, then republish lift confidence intervals and retrieval metrics.";
+        } else if (metric_dominant) {
+            next_summary =
+                "Strengthen ordered parity, residue, and log-shape branches with representation dropout until hybrid beats metrics-only under matched controls.";
+        } else {
+            next_summary =
+                "Validate source-neighborhood, path-image, GNN, and matched-control ablations against retrieval and falsification targets.";
+        }
         const std::string falsification =
             "Any true mismatch in public validation targets or degradation below matched-control baselines blocks confidence promotion.";
         const std::string conclusion = confidence_interpretation(label);
