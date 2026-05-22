@@ -35,6 +35,7 @@ numbers in the README.
 - Learned lift: weakest range `8.602%`, fold minimum `9.072%`, numeric-adjacency lift `5.220%`.
 - Best current ablation: `metrics-only at 12.946%`.
 - Interpretation: `metric-dominant signal`; metrics-only lift exceeds hybrid lift under the current evidence run.
+- Healthy negative control: `metrics-only` beats `hybrid` (`12.946%` vs `10.578%`), so richer neural structure has not yet earned promotion beyond simpler trajectory metrics.
 - Promotion blockers: `metrics_only_exceeds_hybrid, richer_representation_not_stronger, matched_controls_incomplete, missing_lift_statistics`.
 - Source alignment: `5,186 / 5,186` matched; unknown unmatched rows `0`.
 - Next experiment: Run matched hard-negative family-pair training with at least 5 seeds by 5 folds, then republish lift confidence intervals and retrieval metrics.

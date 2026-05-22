@@ -106,11 +106,21 @@ def render(data: dict) -> str:
     blocker_text = ", ".join(blockers[:2]) if blockers else "none"
     if len(blockers) > 2:
         blocker_text += f", +{len(blockers) - 2} more"
-    finding = (
-        f"{best_name} is currently strongest at {pct(best_lift, 3)}, "
-        f"while hybrid is {pct(hybrid_lift, 3)}. "
-        "This keeps the interpretation metric-dominant."
+    metric_dominant = (
+        metrics_lift is not None and hybrid_lift is not None and metrics_lift > hybrid_lift
     )
+    finding_title = "Healthy Negative Control" if metric_dominant else "Current Finding"
+    if metric_dominant:
+        finding = (
+            f"Metrics-only beats hybrid: {pct(metrics_lift, 3)} vs {pct(hybrid_lift, 3)}. "
+            "This blocker keeps richer neural structure behind metrics."
+        )
+    else:
+        finding = (
+            f"{best_name} is currently strongest at {pct(best_lift, 3)}, "
+            f"while hybrid is {pct(hybrid_lift, 3)}. "
+            "Richer representation strength still depends on matched controls."
+        )
 
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
   <title id="title">Collatz evidence dashboard snapshot</title>
@@ -172,7 +182,7 @@ def render(data: dict) -> str:
 
   <g filter="url(#softShadow)">
     <rect x="616" y="278" width="520" height="310" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="640" y="314" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="800">Current Finding</text>
+    <text x="640" y="314" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="800">{esc(finding_title)}</text>
 {text_block(finding, 640, 342, 430)}
 
     <rect x="640" y="374" width="448" height="64" rx="8" fill="#070b16" stroke="#263450"/>

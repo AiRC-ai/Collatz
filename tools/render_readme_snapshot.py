@@ -36,6 +36,33 @@ def render(data: dict) -> str:
     best_text = "pending"
     if best:
         best_text = f"{best['name']} at {fmt(best['lift_percent']['mean'])}%"
+    metrics_lift = next(
+        (
+            entry["lift_percent"]["mean"]
+            for entry in leaderboard
+            if entry["name"] == "metrics-only"
+        ),
+        None,
+    )
+    hybrid_lift = next(
+        (
+            entry["lift_percent"]["mean"]
+            for entry in leaderboard
+            if entry["name"] == "hybrid"
+        ),
+        None,
+    )
+    if metrics_lift is not None and hybrid_lift is not None and metrics_lift > hybrid_lift:
+        negative_control = (
+            f"- Healthy negative control: `metrics-only` beats `hybrid` "
+            f"(`{fmt(metrics_lift)}%` vs `{fmt(hybrid_lift)}%`), so richer neural structure "
+            "has not yet earned promotion beyond simpler trajectory metrics."
+        )
+    else:
+        negative_control = (
+            "- Healthy negative control: richer representations must continue to beat "
+            "metrics-only before any neural confidence promotion."
+        )
     return "\n".join(
         [
             BEGIN,
@@ -47,6 +74,7 @@ def render(data: dict) -> str:
             f"- Learned lift: weakest range `{fmt(holdouts['weakest_range_lift_percent'])}%`, fold minimum `{fmt(holdouts['fold_min_lift_percent'])}%`, numeric-adjacency lift `{fmt(holdouts['numeric_adjacency_lift_percent'])}%`.",
             f"- Best current ablation: `{best_text}`.",
             f"- Interpretation: `{interpretation['signal_type']}`; {interpretation['reason']}.",
+            negative_control,
             f"- Promotion blockers: `{', '.join(blockers) if blockers else 'none'}`.",
             f"- Source alignment: `{source['matched']:,} / {source['targets_total']:,}` matched; unknown unmatched rows `{source['unmatched_breakdown']['unknown']}`.",
             f"- Next experiment: {data['next_experiment']['summary']}",

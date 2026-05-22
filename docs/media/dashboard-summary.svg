@@ -70,9 +70,9 @@
 
   <g filter="url(#softShadow)">
     <rect x="616" y="278" width="520" height="310" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="640" y="314" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="800">Current Finding</text>
-    <text x="640" y="342" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">metrics-only is currently strongest at 12.946%, while hybrid</text>
-    <text x="640" y="362" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">is 10.578%. This keeps the interpretation metric-dominant.</text>
+    <text x="640" y="314" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="800">Healthy Negative Control</text>
+    <text x="640" y="342" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Metrics-only beats hybrid: 12.946% vs 10.578%. This blocker</text>
+    <text x="640" y="362" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">keeps richer neural structure behind metrics.</text>
 
     <rect x="640" y="374" width="448" height="64" rx="8" fill="#070b16" stroke="#263450"/>
     <text x="660" y="400" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">COVERAGE</text>
