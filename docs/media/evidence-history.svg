@@ -31,13 +31,19 @@
     <line x1="82" y1="168" x2="82" y2="430" stroke="#253453"/>
     <line x1="82" y1="430" x2="1136" y2="430" stroke="#253453"/>
     <text x="84" y="238" fill="#cbd5e1" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700">Cycle 1 to 48</text>
-    <text x="84" y="258" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Latest: 2026-05-21 20:13 UTC; source 5,186/5,186; best ablation metrics-only 12.946%.</text>
+    <text x="84" y="258" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Latest: 2026-05-21 20:13 UTC; source 5,186/5,186; unmatched 0; best ablation metrics-only 12.946%.</text>
 
     <rect x="1131.1" y="168.0" width="9.9" height="262.0" fill="#334155" opacity="0.45"/>
     <polyline points="82.0,175.0 104.4,264.5 126.9,267.6 149.3,269.3 171.7,215.2 194.1,264.1 216.6,265.8 239.0,263.6 261.4,265.8 283.8,264.5 306.3,263.2 328.7,264.9 351.1,262.8 373.5,264.5 396.0,263.2 418.4,263.6 440.8,262.3 463.2,263.2 485.7,263.6 508.1,264.9 530.5,263.6 552.9,264.1 575.4,261.0 597.8,259.7 620.2,260.1 642.6,262.3 665.1,262.8 687.5,262.8 709.9,261.9 732.3,261.0 754.8,263.2 777.2,262.3 799.6,262.8 822.0,261.9 844.5,262.8 866.9,262.8 889.3,261.9 911.7,262.3 934.2,262.8 956.6,263.6 979.0,261.4 1001.4,262.8 1023.9,261.9 1046.3,262.8 1068.7,264.1 1091.1,261.9 1113.6,261.9 1136.0,261.9" fill="none" stroke="#67e8f9" stroke-width="3"/>
     <polyline points="82.0,370.3 104.4,370.3 126.9,370.3 149.3,370.3 171.7,370.3 194.1,370.3 216.6,370.3 239.0,370.3 261.4,370.3 283.8,370.3 306.3,370.3 328.7,370.3 351.1,370.3 373.5,379.7 396.0,379.7 418.4,379.7 440.8,379.7 463.2,379.7 485.7,379.7 508.1,379.7 530.5,379.7 552.9,379.7 575.4,379.7 597.8,379.7 620.2,379.7 642.6,379.7 665.1,379.7 687.5,379.7 709.9,379.7 732.3,379.7 754.8,379.7 777.2,379.7 799.6,379.7 822.0,379.7 844.5,379.7 866.9,379.7 889.3,379.7 911.7,379.7 934.2,379.7 956.6,379.7 979.0,379.7 1001.4,379.7 1023.9,379.7 1046.3,379.7 1068.7,379.7 1091.1,379.7 1113.6,379.7 1136.0,168.0" fill="none" stroke="#f472b6" stroke-width="2.5" opacity="0.9"/>
+    <polyline points="82.0,430.0 104.4,430.0 126.9,430.0 149.3,430.0 171.7,430.0 194.1,430.0 216.6,430.0 239.0,430.0 261.4,430.0 283.8,430.0 306.3,430.0 328.7,430.0 351.1,430.0 373.5,430.0 396.0,430.0 418.4,430.0 440.8,430.0 463.2,430.0 485.7,430.0 508.1,430.0 530.5,430.0 552.9,430.0 575.4,430.0 597.8,430.0 620.2,430.0 642.6,430.0 665.1,430.0 687.5,430.0 709.9,430.0 732.3,430.0 754.8,430.0 777.2,430.0 799.6,430.0 822.0,430.0 844.5,430.0 866.9,430.0 889.3,430.0 911.7,430.0 934.2,430.0 956.6,430.0 979.0,430.0 1001.4,430.0 1023.9,430.0 1046.3,430.0 1068.7,430.0 1091.1,430.0 1113.6,430.0 1136.0,430.0" fill="none" stroke="#facc15" stroke-width="2.0" opacity="0.85" stroke-dasharray="4 4"/>
+    <polyline points="82.0,299.0 104.4,299.0 126.9,299.0 149.3,299.0 171.7,299.0 194.1,299.0 216.6,299.0 239.0,299.0 261.4,299.0 283.8,299.0 306.3,299.0 328.7,299.0 351.1,299.0 373.5,299.0 396.0,299.0 418.4,299.0 440.8,299.0 463.2,299.0 485.7,299.0 508.1,299.0 530.5,299.0 552.9,299.0 575.4,299.0 597.8,299.0 620.2,299.0 642.6,299.0 665.1,299.0 687.5,299.0 709.9,299.0 732.3,299.0 754.8,299.0 777.2,299.0 799.6,299.0 822.0,299.0 844.5,299.0 866.9,299.0 889.3,299.0 911.7,299.0 934.2,299.0 956.6,299.0 979.0,299.0 1001.4,299.0 1023.9,299.0 1046.3,299.0 1068.7,299.0 1091.1,299.0 1113.6,299.0 1136.0,299.0" fill="none" stroke="#34d399" stroke-width="2.0" opacity="0.85"/>
+    <polyline points="82.0,430.0 104.4,430.0 126.9,430.0 149.3,430.0 171.7,430.0 194.1,430.0 216.6,430.0 239.0,430.0 261.4,430.0 283.8,430.0 306.3,430.0 328.7,430.0 351.1,430.0 373.5,430.0 396.0,430.0 418.4,430.0 440.8,430.0 463.2,430.0 485.7,430.0 508.1,430.0 530.5,430.0 552.9,430.0 575.4,430.0 597.8,430.0 620.2,430.0 642.6,430.0 665.1,430.0 687.5,430.0 709.9,430.0 732.3,430.0 754.8,430.0 777.2,430.0 799.6,430.0 822.0,430.0 844.5,430.0 866.9,430.0 889.3,430.0 911.7,430.0 934.2,430.0 956.6,430.0 979.0,430.0 1001.4,430.0 1023.9,430.0 1046.3,430.0 1068.7,430.0 1091.1,430.0 1113.6,430.0 1136.0,168.0" fill="none" stroke="#a78bfa" stroke-width="2.0" opacity="0.85" stroke-dasharray="1 8"/>
     <circle cx="1136.0" cy="261.9" r="5" fill="#67e8f9"/>
     <circle cx="1136.0" cy="168.0" r="5" fill="#f472b6"/>
+    <circle cx="1136.0" cy="430.0" r="4" fill="#facc15"/>
+    <circle cx="1136.0" cy="299.0" r="4" fill="#34d399"/>
+    <circle cx="1136.0" cy="168.0" r="4" fill="#a78bfa"/>
     <text x="82" y="456" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">cycle 1</text>
     <text x="1064" y="456" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">cycle 48</text>
   </g>
@@ -47,8 +53,16 @@
     <text x="90" y="489" fill="#cbd5e1" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Evidence score</text>
     <rect x="220" y="482" width="18" height="5" fill="#f472b6"/>
     <text x="246" y="489" fill="#cbd5e1" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Source match rate</text>
-    <rect x="398" y="478" width="18" height="13" fill="#334155" opacity="0.45"/>
-    <text x="424" y="489" fill="#cbd5e1" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Audit rows</text>
+    <rect x="398" y="482" width="18" height="5" fill="#facc15"/>
+    <text x="424" y="489" fill="#cbd5e1" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Unmatched source targets</text>
+    <rect x="606" y="482" width="18" height="5" fill="#334155" opacity="0.45"/>
+    <text x="632" y="489" fill="#cbd5e1" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Audit rows</text>
+    <rect x="710" y="482" width="18" height="5" fill="#34d399"/>
+    <text x="736" y="489" fill="#cbd5e1" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Confidence label</text>
+    <rect x="874" y="482" width="18" height="5" fill="#a78bfa"/>
+    <text x="900" y="489" fill="#cbd5e1" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Best ablation lift</text>
+    <text x="64" y="509" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">Latest confidence label: source-neighborhood-supported</text>
+    <text x="64" y="525" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">Confidence scale: 0=sample-local, 1=range-stable, 2=source-neighborhood-supported, 3=candidate pattern, 4=proof.</text>
   </g>
-  <text x="64" y="528" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Audit row bars use recorded history. Generated from sanitized runner history plus canonical evidence; operational telemetry does not raise confidence.</text>
+  <text x="64" y="552" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Audit row bars use recorded history. Generated from sanitized runner history plus canonical evidence; operational telemetry does not raise confidence.</text>
 </svg>
