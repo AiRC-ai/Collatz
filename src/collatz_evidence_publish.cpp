@@ -289,6 +289,10 @@ std::string number_or_null(std::optional<double> value, int precision = 6) {
     return out.str();
 }
 
+bool has_blocker(const std::vector<std::string> &blockers, const std::string &target) {
+    return std::find(blockers.begin(), blockers.end(), target) != blockers.end();
+}
+
 void write_string_array(std::ostream &out, const std::vector<std::string> &items, const std::string &indent) {
     out << '[';
     if (!items.empty()) {
@@ -631,7 +635,9 @@ int main(int argc, char **argv) {
         const std::string signal_reason =
             metric_dominant
                 ? "metrics-only lift exceeds hybrid lift under the current evidence run (healthy negative control)"
-                : "hybrid lift is not above metrics-only under the current evidence run";
+                : richer_beats_metrics
+                      ? "hybrid lift exceeds metrics-only under matched controls and holdouts"
+                      : "hybrid lift has not yet exceeded metrics-only under the current evidence run";
         std::string next_summary;
         if (targets_total == 0 || matched != targets_total || unknown > 0 || true_mismatch > 0 ||
             !oeis_complete || supplemental_complete < 2) {
@@ -660,10 +666,27 @@ int main(int argc, char **argv) {
             "Learned embeddings beat random by " + percent_text(contrastive_lift) +
             " and numeric adjacency by " + percent_text(contrastive_minus_numeric) +
             "; range min lift is " + percent_text(range_min_lift) + ".";
-        const std::string limit_text =
-            metric_dominant
-                ? "Metrics-only currently beats hybrid, so richer representation structure has not earned candidate-pattern promotion."
-                : "Source and matched-control gates still block promotion beyond the current confidence label.";
+        std::string limit_text;
+        if (promotion_blockers.empty()) {
+            limit_text = "No explicit promotion blockers are active in this canonical evidence cycle.";
+        } else if (has_blocker(promotion_blockers, "metrics_only_exceeds_hybrid")) {
+            limit_text = "Metrics-only currently beats hybrid; richer representation lift must exceed this baseline under matched controls for neural promotion.";
+        } else if (has_blocker(promotion_blockers, "richer_representation_not_stronger")) {
+            limit_text = "Richer representation families have not yet exceeded metrics-only in this cycle under matched controls.";
+        } else if (has_blocker(promotion_blockers, "matched_controls_incomplete")) {
+            limit_text = "Matched hard-negative controls remain incomplete, so hybrid claims are not yet robustly comparable.";
+        } else if (has_blocker(promotion_blockers, "missing_lift_statistics")) {
+            limit_text = "Lift statistics are incomplete (seeds/folds/CI), so no reliable trend comparison is available.";
+        } else if (has_blocker(promotion_blockers, "source_alignment_unmatched_rows_present") ||
+                   has_blocker(promotion_blockers, "source_alignment_unknown_rows_present") ||
+                   has_blocker(promotion_blockers, "source_alignment_true_mismatch_present")) {
+            limit_text = "Source alignment quality is not yet fully clean; unmatched/unknown/true-mismatch rows block promotion.";
+        } else if (has_blocker(promotion_blockers, "oeis_source_family_incomplete") ||
+                   has_blocker(promotion_blockers, "non_oeis_source_families_incomplete")) {
+            limit_text = "Source-family completeness is still missing; complete source imports are required before additional promotion.";
+        } else {
+            limit_text = "One or more confidence gate blockers are active; rerun with the blocked controls resolved.";
+        }
         const std::string neural_text =
             "Hybrid contrastive lift " + percent_text(contrastive_lift) + "; best current learned ablation " +
             (metrics.lift && metrics_lift >= hybrid_lift ? "metrics-only" : "hybrid") +
