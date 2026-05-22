@@ -68,6 +68,18 @@ def read_metric_starts(path: Path) -> set[int]:
     return starts
 
 
+def control_match_rates(rows: dict[int, dict[str, str]]) -> dict[str, float]:
+    total = len(rows)
+    if total == 0:
+        return {field: 0.0 for field in CONTROL_FIELDS}
+    totals: dict[str, int] = {field: 0 for field in CONTROL_FIELDS}
+    for row in rows.values():
+        for field in CONTROL_FIELDS:
+            if row.get(field, ""):
+                totals[field] += 1
+    return {field: totals[field] / total for field in CONTROL_FIELDS}
+
+
 def attach_derived_controls(rows: dict[int, dict[str, str]]) -> None:
     for n, row in rows.items():
         row.setdefault("residue_class", str(n % 32))
@@ -156,10 +168,12 @@ def main() -> None:
     hard_negatives: list[tuple[int, int, str]] = []
     requested = 0
     matched = 0
+    per_anchor_candidates: list[int] = []
     for n, row in sorted(labels.items()):
         candidates = [candidate for candidate in by_control[control_key(row)] if candidate != n and differs_by_family(row, labels[candidate])]
         random.shuffle(candidates)
         requested += args.hard_negatives
+        per_anchor_candidates.append(len(candidates))
         for candidate in candidates[: args.hard_negatives]:
             hard_negatives.append((n, candidate, "|".join(control_key(row))))
             matched += 1
@@ -171,7 +185,17 @@ def main() -> None:
     write_pairs(output_dir / "positive_pairs.csv", pairs)
 
     match_rate = matched / requested if requested else 0.0
-    controls_pass = requested > 0 and match_rate >= args.min_match_rate
+    controls_pass = requested > 0 and match_rate >= args.min_match_rate and any(count > 0 for count in per_anchor_candidates)
+    per_field_match_rate = control_match_rates(labels)
+    controls_summary = {
+        "bit_length": controls_pass,
+        "range_band": controls_pass,
+        "residue_class": controls_pass,
+        "stopping_time_bucket": controls_pass,
+        "peak_ratio_bucket": controls_pass,
+        "first_drop_bucket": controls_pass,
+    }
+    controls_rate_summary = {field: per_field_match_rate[field] for field in CONTROL_FIELDS}
     metrics = {
         "dataset_type": "collatz_pair_sampler",
         "tool": "research/pair_sampler.py",
@@ -184,14 +208,8 @@ def main() -> None:
         "hard_negative_match_rate": match_rate,
         "matched_control_min_match_rate": args.min_match_rate,
         "matched_control_pass": controls_pass,
-        "matched_controls": {
-            "bit_length": controls_pass,
-            "range_band": controls_pass,
-            "residue_class": controls_pass,
-            "stopping_time_bucket": controls_pass,
-            "peak_ratio_bucket": controls_pass,
-            "first_drop_bucket": controls_pass,
-        },
+        "matched_controls": controls_summary,
+        "matched_control_rates": controls_rate_summary,
         "positive_pair_distribution": dict(sorted(distribution.items())),
         "control_fields": CONTROL_FIELDS,
         "different_family_fields": DIFFER_FIELDS,
