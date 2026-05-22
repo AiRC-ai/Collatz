@@ -20,6 +20,15 @@ CONTROL_FIELDS = [
     "first_drop_bucket",
 ]
 
+CONTROL_OUTPUT_FIELDS = {
+    "bit_length": "bit_length",
+    "range_band": "range_band",
+    "residue_class": "residue_class",
+    "total_steps_bucket": "stopping_time_bucket",
+    "peak_ratio_bucket": "peak_ratio_bucket",
+    "first_drop_bucket": "first_drop_bucket",
+}
+
 DIFFER_FIELDS = [
     "tail_hash",
     "coalescence_family_id",
@@ -68,14 +77,16 @@ def read_metric_starts(path: Path) -> set[int]:
     return starts
 
 
-def control_match_rates(rows: dict[int, dict[str, str]]) -> dict[str, float]:
-    total = len(rows)
+def control_match_rates(
+    matched_rows: list[tuple[dict[str, str], dict[str, str]]],
+) -> dict[str, float]:
+    total = len(matched_rows)
     if total == 0:
-        return {field: 0.0 for field in CONTROL_FIELDS}
+        return {field: 0.0 for field in CONTROL_OUTPUT_FIELDS}
     totals: dict[str, int] = {field: 0 for field in CONTROL_FIELDS}
-    for row in rows.values():
+    for anchor, negative in matched_rows:
         for field in CONTROL_FIELDS:
-            if row.get(field, ""):
+            if anchor.get(field, "") and negative.get(field, "") and anchor[field] == negative[field]:
                 totals[field] += 1
     return {field: totals[field] / total for field in CONTROL_FIELDS}
 
@@ -166,16 +177,17 @@ def main() -> None:
         by_control[control_key(row)].append(n)
 
     hard_negatives: list[tuple[int, int, str]] = []
+    hard_negative_pairs: list[tuple[dict[str, str], dict[str, str]]] = []
     requested = 0
     matched = 0
-    per_anchor_candidates: list[int] = []
     for n, row in sorted(labels.items()):
         candidates = [candidate for candidate in by_control[control_key(row)] if candidate != n and differs_by_family(row, labels[candidate])]
         random.shuffle(candidates)
         requested += args.hard_negatives
-        per_anchor_candidates.append(len(candidates))
-        for candidate in candidates[: args.hard_negatives]:
+        selected = candidates[: args.hard_negatives]
+        for candidate in selected:
             hard_negatives.append((n, candidate, "|".join(control_key(row))))
+            hard_negative_pairs.append((row, labels[candidate]))
             matched += 1
 
     with (output_dir / "hard_negatives.csv").open("w", newline="") as handle:
@@ -185,17 +197,17 @@ def main() -> None:
     write_pairs(output_dir / "positive_pairs.csv", pairs)
 
     match_rate = matched / requested if requested else 0.0
-    controls_pass = requested > 0 and match_rate >= args.min_match_rate and any(count > 0 for count in per_anchor_candidates)
-    per_field_match_rate = control_match_rates(labels)
+    per_field_match_rate = control_match_rates(hard_negative_pairs)
+    matched_control_rates = {CONTROL_OUTPUT_FIELDS[field]: per_field_match_rate[field] for field in CONTROL_FIELDS}
     controls_summary = {
-        "bit_length": controls_pass,
-        "range_band": controls_pass,
-        "residue_class": controls_pass,
-        "stopping_time_bucket": controls_pass,
-        "peak_ratio_bucket": controls_pass,
-        "first_drop_bucket": controls_pass,
+        CONTROL_OUTPUT_FIELDS[field]: args.min_match_rate <= matched_control_rates[CONTROL_OUTPUT_FIELDS[field]]
+        for field in CONTROL_FIELDS
     }
-    controls_rate_summary = {field: per_field_match_rate[field] for field in CONTROL_FIELDS}
+    controls_pass = (
+        requested > 0
+        and match_rate >= args.min_match_rate
+        and all(controls_summary.values())
+    )
     metrics = {
         "dataset_type": "collatz_pair_sampler",
         "tool": "research/pair_sampler.py",
@@ -209,7 +221,15 @@ def main() -> None:
         "matched_control_min_match_rate": args.min_match_rate,
         "matched_control_pass": controls_pass,
         "matched_controls": controls_summary,
-        "matched_control_rates": controls_rate_summary,
+        "matched_control_rates": matched_control_rates,
+        "hard_negative_count_per_anchor": {
+            "requested_per_anchor": args.hard_negatives,
+            "anchors": len(labels),
+            "possible_pairs_per_anchor_max": args.hard_negatives,
+            "requested_pairs": requested,
+            "matched_pairs": matched,
+        },
+        "hard_negative_controlled_pairs": len(hard_negative_pairs),
         "positive_pair_distribution": dict(sorted(distribution.items())),
         "control_fields": CONTROL_FIELDS,
         "different_family_fields": DIFFER_FIELDS,
