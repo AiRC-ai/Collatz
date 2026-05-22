@@ -335,7 +335,8 @@ std::string lower_feature_name(std::string name) {
 std::map<std::string, LeaderboardEntry> read_leaderboard(const std::string &ablation_report) {
     std::map<std::string, LeaderboardEntry> entries;
     const std::vector<std::string> names = {
-        "metrics-only", "shape-only", "parity-sequence-only", "residue-sequence-only", "image-only", "GNN-only", "hybrid",
+        "metrics-only", "shape-only", "parity-sequence-only", "residue-sequence-only",
+        "token-only", "image-only", "GNN-only", "hybrid",
     };
     for (const auto &name : names) {
         entries[name] = LeaderboardEntry{name};
@@ -353,7 +354,7 @@ std::map<std::string, LeaderboardEntry> read_leaderboard(const std::string &abla
             continue;
         }
         const auto parts = split_csv_line(line);
-        if (parts.size() < 6 || parts[0] != "learned") {
+        if (parts.size() < 6 || (parts[0] != "learned" && parts[0] != "raw")) {
             continue;
         }
         const auto name = lower_feature_name(parts[1]);
@@ -361,6 +362,10 @@ std::map<std::string, LeaderboardEntry> read_leaderboard(const std::string &abla
             continue;
         }
         auto &entry = entries[name];
+        // Prefer learned entries if both raw and learned rows are present for the same model.
+        if (entry.present && parts[0] != "learned" && entry.lift.has_value()) {
+            continue;
+        }
         entry.name = name;
         entry.present = true;
         entry.samples = collatz::parse_u64(parts[2]).value_or(0);
@@ -625,8 +630,8 @@ int main(int argc, char **argv) {
         const std::string signal_type = metric_dominant ? "metric-dominant signal" : "hybrid-or-nonmetric signal";
         const std::string signal_reason =
             metric_dominant
-                ? "metrics-only lift exceeds hybrid lift under the current evidence run"
-                : "hybrid lift is not below metrics-only under the current evidence run";
+                ? "metrics-only lift exceeds hybrid lift under the current evidence run (healthy negative control)"
+                : "hybrid lift is not above metrics-only under the current evidence run";
         std::string next_summary;
         if (targets_total == 0 || matched != targets_total || unknown > 0 || true_mismatch > 0 ||
             !oeis_complete || supplemental_complete < 2) {
