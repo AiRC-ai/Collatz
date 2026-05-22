@@ -49,6 +49,46 @@ def fmt_millions(value: Any) -> str:
     return f"{num:,.0f}"
 
 
+def _to_float(value: Any) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _merge_canonical_row(rows: list[dict[str, Any]], evidence: dict[str, Any]) -> list[dict[str, Any]]:
+    audit = evidence.get("audit", {})
+    source = evidence.get("source_alignment", {})
+    if not evidence:
+        return rows
+
+    canonical_row = {
+        "cycle_count": (int(rows[-1].get("cycle_count", 0)) + 1) if rows else 1,
+        "timestamp": evidence.get("generated_at_utc", "pending"),
+        "evidence_score": None,
+        "source_match_rate": source.get("matched_fraction", 0),
+        "matched_source_targets": source.get("matched", 0),
+        "source_target_count": source.get("targets_total", 0),
+        "full_audit_records": audit.get("rows", 0),
+    }
+
+    # If the last row already reflects canonical state, keep history unchanged.
+    if rows:
+        last = rows[-1]
+        last_match_rate = _to_float(last.get("source_match_rate")) or 0.0
+        canonical_match_rate = _to_float(canonical_row["source_match_rate"]) or 0.0
+        if (
+            int(last.get("matched_source_targets", -1)) == int(canonical_row["matched_source_targets"])
+            and int(last.get("source_target_count", -1)) == int(canonical_row["source_target_count"])
+            and abs(last_match_rate - canonical_match_rate) < 1e-9
+            and int(last.get("full_audit_records", -1)) == int(audit.get("rows", 0))
+        ):
+            return rows
+
+    rows.append(canonical_row)
+    return rows
+
+
 def scale(value: float, lo: float, hi: float, out_lo: float, out_hi: float) -> float:
     if hi <= lo:
         return (out_lo + out_hi) / 2.0
@@ -68,29 +108,30 @@ def render(history: list[dict[str, Any]], evidence: dict[str, Any]) -> str:
     width, height = 1200, 560
     left, right = 82, 1136
     top, bottom = 168, 430
+
     rows = sorted(history, key=lambda row: int(row.get("cycle_count", 0)))
-    if not rows:
-        rows = [
-            {
-                "cycle_count": 1,
-                "timestamp": evidence.get("generated_at_utc", "pending"),
-                "evidence_score": 0,
-                "source_match_rate": source.get("matched_fraction", 0),
-                "matched_source_targets": source.get("matched", 0),
-                "source_target_count": source.get("targets_total", 0),
-                "full_audit_records": audit.get("rows", 0),
-            }
-        ]
+    rows = _merge_canonical_row(rows, evidence)
 
     cycles = [int(row.get("cycle_count", index + 1)) for index, row in enumerate(rows)]
-    scores = [float(row.get("evidence_score", 0.0)) for row in rows]
+
+    parsed_scores = [_to_float(row.get("evidence_score", None)) for row in rows]
+    has_plot_scores = [score for score in parsed_scores if score is not None]
+    scores = []
+    last_score = None
+    for score in parsed_scores:
+        if score is not None:
+            last_score = score
+            scores.append(score)
+            continue
+        scores.append(last_score if last_score is not None else 0.0)
+
     match_rates = [float(row.get("source_match_rate", 0.0)) * 100.0 for row in rows]
     audit_rows = [int(row.get("full_audit_records", 0) or 0) for row in rows]
     has_audit_history = any(value > 0 for value in audit_rows)
 
     min_cycle, max_cycle = min(cycles), max(cycles)
-    score_min = min(70.0, min(scores))
-    score_max = max(76.0, max(scores))
+    score_min = min(70.0, min(has_plot_scores) if has_plot_scores else 70.0)
+    score_max = max(76.0, max(has_plot_scores) if has_plot_scores else 76.0)
     match_min = min(97.5, min(match_rates))
     match_max = max(98.2, max(match_rates))
     max_audit = max(audit_rows) if has_audit_history else int(audit.get("rows", 0) or 0)
@@ -124,7 +165,8 @@ def render(history: list[dict[str, Any]], evidence: dict[str, Any]) -> str:
     bar_svg = ("\n    " + "\n    ".join(bars)) if bars else ""
 
     latest = rows[-1]
-    latest_score = float(latest.get("evidence_score", 0.0))
+    latest_score = _to_float(latest.get("evidence_score"))
+    latest_score_text = "pending" if latest_score is None else f"{latest_score:.2f}"
     latest_match = int(latest.get("matched_source_targets", source.get("matched", 0)) or 0)
     latest_total = int(latest.get("source_target_count", source.get("targets_total", 0)) or 0)
     latest_time = latest.get("timestamp", evidence.get("generated_at_utc", "pending"))
@@ -138,6 +180,7 @@ def render(history: list[dict[str, Any]], evidence: dict[str, Any]) -> str:
         if has_audit_history
         else "Audit row history will populate on future cycles; headline shows the current canonical audit."
     )
+
     best = max(
         (entry for entry in neural.get("leaderboard", []) if entry.get("lift_percent", {}).get("mean") is not None),
         key=lambda entry: entry.get("lift_percent", {}).get("mean", 0),
@@ -167,7 +210,7 @@ def render(history: list[dict[str, Any]], evidence: dict[str, Any]) -> str:
   <g>
     <rect x="560" y="116" width="232" height="76" rx="8" fill="#121a33" stroke="#2a3a68"/>
     <text x="578" y="145" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" letter-spacing="2">EVIDENCE SCORE</text>
-    <text x="578" y="174" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">{latest_score:.2f}</text>
+    <text x="578" y="174" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">{esc(latest_score_text)}</text>
   </g>
   <g>
     <rect x="808" y="116" width="328" height="76" rx="8" fill="#121a33" stroke="#2a3a68"/>
