@@ -33,8 +33,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-dir", default="/work/data/generated/evidence_validation")
     parser.add_argument("--token-bins", type=int, default=int(os.getenv("EVIDENCE_TOKEN_BINS", "64")))
     parser.add_argument("--range-bands", type=int, default=int(os.getenv("EVIDENCE_RANGE_BANDS", "4")))
-    parser.add_argument("--folds", type=int, default=int(os.getenv("EVIDENCE_FOLDS", "3")))
-    parser.add_argument("--seeds", type=int, default=int(os.getenv("EVIDENCE_SEEDS", "1")))
+    parser.add_argument(
+        "--folds",
+        type=int,
+        default=int(os.getenv("EVIDENCE_FOLDS", "5")),
+        help="Cross-validation folds (canonical default: 5).",
+    )
+    parser.add_argument(
+        "--seeds",
+        type=int,
+        default=int(os.getenv("EVIDENCE_SEEDS", "5")),
+        help="Random seeds for fold permutations (canonical default: 5).",
+    )
     parser.add_argument("--seed", type=int, default=20260521)
     parser.add_argument(
         "--ablation",
