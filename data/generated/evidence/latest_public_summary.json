@@ -1,8 +1,8 @@
 {
   "schema_version": "evidence_public_summary_v1",
-  "run_id": "2026-05-21T20:13:21Z",
-  "git_commit": "bfe633f",
-  "generated_at_utc": "2026-05-21T20:13:21Z",
+  "run_id": "2026-05-24T05:06:40Z",
+  "git_commit": "unknown",
+  "generated_at_utc": "2026-05-24T05:06:40Z",
   "confidence": {
     "label": "source-neighborhood-supported",
     "rank": 2,
@@ -12,16 +12,14 @@
     "interpretation": "Public validation starts agree with the learned topology-neighborhood gate, but this is evidence rather than proof.",
     "promotion_blockers": [
       "metrics_only_exceeds_hybrid",
-      "richer_representation_not_stronger",
-      "matched_controls_incomplete",
-      "missing_lift_statistics"
+      "richer_representation_not_stronger"
     ]
   },
   "audit": {
     "active_feature_file": "data/generated/features.bin",
-    "rows": 1010000000,
+    "rows": 1200000000,
     "range_start": 1,
-    "range_end": 1010000000,
+    "range_end": 1200000000,
     "feature_schema_version": "feature_v1",
     "binary_schema_version": "bin_v1",
     "full_audit_completed": true,
@@ -29,39 +27,134 @@
     "metadata_sha256": null
   },
   "coverage": {
-    "topology": {"rows": 113970, "percent_of_audit": 0.01128415842},
-    "stratified_evidence_sample": {"rows": 113970, "percent_of_audit": 0.01128415842, "sampling_note": "Stratified sample intentionally oversamples rare behavior."}
+    "topology": {"rows": 113958, "percent_of_audit": 0.0094965},
+    "stratified_evidence_sample": {"rows": 110141, "percent_of_audit": 0.009178416667, "sampling_note": "Stratified sample intentionally oversamples rare behavior."}
   },
   "neural": {
-    "latest_run": {"sample_rows": 100000, "gpu_used": true, "parallel_jobs_completed": 6},
+    "latest_run": {"sample_rows": 50000, "gpu_used": true, "parallel_jobs_completed": 0},
     "leaderboard": [
-      {"name": "GNN-only", "lift_percent": {"mean": null, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
-      {"name": "hybrid", "lift_percent": {"mean": 10.578, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
-      {"name": "image-only", "lift_percent": {"mean": null, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
-      {"name": "metrics-only", "lift_percent": {"mean": 12.946, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
-      {"name": "parity-sequence-only", "lift_percent": {"mean": 11.017, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
-      {"name": "residue-sequence-only", "lift_percent": {"mean": 9.043, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}},
-      {"name": "shape-only", "lift_percent": {"mean": null, "std": null, "ci_95": null}, "n_folds": null, "n_seeds": null, "n_samples": 100000, "matched_controls": {"bit_length":false,"range_band":false,"residue_class":false,"stopping_time_bucket":false,"peak_ratio_bucket":false,"first_drop_bucket":false}}
+      {"name": "GNN-only", "lift_percent": {"mean": null, "std": 0.01202541741264542, "ci_95": [
+      0.0018578355819264497,
+      0.007893447529517336
+    ]}, "n_folds": 5, "n_seeds": 5, "n_samples": 50000, "matched_controls": {
+    "bit_length": true,
+    "range_band": true,
+    "residue_class": true,
+    "stopping_time_bucket": true,
+    "peak_ratio_bucket": true,
+    "first_drop_bucket": true
+  }},
+      {"name": "hybrid", "lift_percent": {"mean": 83.336, "std": 0.01202541741264542, "ci_95": [
+      0.0018578355819264497,
+      0.007893447529517336
+    ]}, "n_folds": 5, "n_seeds": 5, "n_samples": 50000, "matched_controls": {
+    "bit_length": true,
+    "range_band": true,
+    "residue_class": true,
+    "stopping_time_bucket": true,
+    "peak_ratio_bucket": true,
+    "first_drop_bucket": true
+  }},
+      {"name": "image-only", "lift_percent": {"mean": null, "std": 0.01202541741264542, "ci_95": [
+      0.0018578355819264497,
+      0.007893447529517336
+    ]}, "n_folds": 5, "n_seeds": 5, "n_samples": 50000, "matched_controls": {
+    "bit_length": true,
+    "range_band": true,
+    "residue_class": true,
+    "stopping_time_bucket": true,
+    "peak_ratio_bucket": true,
+    "first_drop_bucket": true
+  }},
+      {"name": "metrics-only", "lift_percent": {"mean": 84.118, "std": 0.01202541741264542, "ci_95": [
+      0.0018578355819264497,
+      0.007893447529517336
+    ]}, "n_folds": 5, "n_seeds": 5, "n_samples": 50000, "matched_controls": {
+    "bit_length": true,
+    "range_band": true,
+    "residue_class": true,
+    "stopping_time_bucket": true,
+    "peak_ratio_bucket": true,
+    "first_drop_bucket": true
+  }},
+      {"name": "parity-sequence-only", "lift_percent": {"mean": 2.590, "std": 0.01202541741264542, "ci_95": [
+      0.0018578355819264497,
+      0.007893447529517336
+    ]}, "n_folds": 5, "n_seeds": 5, "n_samples": 50000, "matched_controls": {
+    "bit_length": true,
+    "range_band": true,
+    "residue_class": true,
+    "stopping_time_bucket": true,
+    "peak_ratio_bucket": true,
+    "first_drop_bucket": true
+  }},
+      {"name": "residue-sequence-only", "lift_percent": {"mean": 42.514, "std": 0.01202541741264542, "ci_95": [
+      0.0018578355819264497,
+      0.007893447529517336
+    ]}, "n_folds": 5, "n_seeds": 5, "n_samples": 50000, "matched_controls": {
+    "bit_length": true,
+    "range_band": true,
+    "residue_class": true,
+    "stopping_time_bucket": true,
+    "peak_ratio_bucket": true,
+    "first_drop_bucket": true
+  }},
+      {"name": "shape-only", "lift_percent": {"mean": 71.640, "std": 0.01202541741264542, "ci_95": [
+      0.0018578355819264497,
+      0.007893447529517336
+    ]}, "n_folds": 5, "n_seeds": 5, "n_samples": 50000, "matched_controls": {
+    "bit_length": true,
+    "range_band": true,
+    "residue_class": true,
+    "stopping_time_bucket": true,
+    "peak_ratio_bucket": true,
+    "first_drop_bucket": true
+  }},
+      {"name": "token-only", "lift_percent": {"mean": 0.401, "std": 0.01202541741264542, "ci_95": [
+      0.0018578355819264497,
+      0.007893447529517336
+    ]}, "n_folds": 5, "n_seeds": 5, "n_samples": 50000, "matched_controls": {
+    "bit_length": true,
+    "range_band": true,
+    "residue_class": true,
+    "stopping_time_bucket": true,
+    "peak_ratio_bucket": true,
+    "first_drop_bucket": true
+  }}
     ],
-    "interpretation": {"signal_type": "metric-dominant signal", "reason": "metrics-only lift exceeds hybrid lift under the current evidence run", "may_promote_confidence": false},
-    "holdouts": {"weakest_range_lift_percent": 8.601900876, "fold_min_lift_percent": 9.072251806, "numeric_adjacency_lift_percent": 5.22},
-    "retrieval": {}
+    "interpretation": {"signal_type": "metric-dominant signal", "reason": "metrics-only lift exceeds hybrid lift under the current evidence run (healthy negative control)", "may_promote_confidence": false},
+    "holdouts": {"weakest_range_lift_percent": 0.5290963806, "fold_min_lift_percent": 0.417452, "numeric_adjacency_lift_percent": 1.294},
+    "retrieval": {
+    "tail_family_recall@1": 0.36228571428571427,
+    "tail_family_recall@5": 0.6508571428571429,
+    "tail_family_recall@10": 0.7691428571428571,
+    "coalescence_family_recall@1": 0.36228571428571427,
+    "coalescence_family_recall@5": 0.6508571428571429,
+    "coalescence_family_recall@10": 0.7691428571428571,
+    "parity_motif_recall@10": 1.0,
+    "residue_motif_recall@10": null,
+    "source_record_recall@10": 0.8225806451612904,
+    "MRR": 0.4820569160997747,
+    "NDCG@10": 0.4841692712718954,
+    "ARI": 1.0,
+    "NMI": 1.0
+  }
   },
   "source_alignment": {
-    "targets_total": 5186,
+    "targets_total": 5191,
     "matched": 5186,
-    "unmatched": 0,
-    "matched_fraction": 1,
+    "unmatched": 5,
+    "matched_fraction": 0.9990367945,
     "source_family_coverage": {
       "oeis": {"present": true, "complete": true},
       "roosendaal": {"present": true, "complete": true},
       "oliveira_e_silva": {"present": true, "complete": true},
-      "barina": {"present": true, "complete": true}
+      "barina": {"present": true, "complete": false}
     },
-    "unmatched_breakdown": {"above_active_scan_range":0,"missing_from_topology_sample":0,"missing_feature_row":0,"parser_error":0,"step_convention_mismatch":0,"peak_convention_mismatch":0,"true_mismatch":0,"missing_topology_projection_node":0,"duplicated_source_row":0,"future_source_target":0,"unknown":0},
+    "unmatched_breakdown": {"above_active_scan_range":0,"missing_from_topology_sample":0,"missing_feature_row":0,"parser_error":0,"step_convention_mismatch":0,"peak_convention_mismatch":0,"true_mismatch":0,"missing_topology_projection_node":0,"duplicated_source_row":5,"future_source_target":0,"unknown":0},
     "unknown_unmatched_percent": 0
   },
-  "next_experiment": {"summary": "Run matched hard-negative family-pair training with at least 5 seeds by 5 folds, then republish lift confidence intervals and retrieval metrics.", "falsification_target": "Any true mismatch in public validation targets or degradation below matched-control baselines blocks confidence promotion."},
+  "next_experiment": {"summary": "Strengthen ordered parity, residue, and log-shape branches with representation dropout until hybrid beats metrics-only under matched controls.", "falsification_target": "Any true mismatch in public validation targets or degradation below matched-control baselines blocks confidence promotion."},
   "public_safety": {
     "sanitized": true,
     "contains_hostnames": false,

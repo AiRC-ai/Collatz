@@ -31,14 +31,14 @@
 
     <rect x="348" y="132" width="260" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
     <text x="368" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">AUDIT</text>
-    <text x="368" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">1.01B</text>
+    <text x="368" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">1.20B</text>
     <text x="458" y="202" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="17">rows</text>
-    <text x="368" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">range 1..1,010,000,000</text>
+    <text x="368" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">range 1..1,200,000,000</text>
 
     <rect x="632" y="132" width="260" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
     <text x="652" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">SOURCE CHECK</text>
-    <text x="652" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">5,186 / 5,186</text>
-    <text x="652" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">100.000% public targets matched</text>
+    <text x="652" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">5,186 / 5,191</text>
+    <text x="652" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">99.904% public targets matched</text>
 
     <rect x="916" y="132" width="220" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
     <text x="936" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">LIMIT</text>
@@ -54,41 +54,40 @@
     <text x="88" y="384" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Best ablation: metrics-only</text>
     <rect x="88" y="398" width="372" height="18" rx="9" fill="#1f2a44"/>
     <rect x="88" y="398" width="323" height="18" rx="9" fill="url(#green)"/>
-    <text x="474" y="413" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">12.946%</text>
+    <text x="474" y="413" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">84.118%</text>
 
     <text x="88" y="444" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Hybrid representation</text>
     <rect x="88" y="458" width="372" height="18" rx="9" fill="#1f2a44"/>
-    <rect x="88" y="458" width="264" height="18" rx="9" fill="#60a5fa"/>
-    <text x="474" y="473" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">10.578%</text>
+    <rect x="88" y="458" width="320" height="18" rx="9" fill="#60a5fa"/>
+    <text x="474" y="473" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">83.336%</text>
 
     <text x="88" y="504" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Weakest range holdout</text>
     <rect x="88" y="518" width="372" height="18" rx="9" fill="#1f2a44"/>
-    <rect x="88" y="518" width="214" height="18" rx="9" fill="#a78bfa"/>
-    <text x="474" y="533" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">8.602%</text>
-    <text x="88" y="562" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Numeric-adjacency lift: 5.220%</text>
+    <rect x="88" y="518" width="2" height="18" rx="9" fill="#a78bfa"/>
+    <text x="474" y="533" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">0.529%</text>
+    <text x="88" y="562" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Numeric-adjacency lift: 1.294%</text>
   </g>
 
   <g filter="url(#softShadow)">
     <rect x="616" y="278" width="520" height="310" rx="10" fill="url(#panel)" stroke="#2b385e"/>
     <text x="640" y="314" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="800">Healthy Negative Control</text>
-    <text x="640" y="342" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Metrics-only beats hybrid: 12.946% vs 10.578%. This blocker</text>
+    <text x="640" y="342" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Metrics-only beats hybrid: 84.118% vs 83.336%. This blocker</text>
     <text x="640" y="362" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">keeps richer neural structure behind metrics.</text>
 
     <rect x="640" y="374" width="448" height="64" rx="8" fill="#070b16" stroke="#263450"/>
     <text x="660" y="400" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">COVERAGE</text>
-    <text x="660" y="424" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Topology 113,970 rows (0.011%); stratified sample 113,970 rows (0.011%).</text>
+    <text x="660" y="424" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Topology 113,958 rows (0.009%); stratified sample 110,141 rows (0.009%).</text>
 
     <rect x="640" y="456" width="448" height="64" rx="8" fill="#070b16" stroke="#263450"/>
     <text x="660" y="482" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">PROMOTION BLOCKERS</text>
-    <text x="660" y="504" fill="#facc15" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">metrics_only_exceeds_hybrid, richer_representation_not_stronger,</text>
-    <text x="660" y="522" fill="#facc15" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">+2 more</text>
+    <text x="660" y="504" fill="#facc15" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">metrics_only_exceeds_hybrid, richer_representation_not_stronger</text>
 
     <rect x="640" y="540" width="448" height="1" fill="#263450"/>
     <text x="640" y="566" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Next falsification test</text>
-    <text x="640" y="590" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Run matched hard-negative family-pair training with at least 5 seeds by</text>
-    <text x="640" y="607" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">5 folds, then republish lift confidence intervals and retrieval</text>
-    <text x="640" y="624" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">metrics.</text>
+    <text x="640" y="590" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Strengthen ordered parity, residue, and log-shape branches with</text>
+    <text x="640" y="607" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">representation dropout until hybrid beats metrics-only under matched</text>
+    <text x="640" y="624" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">controls.</text>
   </g>
 
-  <text x="64" y="642" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Generated at 2026-05-21T20:13:21Z from public-safe canonical evidence. Operations telemetry never raises confidence.</text>
+  <text x="64" y="642" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Generated at 2026-05-24T05:06:40Z from public-safe canonical evidence. Operations telemetry never raises confidence.</text>
 </svg>

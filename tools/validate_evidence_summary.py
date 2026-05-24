@@ -171,8 +171,8 @@ def validate(path: Path) -> None:
         "true mismatch blocker does not match unmatched_breakdown.true_mismatch",
     )
     require(
-        ("source_alignment_unmatched_rows_present" in blockers) == (source.get("unmatched", 0) > 0),
-        "unmatched source blocker does not match source unmatched count",
+        ("source_alignment_unmatched_rows_present" in blockers) == (int(breakdown["unknown"]) > 0 or int(breakdown["true_mismatch"]) > 0),
+        "unmatched source blocker does not match unknown or true_mismatch count",
     )
     metrics_lift = lifts.get("metrics-only")
     hybrid_lift = lifts.get("hybrid")

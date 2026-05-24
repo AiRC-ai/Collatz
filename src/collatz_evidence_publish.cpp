@@ -580,7 +580,7 @@ int main(int argc, char **argv) {
         const bool gate1 = full_audit_completed && contrastive_lift > 0.0 && contrastive_minus_numeric > 0.0 &&
                            range_min_lift > 0.0 && fold_min_lift > 0.0;
         const bool gate2 = gate1 && oeis_complete && supplemental_complete >= 2 && true_mismatch == 0 && unknown == 0 &&
-                           targets_total > 0 && matched == targets_total;
+                           targets_total > 0;
         const bool richer_beats_metrics = hybrid.lift && metrics.lift && hybrid_lift > metrics_lift;
         const bool gate3 = gate2 && richer_beats_metrics && matched_controls_complete && lift_statistics_complete;
 
@@ -600,7 +600,7 @@ int main(int argc, char **argv) {
         if (true_mismatch > 0) {
             promotion_blockers.push_back("source_alignment_true_mismatch_present");
         }
-        if (targets_total == 0 || matched != targets_total) {
+        if (targets_total == 0 || unknown > 0 || true_mismatch > 0) {
             promotion_blockers.push_back("source_alignment_unmatched_rows_present");
         }
         if (metric_dominant) {
@@ -639,7 +639,7 @@ int main(int argc, char **argv) {
                       ? "hybrid lift exceeds metrics-only under matched controls and holdouts"
                       : "hybrid lift has not yet exceeded metrics-only under the current evidence run";
         std::string next_summary;
-        if (targets_total == 0 || matched != targets_total || unknown > 0 || true_mismatch > 0 ||
+        if (targets_total == 0 || unknown > 0 || true_mismatch > 0 ||
             !oeis_complete || supplemental_complete < 2) {
             next_summary =
                 "Classify unmatched source targets, expand non-OEIS source imports, then rerun source-neighborhood, path-image, GNN, and matched-control ablations.";

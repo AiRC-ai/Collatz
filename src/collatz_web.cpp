@@ -32,11 +32,6 @@ struct Options {
     std::string neighborhood_manifest = "data/generated/topology/neighborhoods.json";
     std::string insights_manifest = "data/generated/insights/insights.json";
     std::string gnn_metadata = "data/generated/gnn/metrics.json";
-    std::string hypothesis_summary = "data/generated/hypotheses/summary.json";
-    std::string runner_status = "data/generated/runner/status.json";
-    std::string neural_status = "data/generated/runner/neural_parallel_status.json";
-    std::string full_audit = "data/generated/full_audit/summary.json";
-    std::string evidence_summary = "data/generated/evidence/latest_public_summary.json";
 };
 
 void usage(std::ostream &out) {
@@ -44,10 +39,7 @@ void usage(std::ostream &out) {
         << "                   [--scan-metadata FILE] [--embedding-metadata FILE]\n"
         << "                   [--image-manifest FILE] [--graph-manifest FILE]\n"
         << "                   [--topology-manifest FILE] [--neighborhood-manifest FILE]\n"
-        << "                   [--insights-manifest FILE] [--gnn-metadata FILE]\n"
-        << "                   [--hypothesis-summary FILE] [--runner-status FILE]\n"
-        << "                   [--neural-status FILE] [--full-audit FILE]\n"
-        << "                   [--evidence-summary FILE]\n";
+        << "                   [--insights-manifest FILE] [--gnn-metadata FILE]\n";
 }
 
 Options parse_args(int argc, char **argv) {
@@ -88,16 +80,6 @@ Options parse_args(int argc, char **argv) {
             options.insights_manifest = need_value("--insights-manifest");
         } else if (arg == "--gnn-metadata") {
             options.gnn_metadata = need_value("--gnn-metadata");
-        } else if (arg == "--hypothesis-summary") {
-            options.hypothesis_summary = need_value("--hypothesis-summary");
-        } else if (arg == "--runner-status") {
-            options.runner_status = need_value("--runner-status");
-        } else if (arg == "--neural-status") {
-            options.neural_status = need_value("--neural-status");
-        } else if (arg == "--full-audit") {
-            options.full_audit = need_value("--full-audit");
-        } else if (arg == "--evidence-summary") {
-            options.evidence_summary = need_value("--evidence-summary");
         } else if (arg == "--help" || arg == "-h") {
             usage(std::cout);
             std::exit(0);
@@ -112,18 +94,34 @@ void on_signal(int) {
     g_stop = 1;
 }
 
-std::string compact_object_from_json(const std::string &json, const std::vector<std::string> &keys);
-
 std::string latest_progress_json(const Options &options) {
     const auto line = collatz::read_last_nonempty_line(options.progress);
     if (line.empty()) {
         return "{\"status\":\"waiting\",\"message\":\"no scanner progress yet\"}";
     }
-    const std::string compact = compact_object_from_json(
-        line,
-        {"type", "timestamp", "mode", "threads", "format", "range_start", "range_end", "current", "processed",
-         "throughput_per_sec", "max_total_steps_n", "max_total_steps", "max_peak_n", "max_peak_log2"});
-    return compact == "null" ? "{\"status\":\"waiting\"}" : compact;
+    return line;
+}
+
+std::string ledger_json(const Options &options) {
+    const auto lines = collatz::read_last_lines(options.ledger, 8);
+    std::ostringstream out;
+    out << '[';
+    for (std::size_t i = 0; i < lines.size(); ++i) {
+        if (i != 0) {
+            out << ',';
+        }
+        out << '"' << collatz::json_escape(lines[i]) << '"';
+    }
+    out << ']';
+    return out.str();
+}
+
+std::string latest_ledger_event_json(const Options &options) {
+    const auto line = collatz::read_last_nonempty_line(options.ledger);
+    if (line.empty()) {
+        return "null";
+    }
+    return "\"" + collatz::json_escape(line) + "\"";
 }
 
 std::string read_file(const std::string &path) {
@@ -297,8 +295,8 @@ std::string compact_graph_manifest_json(const Options &options) {
         return "null";
     }
     const std::string preview = json_value_for_key(json, "preview");
-    const std::string nodes = limited_json_array(json_value_for_key(preview, "nodes"), 64);
-    const std::string edges = limited_json_array(json_value_for_key(preview, "edges"), 96);
+    const std::string nodes = limited_json_array(json_value_for_key(preview, "nodes"), 128);
+    const std::string edges = limited_json_array(json_value_for_key(preview, "edges"), 192);
     std::ostringstream out;
     out << "{\"node_count\":" << json_value_or(json, "node_count", "0")
         << ",\"edge_count\":" << json_value_or(json, "edge_count", "0")
@@ -314,7 +312,7 @@ std::string compact_topology_manifest_json(const Options &options) {
     std::ostringstream out;
     out << "{\"point_count\":" << json_value_or(json, "point_count", "0")
         << ",\"cluster_count\":" << json_value_or(json, "cluster_count", "0")
-        << ",\"preview_points\":" << limited_json_array(json_value_for_key(json, "preview_points"), 64)
+        << ",\"preview_points\":" << limited_json_array(json_value_for_key(json, "preview_points"), 128)
         << "}";
     return out.str();
 }
@@ -326,118 +324,8 @@ std::string compact_insights_manifest_json(const Options &options) {
     }
     std::ostringstream out;
     out << "{\"insight_count\":" << json_value_or(json, "insight_count", "0")
-        << ",\"confidence\":" << json_value_or(json, "confidence", "\"pending\"")
-        << ",\"conclusion\":" << json_value_or(json, "conclusion", "\"pending\"")
-        << ",\"meaning\":" << json_value_or(json, "meaning", "\"pending\"")
-        << ",\"limit\":" << json_value_or(json, "limit", "\"pending\"")
-        << ",\"next_step\":" << json_value_or(json, "next_step", "\"pending\"")
+        << ",\"headline\":" << json_value_or(json, "headline", "\"pending\"")
         << ",\"findings\":" << limited_json_array(json_value_for_key(json, "findings"), 3)
-        << "}";
-    return out.str();
-}
-
-std::string compact_hypothesis_summary_json(const Options &options) {
-    const std::string json = read_file(options.hypothesis_summary);
-    if (json.empty()) {
-        return "null";
-    }
-    std::ostringstream out;
-    out << "{\"hypothesis_count\":" << json_value_or(json, "hypothesis_count", "0")
-        << ",\"confidence_level\":" << json_value_or(json, "confidence_level", "\"pipeline-check\"")
-        << ",\"conclusion\":" << json_value_or(json, "conclusion", "\"pending\"")
-        << ",\"coverage\":" << json_value_or(json, "coverage", "\"pending\"")
-        << ",\"strongest_evidence\":" << json_value_or(json, "strongest_evidence", "\"pending\"")
-        << ",\"weakest_limit\":" << json_value_or(json, "weakest_limit", "\"pending\"")
-        << ",\"latest_neural_result\":" << json_value_or(json, "latest_neural_result", "\"pending\"")
-        << ",\"next_experiment\":" << json_value_or(json, "next_experiment", "\"pending\"")
-        << ",\"source_alignment\":" << json_value_or(json, "source_alignment", "\"pending\"")
-        << "}";
-    return out.str();
-}
-
-std::string compact_full_audit_json(const Options &options) {
-    const std::string json = read_file(options.full_audit);
-    if (json.empty()) {
-        return "null";
-    }
-    std::ostringstream out;
-    out << "{\"records_read\":" << json_value_or(json, "records_read", "0")
-        << ",\"coverage_ratio\":" << json_value_or(json, "coverage_ratio", "0")
-        << ",\"max_total_steps\":" << json_value_or(json, "max_total_steps", "0")
-        << ",\"max_total_steps_n\":" << json_value_or(json, "max_total_steps_n", "0")
-        << ",\"total_steps_mean\":" << json_value_or(json, "total_steps_mean", "0")
-        << ",\"total_steps_quantiles\":" << json_value_or(json, "total_steps_quantiles", "{}")
-        << "}";
-    return out.str();
-}
-
-bool unsafe_public_value(const std::string &value) {
-    return value.find("/Users/") != std::string::npos || value.find("/home/") != std::string::npos ||
-           value.find("10.") != std::string::npos || value.find("192.168.") != std::string::npos ||
-           value.find("172.16.") != std::string::npos || value.find("172.17.") != std::string::npos ||
-           value.find("172.18.") != std::string::npos || value.find("http://") != std::string::npos ||
-           value.find("https://") != std::string::npos || value.find("ssh ") != std::string::npos;
-}
-
-std::string safe_runner_value_or(const std::string &json, const std::string &key, const std::string &fallback) {
-    const std::string value = json_value_for_key(json, key);
-    if (value.empty()) {
-        return fallback;
-    }
-    return unsafe_public_value(value) ? fallback : value;
-}
-
-std::string compact_runner_status_json(const Options &options) {
-    const std::string json = read_file(options.runner_status);
-    if (json.empty()) {
-        return "{\"state\":\"idle\",\"current_stage\":\"not configured\",\"last_started_utc\":\"\",\"last_finished_utc\":\"\",\"last_success\":false,\"last_error_summary\":\"\",\"active_experiment\":\"source alignment plus optional CPU/GPU crunch\",\"source_target_count\":0,\"matched_source_targets\":0,\"source_match_rate\":0,\"evidence_score\":0,\"evidence_delta\":0,\"cycle_count\":0,\"cpu_crunch_state\":\"disabled\",\"cpu_threads\":0,\"cpu_target_end\":0,\"gpu_state\":\"unknown\",\"gpu_free_memory_mb\":0,\"gpu_compute_process_count\":0,\"neural_stage\":\"disabled\",\"full_audit_state\":\"missing\",\"full_audit_records\":0,\"next_stage\":\"run evidence cycle\"}";
-    }
-    std::ostringstream out;
-    out << "{\"state\":" << safe_runner_value_or(json, "state", "\"idle\"")
-        << ",\"current_stage\":" << safe_runner_value_or(json, "current_stage", "\"idle\"")
-        << ",\"last_started_utc\":" << safe_runner_value_or(json, "last_started_utc", "\"\"")
-        << ",\"last_finished_utc\":" << safe_runner_value_or(json, "last_finished_utc", "\"\"")
-        << ",\"last_success\":" << safe_runner_value_or(json, "last_success", "false")
-        << ",\"last_error_summary\":" << safe_runner_value_or(json, "last_error_summary", "\"\"")
-        << ",\"active_experiment\":" << safe_runner_value_or(json, "active_experiment", "\"source alignment plus optional CPU/GPU crunch\"")
-        << ",\"source_target_count\":" << safe_runner_value_or(json, "source_target_count", "0")
-        << ",\"matched_source_targets\":" << safe_runner_value_or(json, "matched_source_targets", "0")
-        << ",\"source_match_rate\":" << safe_runner_value_or(json, "source_match_rate", "0")
-        << ",\"evidence_score\":" << safe_runner_value_or(json, "evidence_score", "0")
-        << ",\"evidence_delta\":" << safe_runner_value_or(json, "evidence_delta", "0")
-        << ",\"cycle_count\":" << safe_runner_value_or(json, "cycle_count", "0")
-        << ",\"cpu_crunch_state\":" << safe_runner_value_or(json, "cpu_crunch_state", "\"disabled\"")
-        << ",\"cpu_threads\":" << safe_runner_value_or(json, "cpu_threads", "0")
-        << ",\"cpu_target_end\":" << safe_runner_value_or(json, "cpu_target_end", "0")
-        << ",\"gpu_state\":" << safe_runner_value_or(json, "gpu_state", "\"unknown\"")
-        << ",\"gpu_free_memory_mb\":" << safe_runner_value_or(json, "gpu_free_memory_mb", "0")
-        << ",\"gpu_compute_process_count\":" << safe_runner_value_or(json, "gpu_compute_process_count", "0")
-        << ",\"neural_stage\":" << safe_runner_value_or(json, "neural_stage", "\"disabled\"")
-        << ",\"full_audit_state\":" << safe_runner_value_or(json, "full_audit_state", "\"missing\"")
-        << ",\"full_audit_records\":" << safe_runner_value_or(json, "full_audit_records", "0")
-        << ",\"next_stage\":" << safe_runner_value_or(json, "next_stage", "\"run evidence cycle\"")
-        << "}";
-    return out.str();
-}
-
-std::string compact_neural_status_json(const Options &options) {
-    const std::string json = read_file(options.neural_status);
-    if (json.empty()) {
-        return "{\"state\":\"idle\",\"current_stage\":\"not configured\",\"updated_utc\":\"\",\"concurrency_limit\":0,\"active_jobs\":0,\"complete_jobs\":0,\"failed_jobs\":0,\"gpu_utilization_percent\":0,\"gpu_memory_used_mb\":0,\"gpu_memory_free_mb\":0,\"gpu_power_watts\":0,\"jobs\":[]}";
-    }
-    std::ostringstream out;
-    out << "{\"state\":" << safe_runner_value_or(json, "state", "\"idle\"")
-        << ",\"current_stage\":" << safe_runner_value_or(json, "current_stage", "\"idle\"")
-        << ",\"updated_utc\":" << safe_runner_value_or(json, "updated_utc", "\"\"")
-        << ",\"concurrency_limit\":" << safe_runner_value_or(json, "concurrency_limit", "0")
-        << ",\"active_jobs\":" << safe_runner_value_or(json, "active_jobs", "0")
-        << ",\"complete_jobs\":" << safe_runner_value_or(json, "complete_jobs", "0")
-        << ",\"failed_jobs\":" << safe_runner_value_or(json, "failed_jobs", "0")
-        << ",\"gpu_utilization_percent\":" << safe_runner_value_or(json, "gpu_utilization_percent", "0")
-        << ",\"gpu_memory_used_mb\":" << safe_runner_value_or(json, "gpu_memory_used_mb", "0")
-        << ",\"gpu_memory_free_mb\":" << safe_runner_value_or(json, "gpu_memory_free_mb", "0")
-        << ",\"gpu_power_watts\":" << safe_runner_value_or(json, "gpu_power_watts", "0")
-        << ",\"jobs\":" << limited_json_array(json_value_for_key(json, "jobs"), 8)
         << "}";
     return out.str();
 }
@@ -445,24 +333,16 @@ std::string compact_neural_status_json(const Options &options) {
 std::string dashboard_progress_json(const Options &options) {
     const std::string scan = read_file(options.scan_metadata);
     const std::string gnn = read_file(options.gnn_metadata);
-    std::string evidence = read_file(options.evidence_summary);
-    if (evidence.empty()) {
-        evidence = "{\"schema_version\":\"evidence_public_summary_v1\",\"confidence\":{\"label\":\"sample-local signal\",\"interpretation\":\"Canonical evidence summary is not available yet.\"}}";
-    }
-    return "{\"evidence\":" + evidence +
-           ",\"operations\":{\"progress\":" + latest_progress_json(options) +
+    return "{\"progress\":" + latest_progress_json(options) +
+           ",\"latest_event\":" + latest_ledger_event_json(options) +
            ",\"scan_metadata\":" + compact_object_from_json(scan, {"dataset_records_observed", "completed_utc"}) +
            ",\"graph_manifest\":" + compact_graph_manifest_json(options) +
            ",\"topology_manifest\":" + compact_topology_manifest_json(options) +
            ",\"neighborhood_manifest\":" +
            compact_object_from_json(read_file(options.neighborhood_manifest), {"neighborhood_count", "neighbors_per_center"}) +
            ",\"insights_manifest\":" + compact_insights_manifest_json(options) +
-           ",\"hypothesis_summary\":" + compact_hypothesis_summary_json(options) +
-           ",\"full_audit\":" + compact_full_audit_json(options) +
            ",\"gnn_metadata\":" + compact_object_from_json(gnn, {"status", "device", "epochs", "loss_final"}) +
-           ",\"runner_status\":" + compact_runner_status_json(options) +
-           ",\"neural_status\":" + compact_neural_status_json(options) +
-           "}}";
+           "}";
 }
 
 std::string html_page() {
@@ -480,25 +360,20 @@ std::string html_page() {
     header { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
     h1 { margin: 0; font-size: 25px; font-weight: 750; letter-spacing: 0; }
     h2 { margin: 0 0 10px; font-size: 15px; font-weight: 700; color: #d8def1; }
-    h3 { margin: 0 0 6px; font-size: 12px; color: #9aa7c7; text-transform: uppercase; letter-spacing: .08em; }
     .subtle { margin: 6px 0 0; color: #9aa7c7; font-size: 14px; }
     .status { color: #83e6a5; font-size: 13px; white-space: nowrap; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(145px, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-bottom: 16px; }
     .panel { border: 1px solid #27314f; border-radius: 8px; padding: 13px; background: #111832; min-width: 0; }
     .label { color: #9aa7c7; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
     .value { margin-top: 6px; font-size: 21px; font-weight: 760; overflow-wrap: anywhere; line-height: 1.05; }
     .canvas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
     .canvas-panel { border: 1px solid #27314f; border-radius: 8px; padding: 12px; background: #0d1427; min-width: 0; }
     canvas { width: 100%; height: 300px; display: block; background: #070b16; border: 1px solid #27314f; border-radius: 8px; }
-    .readout { border: 1px solid #27314f; border-radius: 8px; padding: 16px; background: #111832; margin-bottom: 12px; }
-    .readout-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 14px; }
-    .readout-box { border: 1px solid #27314f; border-radius: 8px; padding: 12px; background: #0d1427; }
-    .readout-text { color: #eef3ff; font-size: 14px; line-height: 1.38; }
-    .readout-note { color: #b8c3df; font-size: 13px; line-height: 1.38; }
+    .event { border: 1px solid #27314f; border-radius: 8px; padding: 14px; background: #111832; margin-bottom: 12px; }
+    .event-text { margin-top: 6px; color: #d8def1; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
     @media (max-width: 980px) {
       .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .canvas-grid { grid-template-columns: 1fr; }
-      .readout-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 620px) {
       main { padding: 16px; }
@@ -520,16 +395,11 @@ std::string html_page() {
   </header>
   <section class="grid">
     <div class="panel"><div class="label">Dataset</div><div id="records" class="value">0</div></div>
-    <div class="panel"><div class="label">Full Audit</div><div id="fullAudit" class="value">missing</div></div>
-    <div class="panel"><div class="label">Throughput</div><div id="throughput" class="value">0/s</div></div>
-    <div class="panel"><div class="label">Evidence Score</div><div id="evidenceScore" class="value">0</div></div>
+    <div class="panel"><div class="label">Scan Peak</div><div id="maxsteps" class="value">0</div></div>
     <div class="panel"><div class="label">Topology</div><div id="topology" class="value">0 / 0</div></div>
-    <div class="panel"><div class="label">Automation</div><div id="automation" class="value">idle</div></div>
-    <div class="panel"><div class="label">CPU Crunch</div><div id="cpuCrunch" class="value">disabled</div></div>
-    <div class="panel"><div class="label">GPU / Neural</div><div id="gpuStage" class="value">disabled</div></div>
-    <div class="panel"><div class="label">Source Gate</div><div id="sourceGate" class="value">0 / 0</div></div>
+    <div class="panel"><div class="label">Neighborhoods</div><div id="neighborhoods" class="value">0</div></div>
     <div class="panel"><div class="label">GNN Graph</div><div id="graph" class="value">0 / 0</div></div>
-    <div class="panel"><div class="label">Confidence</div><div id="aiConfidence" class="value">pending</div></div>
+    <div class="panel"><div class="label">AI Findings</div><div id="aiFindings" class="value">pending</div></div>
   </section>
   <section class="canvas-grid">
     <div class="canvas-panel">
@@ -541,38 +411,9 @@ std::string html_page() {
       <canvas id="graphCanvas" width="720" height="320"></canvas>
     </div>
   </section>
-  <section class="readout">
-    <h2>AI Readout</h2>
-    <div class="readout-grid">
-      <div class="readout-box">
-        <h3>Current Conclusion</h3>
-        <div id="aiConclusion" class="readout-text">waiting for insights</div>
-      </div>
-      <div class="readout-box">
-        <h3>Coverage</h3>
-        <div id="aiCoverage" class="readout-note">waiting for hypotheses</div>
-      </div>
-      <div class="readout-box">
-        <h3>Strongest Evidence</h3>
-        <div id="aiEvidence" class="readout-note">waiting for hypotheses</div>
-      </div>
-      <div class="readout-box">
-        <h3>Weakest Limit</h3>
-        <div id="aiLimit" class="readout-note">waiting for hypotheses</div>
-      </div>
-      <div class="readout-box">
-        <h3>Latest Neural Result</h3>
-        <div id="aiNeural" class="readout-note">waiting for neural metrics</div>
-      </div>
-      <div class="readout-box">
-        <h3>Source Check</h3>
-        <div id="aiSource" class="readout-note">waiting for source alignment</div>
-      </div>
-      <div class="readout-box">
-        <h3>Next Test</h3>
-        <div id="aiNextStep" class="readout-note">waiting for hypotheses</div>
-      </div>
-    </div>
+  <section class="event">
+    <div class="label">AI Readout</div>
+    <div id="aiReadout" class="event-text">waiting for insights</div>
   </section>
 </main>
 <script>
@@ -589,87 +430,27 @@ function fixed(value, digits) {
 async function refresh() {
   const response = await fetch('/api/progress');
   const data = await response.json();
-  const evidence = data.evidence || {};
-  const operations = data.operations || {};
-  const progress = operations.progress || {};
-  const scan = operations.scan_metadata || {};
-  const graph = operations.graph_manifest || {};
-  const topology = operations.topology_manifest || {};
-  const fullAudit = operations.full_audit || {};
-  const gnn = operations.gnn_metadata || {};
-  const runner = operations.runner_status || {};
-  const neuralOps = operations.neural_status || {};
-  const confidence = evidence.confidence || {};
-  const audit = evidence.audit || {};
-  const coverage = evidence.coverage || {};
-  const neuralEvidence = evidence.neural || {};
-  const sourceAlignment = evidence.source_alignment || {};
+  const progress = data.progress || {};
+  const scan = data.scan_metadata || {};
+  const graph = data.graph_manifest || {};
+  const topology = data.topology_manifest || {};
+  const neighborhoods = data.neighborhood_manifest || {};
+  const insights = data.insights_manifest || {};
+  const gnn = data.gnn_metadata || {};
   const mode = progress.mode || progress.status || gnn.status || 'waiting';
   const processed = progress.processed ? `, ${compact(progress.processed)} processed` : '';
   const throughput = progress.throughput_per_sec ? ` at ${compact(progress.throughput_per_sec)}/s` : '';
   document.getElementById('status').textContent = `${mode}${processed}${throughput}`;
-  document.getElementById('records').textContent = compact(audit.rows || scan.dataset_records_observed);
-  const auditRows = Number(fullAudit.records_read || runner.full_audit_records || 0);
-  const auditState = runner.full_audit_state || (auditRows ? 'complete' : 'missing');
-  document.getElementById('fullAudit').textContent = audit.rows ? `${compact(audit.rows)} canonical` : (auditRows ? `${compact(auditRows)} ${auditState}` : auditState);
-  document.getElementById('throughput').textContent = progress.throughput_per_sec ? `${compact(progress.throughput_per_sec)}/s` : 'idle';
-  const score = Number(runner.evidence_score || 0);
-  const delta = Number(runner.evidence_delta || 0);
-  const deltaText = delta > 0 ? ` +${delta.toFixed(2)}` : delta < 0 ? ` ${delta.toFixed(2)}` : ' +0.00';
-  document.getElementById('evidenceScore').textContent = score ? `${score.toFixed(2)}${deltaText}` : 'pending';
+  document.getElementById('records').textContent = compact(scan.dataset_records_observed);
+  document.getElementById('maxsteps').textContent = `${progress.max_total_steps ?? 0}@${compact(progress.max_total_steps_n)}`;
   document.getElementById('topology').textContent = `${compact(topology.point_count)} / ${compact(topology.cluster_count)} clusters`;
-  const stage = runner.current_stage || runner.next_stage || 'idle';
-  document.getElementById('automation').textContent = `${runner.state || 'idle'}: ${stage}`;
-  const cpuState = runner.cpu_crunch_state || 'disabled';
-  const cpuThreads = Number(runner.cpu_threads || 0);
-  const cpuTarget = Number(runner.cpu_target_end || 0);
-  document.getElementById('cpuCrunch').textContent = cpuState === 'running'
-    ? `${cpuThreads || '?'} threads -> ${compact(cpuTarget)}`
-    : cpuState;
-  const gpuState = runner.gpu_state || 'unknown';
-  const neuralStage = runner.neural_stage || 'disabled';
-  const gpuFree = Number(runner.gpu_free_memory_mb || 0);
-  const neuralActive = Number(neuralOps.active_jobs || 0);
-  const neuralComplete = Number(neuralOps.complete_jobs || 0);
-  const neuralFailed = Number(neuralOps.failed_jobs || 0);
-  const gpuUtil = Number(neuralOps.gpu_utilization_percent || 0);
-  const gpuUsed = Number(neuralOps.gpu_memory_used_mb || 0);
-  document.getElementById('gpuStage').textContent = neuralActive || neuralComplete || neuralFailed
-    ? `${neuralActive} active / ${neuralComplete} done, ${gpuUtil.toFixed(0)}% GPU, ${compact(gpuUsed)} MB`
-    : gpuFree
-    ? `${neuralStage} / ${gpuState} (${compact(gpuFree)} MB free)`
-    : `${neuralStage} / ${gpuState}`;
-  document.getElementById('sourceGate').textContent = sourceAlignment.targets_total ? `${compact(sourceAlignment.matched)} / ${compact(sourceAlignment.targets_total)}` : 'pending';
+  document.getElementById('neighborhoods').textContent = neighborhoods.neighborhood_count ? `${compact(neighborhoods.neighborhood_count)} x ${compact(neighborhoods.neighbors_per_center)}` : 'pending';
   document.getElementById('graph').textContent = `${compact(graph.node_count)} / ${compact(graph.edge_count)} edges`;
-  document.getElementById('aiConfidence').textContent = confidence.label || 'pending';
-  document.getElementById('aiConclusion').textContent = confidence.interpretation || 'waiting for canonical evidence';
-  const topologyCoverage = coverage.topology || {};
-  const stratifiedCoverage = coverage.stratified_evidence_sample || {};
-  document.getElementById('aiCoverage').textContent = audit.rows
-    ? `${compact(audit.rows)} audited rows; topology ${fixed(topologyCoverage.percent_of_audit, 3)}%; stratified sample ${fixed(stratifiedCoverage.percent_of_audit, 3)}%.`
-    : 'waiting for canonical audit coverage';
-  const holdouts = neuralEvidence.holdouts || {};
-  document.getElementById('aiEvidence').textContent = holdouts.weakest_range_lift_percent !== undefined
-    ? `Lift over random is represented in the leaderboard; range minimum ${fixed(holdouts.weakest_range_lift_percent, 3)}%, fold minimum ${fixed(holdouts.fold_min_lift_percent, 3)}%, numeric-adjacency lift ${fixed(holdouts.numeric_adjacency_lift_percent, 3)}%.`
-    : 'waiting for neural holdout evidence';
-  const neuralInterpretation = neuralEvidence.interpretation || {};
-  const blockers = Array.isArray(confidence.promotion_blockers) ? confidence.promotion_blockers : [];
-  document.getElementById('aiLimit').textContent = blockers.length
-    ? `${neuralInterpretation.reason || 'current gates are incomplete'} Blockers: ${blockers.slice(0, 4).join(', ')}${blockers.length > 4 ? '...' : ''}.`
-    : neuralInterpretation.reason || 'waiting for canonical limitation';
-  const latestRun = neuralEvidence.latest_run || {};
-  document.getElementById('aiNeural').textContent = latestRun.sample_rows
-    ? `${compact(latestRun.sample_rows)} sample rows, ${latestRun.parallel_jobs_completed || 0} parallel jobs, GPU used: ${latestRun.gpu_used ? 'yes' : 'no'}.`
-    : 'waiting for neural metrics';
-  const taxonomy = sourceAlignment.unmatched_breakdown || {};
-  const unknown = taxonomy.unknown || 0;
-  const trueMismatch = taxonomy.true_mismatch || 0;
-  const missingFeature = taxonomy.missing_feature_row || 0;
-  const missingTopology = (taxonomy.missing_from_topology_sample || 0) + (taxonomy.missing_topology_projection_node || 0);
-  document.getElementById('aiSource').textContent = sourceAlignment.targets_total
-    ? `${compact(sourceAlignment.matched)} of ${compact(sourceAlignment.targets_total)} public source targets matched; taxonomy unknown ${compact(unknown)}, true mismatch ${compact(trueMismatch)}, missing feature ${compact(missingFeature)}, missing topology ${compact(missingTopology)}.`
-    : 'waiting for source alignment';
-  document.getElementById('aiNextStep').textContent = evidence.next_experiment?.summary || 'waiting for canonical next experiment';
+  document.getElementById('aiFindings').textContent = insights.insight_count ? compact(insights.insight_count) : 'pending';
+  const findingText = Array.isArray(insights.findings) && insights.findings.length
+    ? insights.findings.map(item => `${item.title}: ${item.message}`).join('\n')
+    : (insights.headline || data.latest_event || 'waiting for insights');
+  document.getElementById('aiReadout').textContent = findingText;
   drawTopology(topology);
   drawGraph(graph);
 }
@@ -753,7 +534,7 @@ function drawGraph(graph) {
   });
 }
 refresh();
-setInterval(refresh, 2000);
+setInterval(refresh, 5000);
 </script>
 </body>
 </html>

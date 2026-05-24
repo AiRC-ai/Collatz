@@ -54,12 +54,6 @@ struct Finding {
     std::string message;
 };
 
-std::string fixed_percent(double value) {
-    std::ostringstream out;
-    out << std::fixed << std::setprecision(1) << (value * 100.0) << "%";
-    return out.str();
-}
-
 void usage(std::ostream &out) {
     out << "usage: collatz_insight_analyze [options]\n\n"
         << "options:\n"
@@ -288,29 +282,7 @@ void write_outputs(
     const std::string json_path = path_join(options.output_dir, "insights.json");
     const std::string md_path = path_join(options.output_dir, "insights.md");
 
-    const bool sample_limited = scan_records > points.size();
-    const double coverage = scan_records == 0 ? 0.0 : static_cast<double>(points.size()) / static_cast<double>(scan_records);
-    const double mean_purity = std::accumulate(cluster_insights.begin(), cluster_insights.end(), 0.0, [](double acc, const ClusterInsight &insight) {
-        return acc + insight.purity;
-    }) / static_cast<double>(std::max<std::size_t>(1, cluster_insights.size()));
-    const std::string conclusion =
-        sample_limited
-            ? "Early signal: the sampled Collatz paths are forming stable behavior families, but this is not a full-range conclusion yet."
-            : "Signal: the embedded Collatz paths are forming stable behavior families across the analyzed range.";
-    const std::string meaning =
-        "Each colored topology band is a group of starting numbers whose path metrics look alike. " +
-        fixed_percent(mean_purity) +
-        " local-neighborhood purity means the nearest examples around cluster centers stayed in the same family.";
-    const std::string limit =
-        sample_limited
-            ? "The topology currently covers " + std::to_string(points.size()) + " embedded starts out of " +
-                  std::to_string(scan_records) + " scanned starts (" + fixed_percent(coverage) +
-                  "), so it proves the pipeline and sample structure, not a Collatz law."
-            : "The topology covers the analyzed scan range, but it is still an empirical pattern map, not a mathematical proof.";
-    const std::string next_step =
-        "Next test: build a stratified embedding sample from the full scan: record setters, high peaks, long stopping times, residue classes, random starts, and loose-family boundary candidates.";
-    const std::string confidence =
-        sample_limited ? "Promising, sample-limited" : "Promising, range-limited";
+    const std::string headline = findings.empty() ? "No analysis findings generated." : findings.front().message;
 
     {
         std::ofstream out(json_path);
@@ -329,11 +301,7 @@ void write_outputs(
             << "  \"cluster_count\": " << clusters.size() << ",\n"
             << "  \"neighbors_per_cluster\": " << options.neighbors << ",\n"
             << "  \"insight_count\": " << findings.size() << ",\n"
-            << "  \"confidence\": \"" << collatz::json_escape(confidence) << "\",\n"
-            << "  \"conclusion\": \"" << collatz::json_escape(conclusion) << "\",\n"
-            << "  \"meaning\": \"" << collatz::json_escape(meaning) << "\",\n"
-            << "  \"limit\": \"" << collatz::json_escape(limit) << "\",\n"
-            << "  \"next_step\": \"" << collatz::json_escape(next_step) << "\",\n"
+            << "  \"headline\": \"" << collatz::json_escape(headline) << "\",\n"
             << "  \"findings\": [\n";
         for (std::size_t i = 0; i < findings.size(); ++i) {
             const auto &finding = findings[i];
@@ -374,11 +342,6 @@ void write_outputs(
             throw std::runtime_error("failed to open insights markdown: " + md_path);
         }
         out << "# Collatz AI Insights\n\n";
-        out << "## Current Conclusion\n\n" << conclusion << "\n\n";
-        out << "## What It Means\n\n" << meaning << "\n\n";
-        out << "## Current Limit\n\n" << limit << "\n\n";
-        out << "## Next Test\n\n" << next_step << "\n\n";
-        out << "## Supporting Findings\n\n";
         for (const auto &finding : findings) {
             out << "- **" << finding.title << "**: " << finding.message << "\n";
         }
@@ -427,8 +390,8 @@ int main(int argc, char **argv) {
         findings.push_back({
             "medium",
             "Neighborhood Stability",
-            "Cluster-representative nearest-neighbor purity is " + fixed_percent(mean_purity) +
-                " across " + std::to_string(cluster_insights.size()) +
+            "Cluster-representative nearest-neighbor purity is " + std::to_string(mean_purity * 100.0).substr(0, 5) +
+                "% across " + std::to_string(cluster_insights.size()) +
                 " neighborhoods, which suggests the baseline features are separating repeatable path families.",
         });
         if (loose != cluster_insights.end()) {

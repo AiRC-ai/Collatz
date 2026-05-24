@@ -98,7 +98,7 @@ def read_families(path: Path, starts: list[int]) -> tuple[list[str], dict[int, d
             n = int(row["n"])
             if n in wanted:
                 rows[n] = row
-    labels = [rows.get(n, {}).get("coalescence_family_id", "unknown") for n in starts]
+    labels = [rows.get(n, {}).get("coarse_label", "unknown") for n in starts]
     return labels, rows
 
 
