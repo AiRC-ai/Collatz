@@ -23,10 +23,14 @@ The v2 path-family flow is:
 1. Export `metrics_safe.csv` with `collatz_embed_export --metric-mode safe`.
 2. Generate deterministic trajectory labels with `collatz_family_labels`.
 3. Build positive family pairs and matched hard negatives with
-   `research/pair_sampler.py`.
+   `research/pair_sampler.py`. The canonical default requests four exact
+   hard negatives per anchor so rare family/control buckets do not dominate the
+   match-rate gate.
 4. Train `research/contrastive_train_v2.py` using family pairs, ordered parity
    sequences, ordered residue sequences, log-path sketches, and representation
-   dropout.
+   dropout. Neighbor-purity reporting defaults to `tail_hash`, so the primary
+   target asks whether nearby embeddings share a true trajectory tail rather
+   than a coarse magnitude bucket.
 5. Validate with retrieval metrics and at least five seeds by five folds before
    any confidence promotion.
 

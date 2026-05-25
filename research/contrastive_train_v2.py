@@ -32,6 +32,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-dir", default="/work/data/generated/contrastive_v2")
     parser.add_argument("--pair-mode", choices=("family_pairs", "self_noise"), default=os.getenv("CONTRASTIVE_PAIR_MODE", "family_pairs"))
     parser.add_argument(
+        "--primary-label",
+        default=os.getenv("CONTRASTIVE_PRIMARY_LABEL", "tail_hash"),
+        choices=("tail_hash", "coalescence_family_id", "parity_motif_hash", "residue_motif_hash", "range_band"),
+        help="Family label used for neighbor-purity reporting. Default tests shared-tail structure.",
+    )
+    parser.add_argument(
         "--feature-set",
         choices=("hybrid", "metrics", "shape", "parity-sequence", "residue-sequence"),
         default=os.getenv("CONTRASTIVE_FEATURE_SET", "hybrid"),
@@ -89,7 +95,7 @@ def read_token_sequence(path: Path, starts: list[int], seq_len: int) -> torch.Te
     return standardize(torch.tensor([by_n.get(n, [0.0] * seq_len) for n in starts], dtype=torch.float32))
 
 
-def read_families(path: Path, starts: list[int]) -> tuple[list[str], dict[int, dict[str, str]]]:
+def read_families(path: Path, starts: list[int], primary_label: str) -> tuple[list[str], dict[int, dict[str, str]]]:
     wanted = set(starts)
     rows: dict[int, dict[str, str]] = {}
     with path.open(newline="") as handle:
@@ -98,7 +104,7 @@ def read_families(path: Path, starts: list[int]) -> tuple[list[str], dict[int, d
             n = int(row["n"])
             if n in wanted:
                 rows[n] = row
-    labels = [rows.get(n, {}).get("coarse_label", "unknown") for n in starts]
+    labels = [rows.get(n, {}).get(primary_label, "unknown") for n in starts]
     return labels, rows
 
 
@@ -229,7 +235,7 @@ def main() -> None:
         raise RuntimeError("metrics_safe and log_sketch start rows are not aligned")
     parity = read_token_sequence(Path(args.parity_runs), starts, args.sequence_len)
     residue = read_token_sequence(Path(args.transitions), starts, args.sequence_len)
-    labels, _families = read_families(Path(args.families), starts)
+    labels, _families = read_families(Path(args.families), starts, args.primary_label)
     index_by_n = {n: i for i, n in enumerate(starts)}
     pairs = read_pairs(Path(args.positive_pairs), index_by_n) if args.pair_mode == "family_pairs" else []
     negatives = read_hard_negatives(Path(args.hard_negatives), index_by_n)
@@ -296,6 +302,7 @@ def main() -> None:
                 "device": str(device),
                 "embedding_count": len(starts),
                 "feature_set": args.feature_set,
+                "primary_label": args.primary_label,
                 "pair_mode": args.pair_mode,
                 "epoch": epoch,
                 "epochs": args.epochs,
@@ -328,6 +335,7 @@ def main() -> None:
         "cuda_device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
         "embedding_count": len(starts),
         "feature_set": args.feature_set,
+        "primary_label": args.primary_label,
         "pair_mode": args.pair_mode,
         "input_dims": {name: dims[name] for name in sorted(active_branches(args.feature_set))},
         "embedding_dims": args.embedding_dims,

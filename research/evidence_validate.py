@@ -31,6 +31,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--gnn-start-embeddings", default="/work/data/generated/gnn/start_embeddings.csv")
     parser.add_argument("--full-audit", default="/work/data/generated/full_audit/summary.json")
     parser.add_argument("--output-dir", default="/work/data/generated/evidence_validation")
+    parser.add_argument(
+        "--primary-label",
+        default=os.getenv("EVIDENCE_PRIMARY_LABEL", "tail_hash"),
+        choices=("tail_hash", "coalescence_family_id", "parity_motif_hash", "residue_motif_hash", "range_band"),
+        help="Family label used for neighbor-purity evidence. Default tests shared-tail structure.",
+    )
     parser.add_argument("--token-bins", type=int, default=int(os.getenv("EVIDENCE_TOKEN_BINS", "64")))
     parser.add_argument("--range-bands", type=int, default=int(os.getenv("EVIDENCE_RANGE_BANDS", "4")))
     parser.add_argument(
@@ -110,6 +116,19 @@ def read_families(path: Path, selected: set[int]) -> dict[int, dict[str, str]]:
             if n in selected:
                 rows[n] = row
     return rows
+
+
+def family_labels_by_n(
+    family_rows: dict[int, dict[str, str]],
+    fallback: dict[int, str],
+    field: str,
+) -> dict[int, str]:
+    labels = dict(fallback)
+    for n, row in family_rows.items():
+        value = row.get(field, "")
+        if value and value not in ("none", "unknown"):
+            labels[n] = value
+    return labels
 
 
 def read_token_hist(path: Path, selected: set[int], bins: int) -> dict[int, list[float]]:
@@ -205,43 +224,96 @@ def retrieval_metrics(
     labels = [label_by_n.get(n, "") for n in starts]
     valid = [index for index, label in enumerate(labels) if label and label != "none" and label != "unknown"]
     if len(valid) < 2:
-        return {f"recall@{k}": None for k in ks} | {"MRR": None, "NDCG@10": None}
+        empty = {f"recall@{k}": None for k in ks}
+        empty.update({f"precision@{k}": None for k in ks})
+        empty.update({f"random_recall@{k}": None for k in ks})
+        empty.update({f"recall_lift@{k}": None for k in ks})
+        empty.update({f"random_precision@{k}": None for k in ks})
+        empty.update({f"precision_lift@{k}": None for k in ks})
+        empty.update({"MRR": None, "NDCG@10": None, "evaluated": 0})
+        return empty
     x = torch.tensor(rows, dtype=torch.float32)
     x = F.normalize(torch.nan_to_num(x), dim=1)
-    sim = x @ x.T
-    sim.fill_diagonal_(-2.0)
-    recalls = {k: 0 for k in ks}
+    eval_device_setting = os.getenv("EVIDENCE_EVAL_DEVICE", "auto")
+    eval_device = torch.device(
+        "cuda" if eval_device_setting != "cpu" and torch.cuda.is_available() else "cpu"
+    )
+    chunk_size = max(1, int(os.getenv("EVIDENCE_EVAL_CHUNK", "2048")))
+    x = x.to(eval_device)
+    x_t = x.T.contiguous()
+    max_k = min(max(ks), max(1, len(starts) - 1))
+    label_counts = Counter(labels[index] for index in valid)
+    recalls = {k: 0.0 for k in ks}
+    precisions = {k: 0.0 for k in ks}
+    random_recalls = {k: 0.0 for k in ks}
+    random_precisions = {k: 0.0 for k in ks}
     reciprocal_total = 0.0
     ndcg_total = 0.0
     evaluated = 0
-    for index in valid:
-        label = labels[index]
-        relevant_total = sum(1 for j in valid if j != index and labels[j] == label)
-        if relevant_total == 0:
-            continue
-        order = sim[index].argsort(descending=True).tolist()
-        evaluated += 1
-        first_rank = None
-        dcg = 0.0
-        ideal = sum(1.0 / math.log2(rank + 2) for rank in range(min(10, relevant_total)))
-        for rank, candidate in enumerate(order[:10]):
-            hit = labels[candidate] == label
-            if hit and first_rank is None:
-                first_rank = rank + 1
-            if hit:
-                dcg += 1.0 / math.log2(rank + 2)
-        for k in ks:
-            if any(labels[candidate] == label for candidate in order[:k]):
-                recalls[k] += 1
-        if first_rank is not None:
-            reciprocal_total += 1.0 / first_rank
-        if ideal > 0.0:
-            ndcg_total += dcg / ideal
+    valid_set = set(valid)
+    for start in range(0, x.shape[0], chunk_size):
+        end = min(start + chunk_size, x.shape[0])
+        sim = x[start:end] @ x_t
+        rows_index = torch.arange(end - start, device=eval_device)
+        cols_index = torch.arange(start, end, device=eval_device)
+        sim[rows_index, cols_index] = -2.0
+        top_indices = torch.topk(sim, k=max_k, dim=1).indices.cpu().tolist()
+        for offset, order in enumerate(top_indices):
+            index = start + offset
+            if index not in valid_set:
+                continue
+            label = labels[index]
+            relevant_total = label_counts[label] - 1
+            if relevant_total <= 0:
+                continue
+            evaluated += 1
+            first_rank = None
+            dcg = 0.0
+            ideal = sum(1.0 / math.log2(rank + 2) for rank in range(min(10, relevant_total)))
+            for rank, candidate in enumerate(order[:10]):
+                hit = labels[candidate] == label
+                if hit and first_rank is None:
+                    first_rank = rank + 1
+                if hit:
+                    dcg += 1.0 / math.log2(rank + 2)
+            population = max(1, len(valid) - 1)
+            for k in ks:
+                top_k = order[: min(k, len(order))]
+                hits = sum(1 for candidate in top_k if labels[candidate] == label)
+                recall_denominator = max(1, min(k, relevant_total))
+                recalls[k] += hits / recall_denominator
+                precisions[k] += hits / max(1, k)
+                expected_hits = min(k, population) * relevant_total / population
+                random_recalls[k] += min(expected_hits, recall_denominator) / recall_denominator
+                random_precisions[k] += min(expected_hits, k) / max(1, k)
+            if first_rank is not None:
+                reciprocal_total += 1.0 / first_rank
+            if ideal > 0.0:
+                ndcg_total += dcg / ideal
     if evaluated == 0:
-        return {f"recall@{k}": None for k in ks} | {"MRR": None, "NDCG@10": None}
-    result: dict[str, float | None] = {f"recall@{k}": recalls[k] / evaluated for k in ks}
+        empty = {f"recall@{k}": None for k in ks}
+        empty.update({f"precision@{k}": None for k in ks})
+        empty.update({f"random_recall@{k}": None for k in ks})
+        empty.update({f"recall_lift@{k}": None for k in ks})
+        empty.update({f"random_precision@{k}": None for k in ks})
+        empty.update({f"precision_lift@{k}": None for k in ks})
+        empty.update({"MRR": None, "NDCG@10": None, "evaluated": 0})
+        return empty
+    result: dict[str, float | None] = {}
+    for k in ks:
+        recall = recalls[k] / evaluated
+        precision = precisions[k] / evaluated
+        random_recall = random_recalls[k] / evaluated
+        random_precision = random_precisions[k] / evaluated
+        result[f"recall@{k}"] = recall
+        result[f"precision@{k}"] = precision
+        result[f"random_recall@{k}"] = random_recall
+        result[f"recall_lift@{k}"] = recall - random_recall
+        result[f"random_precision@{k}"] = random_precision
+        result[f"precision_lift@{k}"] = precision - random_precision
     result["MRR"] = reciprocal_total / evaluated
     result["NDCG@10"] = ndcg_total / evaluated
+    result["evaluated"] = evaluated
     return result
 
 
@@ -399,7 +471,7 @@ def main() -> None:
     selected, labels_by_n, reasons_by_n = read_sample(Path(args.sample))
     family_rows = read_families(Path(args.families), selected)
     if family_rows:
-        labels_by_n = {n: row.get("coalescence_family_id", labels_by_n.get(n, "family")) for n, row in family_rows.items()}
+        labels_by_n = family_labels_by_n(family_rows, labels_by_n, args.primary_label)
     starts, labels, learned_rows = read_embeddings(Path(args.contrastive_embeddings), labels_by_n)
     metrics = read_metrics(Path(args.metrics), selected)
     shape = read_metrics(Path(args.log_sketch), selected, prefix="s")
@@ -557,6 +629,7 @@ def main() -> None:
         "evaluation_device": eval_device,
         "evaluation_chunk": eval_chunk,
         "sample_reason_count": len(set(reasons_by_n.values())),
+        "primary_label": args.primary_label,
         "label_count": len(set(labels)),
         "contrastive_neighbor_purity": finite(learned.get("purity")),
         "contrastive_random_baseline": finite(learned.get("random_baseline")),
@@ -590,15 +663,31 @@ def main() -> None:
         }),
         "hard_negative_match_rate": pair_metrics.get("hard_negative_match_rate"),
         "retrieval": {
+            "primary_label": args.primary_label,
             "tail_family_recall@1": learned_retrieval["tail_family"].get("recall@1"),
             "tail_family_recall@5": learned_retrieval["tail_family"].get("recall@5"),
             "tail_family_recall@10": learned_retrieval["tail_family"].get("recall@10"),
+            "tail_family_random_recall@10": learned_retrieval["tail_family"].get("random_recall@10"),
+            "tail_family_recall_lift@10": learned_retrieval["tail_family"].get("recall_lift@10"),
+            "tail_family_precision@10": learned_retrieval["tail_family"].get("precision@10"),
+            "tail_family_random_precision@10": learned_retrieval["tail_family"].get("random_precision@10"),
+            "tail_family_precision_lift@10": learned_retrieval["tail_family"].get("precision_lift@10"),
             "coalescence_family_recall@1": learned_retrieval["coalescence_family"].get("recall@1"),
             "coalescence_family_recall@5": learned_retrieval["coalescence_family"].get("recall@5"),
             "coalescence_family_recall@10": learned_retrieval["coalescence_family"].get("recall@10"),
+            "coalescence_family_random_recall@10": learned_retrieval["coalescence_family"].get("random_recall@10"),
+            "coalescence_family_recall_lift@10": learned_retrieval["coalescence_family"].get("recall_lift@10"),
+            "coalescence_family_MRR": learned_retrieval["coalescence_family"].get("MRR"),
+            "coalescence_family_NDCG@10": learned_retrieval["coalescence_family"].get("NDCG@10"),
             "parity_motif_recall@10": learned_retrieval["parity_motif"].get("recall@10"),
+            "parity_motif_recall_lift@10": learned_retrieval["parity_motif"].get("recall_lift@10"),
             "residue_motif_recall@10": learned_retrieval["residue_motif"].get("recall@10"),
+            "residue_motif_recall_lift@10": learned_retrieval["residue_motif"].get("recall_lift@10"),
             "source_record_recall@10": learned_retrieval["source_record"].get("recall@10"),
+            "source_record_random_recall@10": learned_retrieval["source_record"].get("random_recall@10"),
+            "source_record_recall_lift@10": learned_retrieval["source_record"].get("recall_lift@10"),
+            "source_record_MRR": learned_retrieval["source_record"].get("MRR"),
+            "source_record_NDCG@10": learned_retrieval["source_record"].get("NDCG@10"),
             "MRR": learned_retrieval["coalescence_family"].get("MRR"),
             "NDCG@10": learned_retrieval["coalescence_family"].get("NDCG@10"),
             "ARI": finite(ari),

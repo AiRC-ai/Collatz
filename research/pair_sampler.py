@@ -43,13 +43,20 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--metrics", default="/work/data/generated/ml_stratified/metrics_safe.csv")
     parser.add_argument("--sample", default="/work/data/generated/stratified/samples.csv")
     parser.add_argument("--output-dir", default="/work/data/generated/ml_pairs")
-    parser.add_argument("--hard-negatives", type=int, default=8)
+    parser.add_argument(
+        "--hard-negatives",
+        type=int,
+        default=4,
+        help="Exact matched hard negatives requested per anchor. Canonical default is 4 to avoid rare-family undercoverage.",
+    )
     parser.add_argument("--max-pairs-per-type", type=int, default=200000)
     parser.add_argument("--min-match-rate", type=float, default=0.80)
     parser.add_argument("--seed", type=int, default=20260520)
     args = parser.parse_args()
     if not 0.0 <= args.min_match_rate <= 1.0:
         raise SystemExit("--min-match-rate must be between 0 and 1")
+    if args.hard_negatives < 1:
+        raise SystemExit("--hard-negatives must be at least 1")
     return args
 
 
@@ -178,6 +185,7 @@ def main() -> None:
 
     hard_negatives: list[tuple[int, int, str]] = []
     hard_negative_pairs: list[tuple[dict[str, str], dict[str, str]]] = []
+    matches_by_anchor: dict[int, int] = {}
     requested = 0
     matched = 0
     for n, row in sorted(labels.items()):
@@ -185,6 +193,7 @@ def main() -> None:
         random.shuffle(candidates)
         requested += args.hard_negatives
         selected = candidates[: args.hard_negatives]
+        matches_by_anchor[n] = len(selected)
         for candidate in selected:
             hard_negatives.append((n, candidate, "|".join(control_key(row))))
             hard_negative_pairs.append((row, labels[candidate]))
@@ -197,6 +206,8 @@ def main() -> None:
     write_pairs(output_dir / "positive_pairs.csv", pairs)
 
     match_rate = matched / requested if requested else 0.0
+    anchors_with_any_match = sum(1 for count in matches_by_anchor.values() if count > 0)
+    anchors_with_full_request = sum(1 for count in matches_by_anchor.values() if count >= args.hard_negatives)
     per_field_match_rate = control_match_rates(hard_negative_pairs)
     matched_control_rates = {CONTROL_OUTPUT_FIELDS[field]: per_field_match_rate[field] for field in CONTROL_FIELDS}
     controls_summary = {
@@ -228,6 +239,10 @@ def main() -> None:
             "possible_pairs_per_anchor_max": args.hard_negatives,
             "requested_pairs": requested,
             "matched_pairs": matched,
+            "anchors_with_any_match": anchors_with_any_match,
+            "anchors_with_full_request": anchors_with_full_request,
+            "anchor_any_match_rate": anchors_with_any_match / len(labels) if labels else 0.0,
+            "anchor_full_request_rate": anchors_with_full_request / len(labels) if labels else 0.0,
         },
         "hard_negative_controlled_pairs": len(hard_negative_pairs),
         "positive_pair_distribution": dict(sorted(distribution.items())),
