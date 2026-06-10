@@ -230,25 +230,29 @@ class MetricsProjectionHead(nn.Module):
 # Loss functions
 # ------------------------------------------------------------------
 
-def info_nce_with_hard_negatives(z_a, z_b, hard_neg_indices, temperature=0.07):
+def info_nce_with_hard_negatives(z_a, z_b, hard_neg_indices, full_embeddings=None, temperature=0.07):
     """InfoNCE where negatives are sampled from hard negatives (misclassifications).
 
     z_a, z_b: [B, D] positive pair embeddings
-    hard_neg_indices: [B, K] indices of hard negatives (wrong family)
+    hard_neg_indices: [B, K] indices into the full embedding set
+    full_embeddings: [N, D] full set of embeddings (required if hard_neg_indices is used)
     """
     batch_size = z_a.shape[0]
     device = z_a.device
 
     # Compute positives
-    pos_sim = torch.sum(z_a * z_b, dim=1) / temperature  # [B]
+    pos_sim = torch.sum(z_a * z_b, dim=1) / temperature   # [B]
 
     # Hard negative similarities
     if hard_neg_indices is not None and hard_neg_indices.shape[1] > 0:
-        neg_z = z_b[hard_neg_indices]  # [B, K, D]
-        neg_sim = torch.sum(z_a.unsqueeze(1) * neg_z, dim=2) / temperature  # [B, K]
+        if full_embeddings is not None:
+            neg_z = full_embeddings[hard_neg_indices]    # [B, K, D]
+        else:
+            neg_z = z_b[hard_neg_indices]    # [B, K, D]
+        neg_sim = torch.sum(z_a.unsqueeze(1) * neg_z, dim=2) / temperature    # [B, K]
 
         # Combined: positives + hard negatives
-        logits = torch.cat([pos_sim.unsqueeze(1), neg_sim], dim=1)  # [B, 1+K]
+        logits = torch.cat([pos_sim.unsqueeze(1), neg_sim], dim=1)    # [B, 1+K]
         labels = torch.zeros(batch_size, dtype=torch.long, device=device)
         loss = F.cross_entropy(logits, labels)
     else:
@@ -264,7 +268,6 @@ def info_nce_with_hard_negatives(z_a, z_b, hard_neg_indices, temperature=0.07):
         loss = (loss_i + loss_j) / 2
 
     return loss
-
 
 def cosine_loss(embedding, target, temperature=1.0):
     """Cosine similarity loss: pull embedding toward normalized target."""
@@ -493,11 +496,27 @@ def main():
     pos_dataset = torch.utils.data.TensorDataset(pos_a, pos_b)
     pos_loader = torch.utils.data.DataLoader(pos_dataset, batch_size=256, shuffle=True, drop_last=True)
 
+    # Precompute all embeddings once for hard negative reference
+    print("Precomputing all embeddings for mining reference...")
+    model.eval()
+    all_embeddings = []
+    with torch.no_grad():
+        for b_start in range(0, len(starts), args.batch_size):
+            b_end = min(b_start + args.batch_size, len(starts))
+            if b_end - b_start < 8:
+                continue
+            b_idx = torch.arange(b_start, b_end, device=device)
+            view = {name: tensor[b_idx] for name, tensor in inputs.items()}
+            z = model(view, 0.0)
+            all_embeddings.append(z)
+    all_embeddings = torch.cat(all_embeddings, dim=0)
+    print(f"  Computed {all_embeddings.shape[0]} embeddings for mining reference")
+
     # Mining buffer (persist between epochs)
     mining_buffer = {
         "neg_indices": None,
         "last_labels": list(labels),
-        "last_embeddings": None,
+        "last_embeddings": all_embeddings,  # full embedding set for mining,
     }
 
     # Training loop
@@ -553,8 +572,8 @@ def main():
             # Hard negative InfoNCE loss
             hard_neg = mining_buffer["neg_indices"][b_idx] if mining_buffer["neg_indices"] is not None else None
             loss_contrastive = info_nce_with_hard_negatives(
-                z_a, z_b, hard_neg, temperature=args.temperature
-            )
+                z_a, z_b, hard_neg, full_embeddings=mining_buffer["last_embeddings"], temperature=args.temperature
+             )
 
             # Family pair loss
             loss_family = None
