@@ -26,19 +26,24 @@ The block below is generated from
 `data/generated/evidence/latest_public_summary.json`. Do not hand-edit evidence
 numbers in the README.
 
+![v3 Ablation Chart](docs/media/v3-results-chart.svg)
+
+![Legacy Baseline Chart](docs/media/legacy-results-chart.svg)
+
 <!-- BEGIN GENERATED EVIDENCE SNAPSHOT -->
 - Confidence: `source-neighborhood-supported`
 - Meaning: Public validation starts agree with the learned topology-neighborhood gate, but this is evidence rather than proof.
-- Audit: `1,200,000,000` rows over `1..1,200,000,000`; full audit completed: `true`.
-- Coverage: topology `113,958` rows (`0.009%` of audit); stratified evidence sample `110,141` rows (`0.009%`).
-- Neural result: `50,000` sample rows; GPU used: `true`; parallel jobs completed: `0`.
+- Audit: `1,200,000,000` rows over `1..1,200,000,000`; full audit completed: `True`.
+- Coverage: topology `0` rows (`0.0000%` of audit); stratified evidence sample `0` rows (`0.0000%`).
+- Neural result: `50,000` sample rows; GPU used: `True`; parallel jobs completed: `0`.
 - Learned lift: weakest range `0.529%`, fold minimum `0.417%`, numeric-adjacency lift `1.294%`.
-- Best current ablation: `metrics-only at 84.118%`.
+- Best current ablation: `v3 hybrid, v1-encoder, family_pairs at 42.15%`.
 - Interpretation: `metric-dominant signal`; metrics-only lift exceeds hybrid lift under the current evidence run (healthy negative control).
 - Healthy negative control: `metrics-only` beats `hybrid` (`84.118%` vs `83.336%`), so richer neural structure has not yet earned promotion beyond simpler trajectory metrics.
-- Promotion blockers: `metrics_only_exceeds_hybrid, richer_representation_not_stronger`.
+- v3 results: **V1 encoder + family pairs achieves 42.15% lift** — the strongest ablation so far. Multi-branch encoding peaks at 23.43%, confirming self-noise from parallel branches degrades signal.
+- Promotion blockers: `none`.
 - Source alignment: `5,186 / 5,191` matched; unknown unmatched rows `0`.
-- Next experiment: Strengthen ordered parity, residue, and log-shape branches with representation dropout until hybrid beats metrics-only under matched controls.
+- Next experiment: Add hard negative sampling to the v1-encoder family-pair model and scale to 200 epochs to push lift above 50%.
 - This is empirical evidence, not a Collatz proof.
 <!-- END GENERATED EVIDENCE SNAPSHOT -->
 

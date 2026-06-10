@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400">
+<rect width="800" height="400" fill="#0b1220"/>
+<text x="400" y="28" fill="#e2e8f0" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" text-anchor="middle">Multi-Branch — Training Loss</text>
+<line x1="120" y1="50" x2="120" y2="350" stroke="#2b385e" stroke-width="1"/>
+<line x1="120" y1="350" x2="780" y2="350" stroke="#2b385e" stroke-width="1"/>
+<line x1="120" y1="50.0" x2="780" y2="50.0" stroke="#1e293b" stroke-width="1"/>
+<text x="115" y="54.0" fill="#7384ad" font-family="Inter, system-ui, sans-serif" font-size="10" text-anchor="end">1.5</text>
+<line x1="120" y1="125.0" x2="780" y2="125.0" stroke="#1e293b" stroke-width="1"/>
+<text x="115" y="129.0" fill="#7384ad" font-family="Inter, system-ui, sans-serif" font-size="10" text-anchor="end">1.2</text>
+<line x1="120" y1="200.0" x2="780" y2="200.0" stroke="#1e293b" stroke-width="1"/>
+<text x="115" y="204.0" fill="#7384ad" font-family="Inter, system-ui, sans-serif" font-size="10" text-anchor="end">1.0</text>
+<line x1="120" y1="275.0" x2="780" y2="275.0" stroke="#1e293b" stroke-width="1"/>
+<text x="115" y="279.0" fill="#7384ad" font-family="Inter, system-ui, sans-serif" font-size="10" text-anchor="end">0.8</text>
+<line x1="120" y1="350.0" x2="780" y2="350.0" stroke="#1e293b" stroke-width="1"/>
+<text x="115" y="354.0" fill="#7384ad" font-family="Inter, system-ui, sans-serif" font-size="10" text-anchor="end">0.5</text>
+<polyline fill="none" stroke="#60a5fa" stroke-width="2" points="120.0,72.16358839050133 285.0,230.4749340369393 450.0,293.79947229551453 615.0,325.4617414248021 780.0,341.29287598944586"/>
+<rect x="620" y="55" width="16" height="3" rx="1" fill="#60a5fa"/>
+<text x="642" y="61" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="10">loss</text>
+<text x="400" y="370" fill="#7384ad" font-family="Inter, system-ui, sans-serif" font-size="10" text-anchor="middle">Epochs: 1..80</text>
+</svg>
