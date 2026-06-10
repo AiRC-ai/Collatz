@@ -248,9 +248,9 @@ def info_nce_with_hard_negatives(z_a, z_b, hard_neg_indices, full_embeddings=Non
         # Move indices to the same device as the embeddings
         idx = hard_neg_indices.to(full_embeddings.device if full_embeddings is not None else z_b.device)
         if full_embeddings is not None:
-            neg_z = full_embeddings[idx]      # [B, K, D]
+            neg_z = full_embeddings[idx].to(device)      # [B, K, D]
         else:
-            neg_z = z_b[idx]      # [B, K, D]
+            neg_z = z_b[idx].to(device)      # [B, K, D]
         neg_sim = torch.sum(z_a.unsqueeze(1) * neg_z, dim=2) / temperature    # [B, K]
 
         # Combined: positives + hard negatives
