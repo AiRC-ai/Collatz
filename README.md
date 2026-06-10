@@ -34,7 +34,7 @@ numbers in the README.
 - Confidence: `source-neighborhood-supported`
 - Meaning: Public validation starts agree with the learned topology-neighborhood gate, but this is evidence rather than proof.
 - Audit: `1,200,000,000` rows over `1..1,200,000,000`; full audit completed: `True`.
-- Coverage: topology `0` rows (`0.0000%` of audit); stratified evidence sample `0` rows (`0.0000%`).
+- Coverage: topology `113,958` rows (`0.0095%` of audit); stratified evidence sample `110,141` rows (`0.0092%`).
 - Neural result: `50,000` sample rows; GPU used: `True`; parallel jobs completed: `0`.
 - Learned lift: weakest range `0.529%`, fold minimum `0.417%`, numeric-adjacency lift `1.294%`.
 - Best current ablation: `v3 hybrid, v1-encoder, family_pairs at 42.15%`.
