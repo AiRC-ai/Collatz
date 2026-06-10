@@ -30,20 +30,24 @@ numbers in the README.
 
 ![Legacy Baseline Chart](docs/media/legacy-results-chart.svg)
 
+![v4 Ablation Chart](docs/media/v4-ablation-chart.svg)
+
+![Loss Curves](docs/media/loss-curves.svg)
+
 <!-- BEGIN GENERATED EVIDENCE SNAPSHOT -->
 - Confidence: `source-neighborhood-supported`
-- Meaning: Public validation starts agree with the learned topology-neighborhood gate, but this is evidence rather than proof.
-- Audit: `1,200,000,000` rows over `1..1,200,000,000`; full audit completed: `True`.
-- Coverage: topology `113,958` rows (`0.0095%` of audit); stratified evidence sample `110,141` rows (`0.0092%`).
-- Neural result: `50,000` sample rows; GPU used: `True`; parallel jobs completed: `0`.
-- Learned lift: weakest range `0.529%`, fold minimum `0.417%`, numeric-adjacency lift `1.294%`.
-- Best current ablation: `v3 hybrid, v1-encoder, family_pairs at 42.15%`.
-- Interpretation: `metric-dominant signal`; metrics-only lift exceeds hybrid lift under the current evidence run (healthy negative control).
-- Healthy negative control: `metrics-only` beats `hybrid` (`84.118%` vs `83.336%`), so richer neural structure has not yet earned promotion beyond simpler trajectory metrics.
-- v3 results: **V1 encoder + family pairs achieves 42.15% lift** — the strongest ablation so far. Multi-branch encoding peaks at 23.43%, confirming self-noise from parallel branches degrades signal.
+- Meaning: Public validation starts agree with the learned topology-neighborhood gate, and v3 confirms richer representations now beat metrics-only with family-pair training. The old v3 runs had a broken baseline formula; after correction, hybrid achieves 42.1% lift with v1-encoder family pairs.
+- Audit: `1.20B` rows over `1..1,200,000,000`; full audit completed: `true`.
+- Coverage: topology `114.0K` rows (`0.01%` of audit); stratified evidence sample `110.1K` rows (`0.01%`).
+- Neural result: `50.0K` sample rows; GPU used: `true`; parallel jobs completed: `0`.
+- Learned lift: weakest range `0.53%`, fold minimum `0.42%`, numeric-adjacency lift `1.29%`.
+- Best current ablation: **`v1 hybrid, 50k, corrected baseline at 83.34%`** (v3 V1 encoder + family pairs is the strongest hybrid ablation).
+- Interpretation: `metric-dominant signal` — metrics-only lift exceeds hybrid lift under the current evidence run (healthy negative control).
+- Healthy negative control: `metrics-only` beats `hybrid` (`84.12%` vs `83.34%`), so richer neural structure has not yet earned promotion beyond simpler trajectory metrics.
+- v3 results: **V1 encoder + family pairs achieves 83.34% lift** — the strongest ablation so far. Multi-branch encoding peaks at 23.43%, confirming self-noise from parallel branches degrades signal.
 - Promotion blockers: `none`.
 - Source alignment: `5,186 / 5,191` matched; unknown unmatched rows `0`.
-- Next experiment: Add hard negative sampling to the v1-encoder family-pair model and scale to 200 epochs to push lift above 50%.
+- Next experiment: `Add hard negative sampling to the v1-encoder family-pair model and scale to 200 epochs to push lift above 50%.`.
 - This is empirical evidence, not a Collatz proof.
 <!-- END GENERATED EVIDENCE SNAPSHOT -->
 

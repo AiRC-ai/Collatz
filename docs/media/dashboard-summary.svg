@@ -1,198 +1,92 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="960" viewBox="0 0 1200 960">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
+  <title id="title">Collatz evidence dashboard snapshot</title>
+  <desc id="desc">Static public README snapshot rendered from the canonical public evidence JSON.</desc>
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="960" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#0b1220"/>
-      <stop offset="1" stop-color="#0f1729"/>
+    <linearGradient id="panel" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#121a34"/>
+      <stop offset="1" stop-color="#0b1020"/>
     </linearGradient>
-    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#141e30"/>
-      <stop offset="1" stop-color="#0d1320"/>
+    <linearGradient id="green" x1="0" x2="1">
+      <stop offset="0" stop-color="#5eead4"/>
+      <stop offset="1" stop-color="#86efac"/>
     </linearGradient>
-    <filter id="softShadow" x="-2%" y="-2%" width="104%" height="104%">
-      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.3"/>
+    <linearGradient id="gold" x1="0" x2="1">
+      <stop offset="0" stop-color="#facc15"/>
+      <stop offset="1" stop-color="#fb7185"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000000" flood-opacity=".28"/>
     </filter>
   </defs>
-  <rect width="1200" height="960" fill="url(#bg)"/>
-  <g>
-    <rect x="0" y="0" width="1200" height="56" fill="#0d1525" stroke="#1e293b" stroke-width="1"/>
-    <text x="600" y="26" fill="#60a5fa" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="800" text-anchor="middle">Neural Evidence Dashboard — Collatz Contrastive v3</text>
-    <text x="600" y="46" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" text-anchor="middle">Evidence-driven research tracking · Generated 2026-06-10T17:22:38.936877+00:00</text>
-  </g>
+
+  <rect width="1200" height="680" fill="#080d1a"/>
+  <text x="64" y="66" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="34" font-weight="800">3xN1 Collatz Evidence Dashboard</text>
+  <text x="64" y="96" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="16">Generated from data/generated/evidence/latest_public_summary.json. No live runtime or infrastructure details are shown.</text>
+
   <g filter="url(#softShadow)">
-    <rect x="64" y="72" width="480" height="156" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="88" y="104" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700">Key Metrics</text>
-    <rect x="88" y="118" width="140" height="56" rx="6" fill="#0d1525" stroke="#1e293b"/>
-    <text x="158" y="140" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="10" text-anchor="middle">Confidence</text>
-    <text x="158" y="158" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">source-neighborhood-supported</text>
-    <rect x="248" y="118" width="140" height="56" rx="6" fill="#0d1525" stroke="#1e293b"/>
-    <text x="318" y="140" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="10" text-anchor="middle">Best Lift</text>
-    <text x="318" y="158" fill="#60a5fa" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">84.1%</text>
-    <rect x="408" y="118" width="140" height="56" rx="6" fill="#0d1525" stroke="#1e293b"/>
-    <text x="478" y="140" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="10" text-anchor="middle">Source Matched</text>
-    <text x="478" y="158" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">5,186 / 5,191</text>
+    <rect x="64" y="132" width="260" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
+    <text x="84" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">CONFIDENCE</text>
+    <text x="84" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="23" font-weight="800">source-neighborhood-supported</text>
+    <text x="84" y="226" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700">empirical, not proof</text>
+
+    <rect x="348" y="132" width="260" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
+    <text x="368" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">AUDIT</text>
+    <text x="368" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">1.20B</text>
+    <text x="458" y="202" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="17">rows</text>
+    <text x="368" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">range 1..1,200,000,000</text>
+
+    <rect x="632" y="132" width="260" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
+    <text x="652" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">SOURCE CHECK</text>
+    <text x="652" y="202" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="28" font-weight="800">5,186 / 5,191</text>
+    <text x="652" y="226" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">99.904% public targets matched</text>
+
+    <rect x="916" y="132" width="220" height="118" rx="10" fill="url(#panel)" stroke="#2b385e"/>
+    <text x="936" y="162" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">LIMIT</text>
+    <text x="936" y="199" fill="#facc15" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="18" font-weight="800">not a proof</text>
+    <text x="936" y="224" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">gate blockers remain</text>
   </g>
+
   <g filter="url(#softShadow)">
-    <rect x="64" y="238" width="480" height="84" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="88" y="264" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700">Audit &amp; Coverage</text>
-    <text x="88" y="286" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Total rows: 1,200,000,000 | Topology coverage: 0 (0.0000%)</text>
-    <text x="88" y="304" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Stratified sample: 0 | Full audit completed: True</text>
+    <rect x="64" y="278" width="520" height="310" rx="10" fill="url(#panel)" stroke="#2b385e"/>
+    <text x="88" y="314" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="800">Neural Evidence</text>
+    <text x="88" y="338" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Lift values compare learned neighborhoods against controlled baselines.</text>
+
+    <text x="88" y="384" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Best ablation: metrics-only</text>
+    <rect x="88" y="398" width="372" height="18" rx="9" fill="#1f2a44"/>
+    <rect x="88" y="398" width="323" height="18" rx="9" fill="url(#green)"/>
+    <text x="474" y="413" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">84.118%</text>
+
+    <text x="88" y="444" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Hybrid representation</text>
+    <rect x="88" y="458" width="372" height="18" rx="9" fill="#1f2a44"/>
+    <rect x="88" y="458" width="320" height="18" rx="9" fill="#60a5fa"/>
+    <text x="474" y="473" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">83.336%</text>
+
+    <text x="88" y="504" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Weakest range holdout</text>
+    <rect x="88" y="518" width="372" height="18" rx="9" fill="#1f2a44"/>
+    <rect x="88" y="518" width="2" height="18" rx="9" fill="#a78bfa"/>
+    <text x="474" y="533" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">0.529%</text>
+    <text x="88" y="562" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Numeric-adjacency lift: 1.294%</text>
   </g>
+
   <g filter="url(#softShadow)">
-    <rect x="576" y="72" width="560" height="250" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="600" y="104" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700">v3 Analysis</text>
-    <rect x="600" y="118" width="512" height="34" rx="6" fill="#070b16" stroke="#263450"/>
-    <text x="618" y="140" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Baseline formula corrected — lifts are real</text>
-    <rect x="600" y="158" width="512" height="34" rx="6" fill="#070b16" stroke="#263450"/>
-    <text x="618" y="180" fill="#60a5fa" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Best: metrics-only — 84.1% lift</text>
-    <rect x="600" y="198" width="512" height="34" rx="6" fill="#070b16" stroke="#263450"/>
-    <text x="618" y="220" fill="#a78bfa" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Legacy best: metrics-only — 84.1% lift</text>
-    <rect x="600" y="238" width="512" height="34" rx="6" fill="#070b16" stroke="#263450"/>
-    <text x="618" y="260" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Promotion blockers: none</text>
-    <rect x="600" y="278" width="512" height="34" rx="6" fill="#070b16" stroke="#263450"/>
-    <text x="618" y="300" fill="#facc15" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Next: Add hard negative sampling to the v1-encoder family-pair model and scale to 200 epochs to push lift above 50%.</text>
+    <rect x="616" y="278" width="520" height="310" rx="10" fill="url(#panel)" stroke="#2b385e"/>
+    <text x="640" y="314" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="800">Healthy Negative Control</text>
+    <text x="640" y="342" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Metrics-only beats hybrid: 84.118% vs 83.336%. This blocker</text>
+    <text x="640" y="362" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">keeps richer neural structure behind metrics.</text>
+
+    <rect x="640" y="374" width="448" height="64" rx="8" fill="#070b16" stroke="#263450"/>
+    <text x="660" y="400" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">COVERAGE</text>
+    <text x="660" y="424" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Topology 113,958 rows (0.009%); stratified sample 110,141 rows (0.009%).</text>
+
+    <rect x="640" y="456" width="448" height="64" rx="8" fill="#070b16" stroke="#263450"/>
+    <text x="660" y="482" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">PROMOTION BLOCKERS</text>
+    <text x="660" y="504" fill="#facc15" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">none</text>
+
+    <rect x="640" y="540" width="448" height="1" fill="#263450"/>
+    <text x="640" y="566" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Next falsification test</text>
+    <text x="640" y="590" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Add hard negative sampling to the v1-encoder family-pair model and</text>
+    <text x="640" y="607" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">scale to 200 epochs to push lift above 50%.</text>
   </g>
-  <g filter="url(#softShadow)">
-    <rect x="576" y="332" width="560" height="140" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="600" y="360" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700">Retrieval Performance</text>
-    <rect x="600" y="372" width="248" height="28" rx="4" fill="#0d1525" stroke="#1e293b"/>
-    <text x="612" y="390" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">MRR: 0.4821</text>
-    <text x="820" y="390" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">NDCG@10: 0.4842</text>
-    <rect x="600" y="406" width="248" height="28" rx="4" fill="#0d1525" stroke="#1e293b"/>
-    <text x="612" y="424" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">Family recall@10: 76.9%</text>
-    <text x="820" y="424" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">Source recall@10: 82.3%</text>
-    <rect x="600" y="440" width="248" height="28" rx="4" fill="#0d1525" stroke="#1e293b"/>
-    <text x="612" y="458" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">Weakest range lift: 0.529%</text>
-    <text x="820" y="458" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">Fold min lift: 0.417%</text>
-  </g>
-  <g filter="url(#softShadow)">
-    <rect x="64" y="332" width="480" height="140" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="304" y="356" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700" text-anchor="middle">v3 Ablation Results</text>
-    <foreignObject x="70" y="362" width="468" height="100">
-      <div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;overflow:hidden;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="800" height="1278" viewBox="0 0 800 1278">
-<rect width="800" height="1278" fill="#0b1220"/>
-<text x="400" y="28" fill="#e2e8f0" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" text-anchor="middle">v3 Ablation Results — Lift %</text>
-<text x="760" y="48" fill="#7384ad" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">lift %</text>
-<line x1="250.0" y1="55" x2="250.0" y2="1278" stroke="#1e293b" stroke-width="1"/>
-<text x="250.0" y="52" fill="#7384ad" font-family="Inter, system-ui, sans-serif" font-size="10" text-anchor="middle">0</text>
-<line x1="353.0298707371391" y1="55" x2="353.0298707371391" y2="1278" stroke="#1e293b" stroke-width="1"/>
-<text x="353.0298707371391" y="52" fill="#7384ad" font-family="Inter, system-ui, sans-serif" font-size="10" text-anchor="middle">20</text>
-<line x1="456.0597414742782" y1="55" x2="456.0597414742782" y2="1278" stroke="#1e293b" stroke-width="1"/>
-<text x="456.0597414742782" y="52" fill="#7384ad" font-family="Inter, system-ui, sans-serif" font-size="10" text-anchor="middle">40</text>
-<line x1="559.0896122114173" y1="55" x2="559.0896122114173" y2="1278" stroke="#1e293b" stroke-width="1"/>
-<text x="559.0896122114173" y="52" fill="#7384ad" font-family="Inter, system-ui, sans-serif" font-size="10" text-anchor="middle">60</text>
-<line x1="662.1194829485564" y1="55" x2="662.1194829485564" y2="1278" stroke="#1e293b" stroke-width="1"/>
-<text x="662.1194829485564" y="52" fill="#7384ad" font-family="Inter, system-ui, sans-serif" font-size="10" text-anchor="middle">80</text>
-<line x1="765.1493536856955" y1="55" x2="765.1493536856955" y2="1278" stroke="#1e293b" stroke-width="1"/>
-<text x="765.1493536856955" y="52" fill="#7384ad" font-family="Inter, system-ui, sans-serif" font-size="10" text-anchor="middle">100</text>
-<rect x="250" y="60" width="429.30486538751126" height="28" rx="4" fill="#22c55e" opacity="0.85"/>
-<text x="235" y="79" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">hybrid</text>
-<text x="684.3048653875112" y="79" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">83.3%</text>
-<rect x="250" y="96" width="433.33333333333337" height="28" rx="4" fill="#22c55e" opacity="0.85"/>
-<text x="235" y="115" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">metrics-only</text>
-<text x="688.3333333333334" y="115" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">84.1%</text>
-<rect x="250" y="132" width="13.342368260459514" height="28" rx="4" fill="#22c55e" opacity="0.85"/>
-<text x="235" y="151" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">parity-sequence-only</text>
-<text x="268.3423682604595" y="151" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">2.6%</text>
-<rect x="250" y="168" width="219.0105962259366" height="28" rx="4" fill="#22c55e" opacity="0.85"/>
-<text x="235" y="187" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">residue-sequence-only</text>
-<text x="474.01059622593664" y="187" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">42.5%</text>
-<rect x="250" y="204" width="369.0529969804323" height="28" rx="4" fill="#22c55e" opacity="0.85"/>
-<text x="235" y="223" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">shape-only</text>
-<text x="624.0529969804322" y="223" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">71.6%</text>
-<rect x="250" y="240" width="2.065748908279639" height="28" rx="4" fill="#22c55e" opacity="0.85"/>
-<text x="235" y="259" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">token-only</text>
-<text x="257.0657489082796" y="259" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">0.4%</text>
-<rect x="250" y="276" width="217.13545257852064" height="28" rx="4" fill="#60a5fa" opacity="0.85"/>
-<text x="235" y="295" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 hybrid, v1-encoder, family_pairs, 80ep, 50k</text>
-<text x="472.13545257852064" y="295" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">42.1%</text>
-<rect x="250" y="312" width="216.92939283704638" height="28" rx="4" fill="#60a5fa" opacity="0.85"/>
-<text x="235" y="331" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 hybrid, v1-encoder, family_pairs, 80ep, 100k</text>
-<text x="471.9293928370464" y="331" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">42.1%</text>
-<rect x="250" y="348" width="120.69949356855845" height="28" rx="4" fill="#ef4444" opacity="0.85"/>
-<text x="235" y="367" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 hybrid, family_pairs, 80ep, 50k</text>
-<text x="375.69949356855847" y="367" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">23.4%</text>
-<rect x="250" y="384" width="92.31476418047664" height="28" rx="4" fill="#34d399" opacity="0.85"/>
-<text x="235" y="403" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 hybrid, metrics-only, family_pairs, 80ep, 50k</text>
-<text x="347.31476418047663" y="403" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">17.9%</text>
-<rect x="250" y="420" width="113.12679806937874" height="28" rx="4" fill="#ef4444" opacity="0.85"/>
-<text x="235" y="439" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 hybrid, family_pairs, 40ep, 100k</text>
-<text x="368.12679806937876" y="439" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">22.0%</text>
-<rect x="250" y="456" width="78.86936604927999" height="28" rx="4" fill="#f59e0b" opacity="0.85"/>
-<text x="235" y="475" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 hybrid, combined_pairs, 40ep, 100k</text>
-<text x="333.86936604927996" y="475" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">15.3%</text>
-<rect x="250" y="492" width="69.1845581999889" height="28" rx="4" fill="#f59e0b" opacity="0.85"/>
-<text x="235" y="511" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 hybrid, combined_pairs, 40ep, 50k</text>
-<text x="324.1845581999889" y="511" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">13.4%</text>
-<rect x="250" y="528" width="31.836230057775982" height="28" rx="4" fill="#f59e0b" opacity="0.85"/>
-<text x="235" y="547" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 hybrid, combined_pairs, 40ep, 50k, temp=0.15</text>
-<text x="286.836230057776" y="547" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">6.2%</text>
-<rect x="250" y="564" width="217.13545257852064" height="28" rx="4" fill="#60a5fa" opacity="0.85"/>
-<text x="235" y="583" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 hybrid, v1-encoder, family_pairs, 80ep, 50k</text>
-<text x="472.13545257852064" y="583" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">42.1%</text>
-<rect x="250" y="600" width="216.92939283704638" height="28" rx="4" fill="#60a5fa" opacity="0.85"/>
-<text x="235" y="619" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 hybrid, v1-encoder, family_pairs, 80ep, 100k</text>
-<text x="471.9293928370464" y="619" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">42.1%</text>
-<rect x="250" y="636" width="120.69949356855845" height="28" rx="4" fill="#ef4444" opacity="0.85"/>
-<text x="235" y="655" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 hybrid, family_pairs, 80ep, 50k</text>
-<text x="375.69949356855847" y="655" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">23.4%</text>
-<rect x="250" y="672" width="113.12679806937874" height="28" rx="4" fill="#ef4444" opacity="0.85"/>
-<text x="235" y="691" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 hybrid, family_pairs, 40ep, 100k</text>
-<text x="368.12679806937876" y="691" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">22.0%</text>
-<rect x="250" y="708" width="92.31476418047664" height="28" rx="4" fill="#34d399" opacity="0.85"/>
-<text x="235" y="727" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 metrics, family_pairs, 80ep, 50k</text>
-<text x="347.31476418047663" y="727" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">17.9%</text>
-<rect x="250" y="744" width="78.86936604927999" height="28" rx="4" fill="#f59e0b" opacity="0.85"/>
-<text x="235" y="763" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 hybrid, combined_pairs, 40ep, 100k</text>
-<text x="333.86936604927996" y="763" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">15.3%</text>
-<rect x="250" y="780" width="69.1845581999889" height="28" rx="4" fill="#f59e0b" opacity="0.85"/>
-<text x="235" y="799" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 hybrid, combined_pairs, 40ep, 50k</text>
-<text x="324.1845581999889" y="799" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">13.4%</text>
-<rect x="250" y="816" width="31.836230057775982" height="28" rx="4" fill="#f59e0b" opacity="0.85"/>
-<text x="235" y="835" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v3 hybrid, combined_pairs, 40ep, 50k, temp=0.15</text>
-<text x="286.836230057776" y="835" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">6.2%</text>
-<rect x="250" y="852" width="429.3254713616587" height="28" rx="4" fill="#ef4444" opacity="0.85"/>
-<text x="235" y="871" fill="#dbe7ff" font-family="Inter, system-ui, sans-serif" font-size="11" text-anchor="end">v1 hybrid, 50k, corrected baseline</text>
-<text x="684.3254713616586" y="871" fill="#f8fafc" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600">83.3%</text>
-</svg>
-      </div>
-    </foreignObject>
-  </g>
-  <g filter="url(#softShadow)">
-    <rect x="64" y="484" width="1072" height="160" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="88" y="514" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700">Key Findings</text>
-    <rect x="88" y="528" width="520" height="36" rx="6" fill="#070b16" stroke="#263450"/>
-    <text x="102" y="552" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">✓ Baseline formula corrected — lifts are real</text>
-    <rect x="628" y="528" width="520" height="36" rx="6" fill="#070b16" stroke="#263450"/>
-    <text x="642" y="552" fill="#60a5fa" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">✓ V1 encoder + family pairs achieves 42.1% lift (best v3)</text>
-    <rect x="88" y="570" width="520" height="36" rx="6" fill="#070b16" stroke="#263450"/>
-    <text x="102" y="594" fill="#a78bfa" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">⚠ Multi-branch encoder: 23.4% — self-noise hurts signal</text>
-    <rect x="628" y="570" width="520" height="36" rx="6" fill="#070b16" stroke="#263450"/>
-    <text x="642" y="594" fill="#facc15" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">→ Next: hard negative sampling + 200 epochs to push above 50%</text>
-    <rect x="88" y="612" width="520" height="36" rx="6" fill="#070b16" stroke="#263450"/>
-    <text x="102" y="636" fill="#34d399" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">✓ 50k samples ≈ 100k samples — sample size is not the bottleneck</text>
-    <rect x="628" y="612" width="520" height="36" rx="6" fill="#070b16" stroke="#263450"/>
-    <text x="642" y="636" fill="#ef4444" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">✗ metrics-only still beats hybrid — richer reps need stronger signal</text>
-  </g>
-  <g filter="url(#softShadow)">
-    <rect x="64" y="660" width="480" height="100" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="88" y="690" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700">Source Alignment</text>
-    <rect x="88" y="700" width="228" height="32" rx="6" fill="#0d1525" stroke="#1e293b"/>
-    <text x="202" y="720" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" text-anchor="middle">5,186 / 5,191 matched</text>
-    <rect x="330" y="700" width="228" height="32" rx="6" fill="#0d1525" stroke="#1e293b"/>
-    <text x="444" y="720" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" text-anchor="middle">99.9%</text>
-    <text x="88" y="750" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">Sources: OEIS ✓ | Roosendaal ✓ | Oliveira e Silva ✓ | Barina partial</text>
-  </g>
-  <g filter="url(#softShadow)">
-    <rect x="576" y="660" width="560" height="100" rx="10" fill="url(#panel)" stroke="#2b385e"/>
-    <text x="600" y="690" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700">Next Experiment</text>
-    <rect x="600" y="700" width="512" height="54" rx="6" fill="#0d1525" stroke="#1e293b"/>
-    <text x="614" y="722" fill="#facc15" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="600">Hard negative sampling + 200 epochs</text>
-    <text x="614" y="740" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">Target: push lift above 50% on matched controls</text>
-    <text x="614" y="754" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="10">Falsification: any true mismatch in public targets blocks promotion</text>
-  </g>
-  <rect x="64" y="780" width="1072" height="36" rx="6" fill="#0d1525" stroke="#1e293b"/>
-  <text x="88" y="803" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Run 2026-05-24T05:06:40Z | Commit unknown | Schema v1 | Generated 2026-06-10T17:22:38.936877+00:00</text>
-  <text x="600" y="940" fill="#4a5568" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">Generated at 2026-06-10T18:03:29Z from public-safe canonical evidence. Operations telemetry never raises confidence.</text>
+
+  <text x="64" y="642" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Generated at 2026-06-10T17:22:38.936877+00:00 from public-safe canonical evidence. Operations telemetry never raises confidence.</text>
 </svg>
