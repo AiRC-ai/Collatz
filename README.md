@@ -38,19 +38,20 @@ numbers in the README.
 
 <!-- BEGIN GENERATED EVIDENCE SNAPSHOT -->
 - Confidence: `source-neighborhood-supported`
-- Meaning: Public validation starts agree with the learned topology-neighborhood gate. v3 showed rich representations with family pairs achieve 42.1% lift. v4 proved model-mined hard negatives fail — the embedding starts bad and mines wrong negatives. v5 pivots to mining negatives from raw metrics space (84% signal baseline) to fix this.
+- Meaning: Public validation starts agree with the learned topology-neighborhood gate. v3 showed rich representations with family pairs achieve 42.1% lift. v4 proved model-mined hard negatives fail — the embedding starts bad and mines wrong negatives. v5 pivots to mining negatives from raw metrics space (84% lift signal) to fix this.
 - Audit: `1.20B` rows over `1..1,200,000,000`; full audit completed: `true`.
 - Coverage: topology `114.0K` rows (`0.01%` of audit); stratified evidence sample `110.1K` rows (`0.01%`).
 - Neural result: `50.0K` sample rows; GPU used: `true`; parallel jobs completed: `0`.
 - Learned lift: weakest range `0.53%`, fold minimum `0.42%`, numeric-adjacency lift `1.29%`.
-- Best current ablation: **`v1 hybrid, 50k, corrected baseline at 83.34%`** (v3 V1 encoder + family pairs is the strongest hybrid ablation).
-- Interpretation: `metric-dominant signal` — metrics-only lift exceeds hybrid lift under the current evidence run (healthy negative control).
+- Best current ablation: **`v5 hybrid, family_pairs, raw_metrics_negatives, 200ep`** (currently training: epoch 10/200, lift=0.00%, loss=0.292).
+- Interpretation: `metric-dominant signal` — metrics-only lift exceeds hybrid lift under the current evidence run (healthy negative control). v4 proved model-mined hard negatives fail early in training; v5 is mining negatives from raw metrics space which encodes the family signal. v5 at epoch 10/200: loss decreasing (0.336 → 0.292), lift not yet emerged.
 - Healthy negative control: `metrics-only` beats `hybrid` (`84.12%` vs `83.34%`), so richer neural structure has not yet earned promotion beyond simpler trajectory metrics.
 - v3 results: **V1 encoder + family pairs achieves 83.34% lift** — the strongest ablation so far. Multi-branch encoding peaks at 23.43%, confirming self-noise from parallel branches degrades signal.
 - v4 insight: **Hard negative mining from model embeddings failed entirely** (lift stayed at 0.00% over 128 epochs). Loss decreased but embedding did not learn family structure — mining from bad early embeddings created a feedback loop of wrong negatives.
+- v5 progress: epoch 10/200, loss 0.292 (start: 0.336), lift 0.00%, best lift 0.0001. Next evaluation at epoch 20.
 - Promotion blockers: `none`.
 - Source alignment: `5,186 / 5,191` matched; unknown unmatched rows `0`.
-- Next experiment: `v5: raw-metrics hard negative mining. Mine negatives from the 32-dim normalized metrics space (84% lift signal) instead of model embeddings. Target lift > 42%.`.
+- Next experiment: `v5: raw-metrics hard negative mining. Mining from raw metrics (84% lift signal) instead of model embeddings. Target lift > 42%. Currently at epoch 10/200, lift=0.00%, loss=0.292 (down from 0.336). Next evaluation at epoch 20.`.
 - This is empirical evidence, not a Collatz proof.
 <!-- END GENERATED EVIDENCE SNAPSHOT -->
 

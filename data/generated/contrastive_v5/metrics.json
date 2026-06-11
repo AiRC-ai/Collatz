@@ -1,0 +1,37 @@
+{
+    "dataset_type": "collatz_contrastive_embeddings_v5",
+    "tool": "research/contrastive_train_v5.py",
+    "status": "training",
+    "description": "Hard negatives mined from raw normalized metrics space (32-dim) instead of model embeddings. Mining from metrics bypasses the v4 feedback loop of bad negatives.",
+    "design": {
+      "encoder": "v1_single_branch",
+      "feature_set": "hybrid",
+      "pair_mode": "family_pairs",
+      "negative_mining": "raw_metrics",
+      "epochs": 200,
+      "batch_size": 512,
+      "embedding_dims": 64,
+      "temperature": 0.07,
+      "metrics_loss_weight": 0.3,
+      "seed": 20260520
+    },
+    "rationale": "v4 mined hard negatives from model embeddings which start bad. Bad negatives -> bad signal -> no lift. Raw metrics carry 84% lift signal, so mining from metrics space produces meaningful negatives from epoch 1.",
+    "v4_compared": {
+      "v4_status": "complete_failed",
+      "v4_lift": 0.0001,
+      "v4_loss_final": 1.0549,
+      "v4_epochs_run": 128,
+      "v4_issue": "Mining from model embeddings creates a feedback loop: embeddings start bad -> mine wrong negatives -> optimize away wrong signal"
+    },
+    "training_progress": {
+      "current_epoch": 10,
+      "total_epochs": 200,
+      "current_loss": 0.2920,
+      "start_loss": 0.3364,
+      "current_lift": 0.0000,
+      "best_lift": 0.0001,
+      "learning_rate": 0.000299,
+      "next_evaluation": 20
+    },
+    "expected_improvement": "Should achieve lift above 40% (v3 best was 42.1%) by mining negatives from raw metrics space which already encodes the family structure signal."
+}
