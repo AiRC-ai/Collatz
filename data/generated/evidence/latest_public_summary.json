@@ -2,7 +2,7 @@
   "schema_version": "evidence_public_summary_v1",
   "run_id": "2026-05-24T05:06:40Z",
   "git_commit": "unknown",
-  "generated_at_utc": "2026-06-10T17:22:38.936877+00:00",
+  "generated_at_utc": "2026-06-11T04:29:08.396598+00:00",
   "confidence": {
     "label": "source-neighborhood-supported",
     "rank": 2,
@@ -471,11 +471,26 @@
         "n_seeds": 5,
         "n_samples": 50000,
         "notes": "Original v1 with corrected baseline (was: 84.12% with broken baseline)"
+      },
+      {
+        "name": "v5 hybrid, family_pairs, raw_metrics_negatives, 200ep",
+        "lift_percent": {
+          "mean": null,
+          "std": 0.0,
+          "ci_95": [
+            null,
+            null
+          ]
+        },
+        "n_folds": 1,
+        "n_seeds": 1,
+        "n_samples": 100000,
+        "notes": "Hard negatives mined from raw metrics space (not model embeddings). Awaiting training results."
       }
     ],
     "interpretation": {
       "signal_type": "metric-dominant signal",
-      "reason": "metrics-only lift exceeds hybrid lift under the current evidence run (healthy negative control)",
+      "reason": "metrics-only lift exceeds hybrid lift under the current evidence run (healthy negative control). v4 proved model-mined hard negatives fail early in training \u2014 v5 pivots to mining negatives from raw metrics space which encodes the family signal.",
       "may_promote_confidence": false
     },
     "holdouts": {
@@ -538,7 +553,7 @@
     "unknown_unmatched_percent": 0
   },
   "next_experiment": {
-    "summary": "Add hard negative sampling to the v1-encoder family-pair model and scale to 200 epochs to push lift above 50%.",
+    "summary": "Run v5: raw-metrics hard negative mining. v4 failed because model embeddings start bad and mine wrong negatives. Mining from raw metrics (84% lift signal) should fix this. Target lift > 42%.",
     "falsification_target": "Any true mismatch in public validation targets or degradation below matched-control baselines blocks confidence promotion."
   },
   "public_safety": {

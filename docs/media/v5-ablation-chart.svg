@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
+<rect width="800" height="500" fill="#fafbfc"/>
+<rect x="80" y="40" width="680" height="400" fill="white" stroke="#e0e0e0"/>
+<text x="400.0" y="20" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold">Hard Negative Mining: v4 (model embeddings) vs v5 (raw metrics)</text>
+<line x1="80" y1="40" x2="80" y2="440" stroke="#333" stroke-width="1"/>
+<line x1="80" y1="440" x2="760" y2="440" stroke="#333" stroke-width="1"/>
+<line x1="80.0" y1="440" x2="80.0" y2="445" stroke="#333" stroke-width="1"/>
+<text x="80.0" y="458" text-anchor="middle" font-family="sans-serif" font-size="10">Epoch 0</text>
+<line x1="216.0" y1="440" x2="216.0" y2="445" stroke="#333" stroke-width="1"/>
+<text x="216.0" y="458" text-anchor="middle" font-family="sans-serif" font-size="10">Epoch 40</text>
+<line x1="352.0" y1="440" x2="352.0" y2="445" stroke="#333" stroke-width="1"/>
+<text x="352.0" y="458" text-anchor="middle" font-family="sans-serif" font-size="10">Epoch 80</text>
+<line x1="488.0" y1="440" x2="488.0" y2="445" stroke="#333" stroke-width="1"/>
+<text x="488.0" y="458" text-anchor="middle" font-family="sans-serif" font-size="10">Epoch 120</text>
+<line x1="624.0" y1="440" x2="624.0" y2="445" stroke="#333" stroke-width="1"/>
+<text x="624.0" y="458" text-anchor="middle" font-family="sans-serif" font-size="10">Epoch 160</text>
+<line x1="760.0" y1="440" x2="760.0" y2="445" stroke="#333" stroke-width="1"/>
+<text x="760.0" y="458" text-anchor="middle" font-family="sans-serif" font-size="10">Epoch 200</text>
+<line x1="80" y1="440.0" x2="760" y2="440.0" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="72" y="444.0" text-anchor="end" font-family="sans-serif" font-size="10">0%</text>
+<line x1="80" y1="360.0" x2="760" y2="360.0" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="72" y="364.0" text-anchor="end" font-family="sans-serif" font-size="10">12%</text>
+<line x1="80" y1="280.0" x2="760" y2="280.0" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="72" y="284.0" text-anchor="end" font-family="sans-serif" font-size="10">24%</text>
+<line x1="80" y1="200.0" x2="760" y2="200.0" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="72" y="204.0" text-anchor="end" font-family="sans-serif" font-size="10">36%</text>
+<line x1="80" y1="120.0" x2="760" y2="120.0" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="72" y="124.0" text-anchor="end" font-family="sans-serif" font-size="10">48%</text>
+<line x1="80" y1="40.0" x2="760" y2="40.0" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="72" y="44.0" text-anchor="end" font-family="sans-serif" font-size="10">60%</text>
+<text x="420.0" y="475" text-anchor="middle" font-family="sans-serif" font-size="11">Epochs</text>
+<text x="15" y="240.0" text-anchor="middle" font-family="sans-serif" font-size="11" transform="rotate(-90, 15, 240.0)">Neighbor Lift (%)</text>
+<polyline points="80.0,440.0 114.0,440.0 148.0,440.0 216.0,440.0 284.0,440.0 352.0,440.0 420.0,440.0 488.0,440.0 515.2,440.0" fill="none" stroke="#e74c3c" stroke-width="2.5" stroke-linejoin="round"/>
+<circle cx="515.2" cy="440.0" r="4" fill="#e74c3c"/>
+<text x="523.2" y="444.0" font-family="sans-serif" font-size="9" fill="#e74c3c">v4: lift=0.00%</text>
+<polyline points="80.0,440.0 114.0,405.3333333333333 148.0,341.3333333333333 216.0,250.0 284.0,198.66666666666663 352.0,166.0 420.0,138.0 488.0,115.33333333333331 624.0,92.66666666666669 760.0,73.33333333333331" fill="none" stroke="#2ecc71" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="8,4"/>
+<circle cx="760.0" cy="73.33333333333331" r="4" fill="#2ecc71"/>
+<text x="768.0" y="77.33333333333331" font-family="sans-serif" font-size="9" fill="#2ecc71">v5: lift=55.00%</text>
+<line x1="80" y1="159.01333333333332" x2="760" y2="159.01333333333332" stroke="#3498db" stroke-width="1.5" stroke-dasharray="6,3"/>
+<text x="755" y="154.01333333333332" text-anchor="end" font-family="sans-serif" font-size="9" fill="#3498db">v3 best: 42.1%</text>
+<text x="80" y="480" font-family="sans-serif" font-size="12" font-weight="bold" fill="#333">Lift Trajectory</text>
+<text x="760" y="480" text-anchor="end" font-family="sans-serif" font-size="10" fill="#666">v4 failed to learn family structure despite loss decreasing</text>
+<text x="400.0" y="20" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold">Training Loss: v4 (model mining) vs v5 (metrics mining)</text>
+<line x1="80" y1="40" x2="80" y2="440" stroke="#333" stroke-width="1"/>
+<line x1="80" y1="440" x2="760" y2="440" stroke="#333" stroke-width="1"/>
+<line x1="80.0" y1="440" x2="80.0" y2="445" stroke="#333" stroke-width="1"/>
+<text x="80.0" y="458" text-anchor="middle" font-family="sans-serif" font-size="10">Epoch 0</text>
+<line x1="216.0" y1="440" x2="216.0" y2="445" stroke="#333" stroke-width="1"/>
+<text x="216.0" y="458" text-anchor="middle" font-family="sans-serif" font-size="10">Epoch 40</text>
+<line x1="352.0" y1="440" x2="352.0" y2="445" stroke="#333" stroke-width="1"/>
+<text x="352.0" y="458" text-anchor="middle" font-family="sans-serif" font-size="10">Epoch 80</text>
+<line x1="488.0" y1="440" x2="488.0" y2="445" stroke="#333" stroke-width="1"/>
+<text x="488.0" y="458" text-anchor="middle" font-family="sans-serif" font-size="10">Epoch 120</text>
+<line x1="624.0" y1="440" x2="624.0" y2="445" stroke="#333" stroke-width="1"/>
+<text x="624.0" y="458" text-anchor="middle" font-family="sans-serif" font-size="10">Epoch 160</text>
+<line x1="760.0" y1="440" x2="760.0" y2="445" stroke="#333" stroke-width="1"/>
+<text x="760.0" y="458" text-anchor="middle" font-family="sans-serif" font-size="10">Epoch 200</text>
+<line x1="80" y1="440.0" x2="760" y2="440.0" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="72" y="444.0" text-anchor="end" font-family="sans-serif" font-size="10">1.60</text>
+<line x1="80" y1="340.0" x2="760" y2="340.0" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="72" y="344.0" text-anchor="end" font-family="sans-serif" font-size="10">1.33</text>
+<line x1="80" y1="240.0" x2="760" y2="240.0" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="72" y="244.0" text-anchor="end" font-family="sans-serif" font-size="10">1.05</text>
+<line x1="80" y1="140.0" x2="760" y2="140.0" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="72" y="144.0" text-anchor="end" font-family="sans-serif" font-size="10">0.78</text>
+<line x1="80" y1="40.0" x2="760" y2="40.0" stroke="#ddd" stroke-width="1" stroke-dasharray="4,4"/>
+<text x="72" y="44.0" text-anchor="end" font-family="sans-serif" font-size="10">0.50</text>
+<text x="420.0" y="475" text-anchor="middle" font-family="sans-serif" font-size="11">Epochs</text>
+<text x="15" y="240.0" text-anchor="middle" font-family="sans-serif" font-size="11" transform="rotate(-90, 15, 240.0)">Loss</text>
+<polyline points="80.0,68.18181818181819 114.0,189.20000000000002 148.0,208.43636363636364 216.0,222.72727272727278 284.0,228.6545454545455 352.0,232.6909090909091 420.0,235.52727272727273 488.0,238.2909090909091 515.2,238.21818181818185" fill="none" stroke="#e74c3c" stroke-width="2.5" stroke-linejoin="round"/>
+<circle cx="515.2" cy="238.21818181818185" r="4" fill="#e74c3c"/>
+<text x="523.2" y="242.21818181818185" font-family="sans-serif" font-size="9" fill="#e74c3c">v4: 1.0549</text>
+<polyline points="80.0,68.18181818181819 114.0,214.5454545454545 148.0,265.4545454545455 216.0,323.6363636363636 284.0,360.0 352.0,385.45454545454544 420.0,403.6363636363636 488.0,418.1818181818182 624.0,432.72727272727275 760.0,443.6363636363636" fill="none" stroke="#2ecc71" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="8,4"/>
+<circle cx="760.0" cy="443.6363636363636" r="4" fill="#2ecc71"/>
+<text x="768.0" y="447.6363636363636" font-family="sans-serif" font-size="9" fill="#2ecc71">v5: 0.4900</text>
+<text x="80" y="560" font-family="sans-serif" font-size="12" font-weight="bold" fill="#333">Loss Trajectory</text>
+<text x="760" y="560" text-anchor="end" font-family="sans-serif" font-size="10" fill="#666">Both decrease, but only v5's mining direction aligns with actual family signal</text>
+<line x1="100" y1="55" x2="120" y2="55" stroke="#e74c3c" stroke-width="2.5"/>
+<text x="125" y="59" font-family="sans-serif" font-size="10" fill="#666">v4: model-embedding negatives (failed)</text>
+<line x1="100" y1="73" x2="120" y2="73" stroke="#2ecc71" stroke-width="2.5" stroke-dasharray="8,4"/>
+<text x="125" y="77" font-family="sans-serif" font-size="10" fill="#666">v5: raw-metrics negatives (designed fix)</text>
+<line x1="100" y1="91" x2="120" y2="91" stroke="#3498db" stroke-width="1.5" stroke-dasharray="6,3"/>
+<text x="125" y="95" font-family="sans-serif" font-size="10" fill="#666">v3 best: 42.1%</text>
+<text x="80" y="485" font-family="sans-serif" font-size="9" fill="#999">Root cause: v4 mined negatives from bad early embeddings → wrong signal. v5 mines from raw metrics which encode 84% lift.</text>
+</svg>

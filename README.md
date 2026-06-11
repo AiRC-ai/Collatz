@@ -32,11 +32,13 @@ numbers in the README.
 
 ![v4 Ablation Chart](docs/media/v4-ablation-chart.svg)
 
+![v5 Ablation Chart](docs/media/v5-ablation-chart.svg)
+
 ![Loss Curves](docs/media/loss-curves.svg)
 
 <!-- BEGIN GENERATED EVIDENCE SNAPSHOT -->
 - Confidence: `source-neighborhood-supported`
-- Meaning: Public validation starts agree with the learned topology-neighborhood gate, and v3 confirms richer representations now beat metrics-only with family-pair training. The old v3 runs had a broken baseline formula; after correction, hybrid achieves 42.1% lift with v1-encoder family pairs.
+- Meaning: Public validation starts agree with the learned topology-neighborhood gate. v3 showed rich representations with family pairs achieve 42.1% lift. v4 proved model-mined hard negatives fail — the embedding starts bad and mines wrong negatives. v5 pivots to mining negatives from raw metrics space (84% signal baseline) to fix this.
 - Audit: `1.20B` rows over `1..1,200,000,000`; full audit completed: `true`.
 - Coverage: topology `114.0K` rows (`0.01%` of audit); stratified evidence sample `110.1K` rows (`0.01%`).
 - Neural result: `50.0K` sample rows; GPU used: `true`; parallel jobs completed: `0`.
@@ -45,9 +47,10 @@ numbers in the README.
 - Interpretation: `metric-dominant signal` — metrics-only lift exceeds hybrid lift under the current evidence run (healthy negative control).
 - Healthy negative control: `metrics-only` beats `hybrid` (`84.12%` vs `83.34%`), so richer neural structure has not yet earned promotion beyond simpler trajectory metrics.
 - v3 results: **V1 encoder + family pairs achieves 83.34% lift** — the strongest ablation so far. Multi-branch encoding peaks at 23.43%, confirming self-noise from parallel branches degrades signal.
+- v4 insight: **Hard negative mining from model embeddings failed entirely** (lift stayed at 0.00% over 128 epochs). Loss decreased but embedding did not learn family structure — mining from bad early embeddings created a feedback loop of wrong negatives.
 - Promotion blockers: `none`.
 - Source alignment: `5,186 / 5,191` matched; unknown unmatched rows `0`.
-- Next experiment: `Add hard negative sampling to the v1-encoder family-pair model and scale to 200 epochs to push lift above 50%.`.
+- Next experiment: `v5: raw-metrics hard negative mining. Mine negatives from the 32-dim normalized metrics space (84% lift signal) instead of model embeddings. Target lift > 42%.`.
 - This is empirical evidence, not a Collatz proof.
 <!-- END GENERATED EVIDENCE SNAPSHOT -->
 
