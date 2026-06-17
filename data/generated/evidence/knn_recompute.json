@@ -1,0 +1,68 @@
+{
+  "raw_metrics": {
+    "range_band": {
+      "k2_lift": 0.1391,
+      "k3_lift_old": 0.13456
+    },
+    "bit_length": {
+      "k2_lift": 0.3128,
+      "k3_lift_old": 0.29836
+    },
+    "peak_ratio_bucket": {
+      "k2_lift": 0.57104,
+      "k3_lift_old": 0.55986
+    }
+  },
+  "v9": {
+    "range_band": {
+      "k2_lift": 0.92817,
+      "k3_lift_old": 0.92734
+    },
+    "bit_length": {
+      "k2_lift": 0.73449,
+      "k3_lift_old": 0.73396
+    },
+    "peak_ratio_bucket": {
+      "k2_lift": 0.26233,
+      "k3_lift_old": 0.23731
+    }
+  },
+  "v10_metrics": {
+    "range_band": {
+      "k2_lift": 0.88586,
+      "k3_lift_old": 0.8799
+    },
+    "bit_length": {
+      "k2_lift": 0.72175,
+      "k3_lift_old": 0.72008
+    },
+    "peak_ratio_bucket": {
+      "k2_lift": 0.85418,
+      "k3_lift_old": 0.85135
+    }
+  },
+  "v10_hybrid": {
+    "range_band": {
+      "k2_lift": 0.89792,
+      "k3_lift_old": 0.89343
+    },
+    "bit_length": {
+      "k2_lift": 0.72759,
+      "k3_lift_old": 0.72666
+    },
+    "peak_ratio_bucket": {
+      "k2_lift": 0.84249,
+      "k3_lift_old": 0.83848
+    }
+  },
+  "v11_family5_family5": {
+    "raw_metrics": {
+      "k2_lift": 0.12529,
+      "k3_lift_old": 0.11109
+    },
+    "v11_prototypical": {
+      "k2_lift": 0.63994,
+      "k3_lift_old": 0.58098
+    }
+  }
+}

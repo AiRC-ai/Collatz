@@ -23,37 +23,40 @@
       "label": "range_band",
       "n_classes": 16,
       "random_baseline": 0.0625,
-      "non_ai_raw_metrics_lift": 0.13456,
-      "original_metrics_only_lift": 0.8799,
-      "ours_hybrid_lift": 0.89343,
+      "non_ai_raw_metrics_lift": 0.1391,
+      "original_metrics_only_lift": 0.8859,
+      "ours_hybrid_lift": 0.8979,
       "hybrid_beats_metrics_only": true,
-      "hybrid_beats_raw": true
+      "hybrid_beats_raw": true,
+      "v9_single_task_lift": 0.9282
     },
     {
       "label": "bit_length",
       "n_classes": 17,
       "random_baseline": 0.26195,
-      "non_ai_raw_metrics_lift": 0.29836,
-      "original_metrics_only_lift": 0.72008,
-      "ours_hybrid_lift": 0.72666,
+      "non_ai_raw_metrics_lift": 0.3128,
+      "original_metrics_only_lift": 0.7218,
+      "ours_hybrid_lift": 0.7276,
       "hybrid_beats_metrics_only": true,
-      "hybrid_beats_raw": true
+      "hybrid_beats_raw": true,
+      "v9_single_task_lift": 0.7345
     },
     {
       "label": "peak_ratio_bucket",
       "n_classes": 28,
       "random_baseline": 0.12891,
-      "non_ai_raw_metrics_lift": 0.55986,
-      "original_metrics_only_lift": 0.85135,
-      "ours_hybrid_lift": 0.83848,
+      "non_ai_raw_metrics_lift": 0.571,
+      "original_metrics_only_lift": 0.8542,
+      "ours_hybrid_lift": 0.8425,
       "hybrid_beats_metrics_only": false,
-      "hybrid_beats_raw": true
+      "hybrid_beats_raw": true,
+      "v9_single_task_lift": 0.2623
     }
   ],
   "summed_lift": {
-    "original_metrics_only": 2.45133,
-    "ours_hybrid": 2.45857,
-    "delta_ours_minus_original": 0.00724
+    "original_metrics_only": 2.4619,
+    "ours_hybrid": 2.468,
+    "delta_ours_minus_original": 0.0061
   },
   "prior_ai_reference": {
     "v7_self_supervised_contrastive_range_band_lift": 0.00233,
@@ -63,8 +66,8 @@
     "target": "coalescence_family_id (families with >=5 members)",
     "n_families": 1269,
     "n_rows": 7101,
-    "raw_metrics_lift": 0.11109,
-    "prototypical_few_shot_lift": 0.58093,
+    "raw_metrics_lift": 0.1253,
+    "prototypical_few_shot_lift": 0.6399,
     "improvement": "5.2x the raw-metrics baseline (few-shot prototypical, metrics-only)",
     "recluster": {
       "n_clusters": 1999,
@@ -75,5 +78,6 @@
       "nmi_family_id_range_band": 0.4149,
       "note": "Re-clustering in metrics space yields ~50-member families covering all 100k rows; only 22% magnitude; recovers 77% of the original fine family structure (NMI 0.768). This fixes the 58%-singleton problem that made the original family_id unlearnable for most rows."
     }
-  }
+  },
+  "metric_note": "k=2 nearest-neighbor same-label purity minus random baseline (CORRECTED: self excluded then topk(2); an earlier off-by-one used topk(3) and was mislabeled k=2 -- see knn_recompute.json for the before/after)."
 }

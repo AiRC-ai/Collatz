@@ -91,14 +91,14 @@
     0.44293580055236814
   ],
   "best_epoch": 55,
-  "best_sum_lift": 2.45857,
+  "best_sum_lift": 2.468,
   "comparison": [
     {
       "label": "range_band",
       "n_classes": 16,
       "random_baseline_purity": 0.0625,
-      "raw_metrics_knn_lift": 0.13456,
-      "v10_embedding_lift": 0.89343,
+      "raw_metrics_knn_lift": 0.1391,
+      "v10_embedding_lift": 0.89792,
       "v10_test_accuracy": 0.96265,
       "v10_beats_raw_metrics": true
     },
@@ -106,8 +106,8 @@
       "label": "bit_length",
       "n_classes": 17,
       "random_baseline_purity": 0.26195,
-      "raw_metrics_knn_lift": 0.29838,
-      "v10_embedding_lift": 0.72667,
+      "raw_metrics_knn_lift": 0.3128,
+      "v10_embedding_lift": 0.72759,
       "v10_test_accuracy": 0.9898,
       "v10_beats_raw_metrics": true
     },
@@ -115,8 +115,8 @@
       "label": "peak_ratio_bucket",
       "n_classes": 28,
       "random_baseline_purity": 0.12891,
-      "raw_metrics_knn_lift": 0.55986,
-      "v10_embedding_lift": 0.83847,
+      "raw_metrics_knn_lift": 0.57104,
+      "v10_embedding_lift": 0.84249,
       "v10_test_accuracy": 0.96805,
       "v10_beats_raw_metrics": true
     }
@@ -124,5 +124,7 @@
   "outputs": {
     "embeddings": "embeddings.csv",
     "checkpoint": "encoder.pt"
-  }
+  },
+  "metric_k": 2,
+  "metric_note": "neighbor-purity lift uses corrected k=2 (self excluded, then topk(2)); an earlier off-by-one used topk(3) and was mislabeled k=2 (see knn_recompute.json)."
 }

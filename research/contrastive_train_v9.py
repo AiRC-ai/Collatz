@@ -47,12 +47,12 @@ ALL_BRANCHES = ("metrics", "shape", "parity", "residue")
 # ------------------------------------------------------------------
 def parse_args():
     p = argparse.ArgumentParser(description="v9: supervised embedding via classification head")
-    p.add_argument("--metrics-safe", default="/home/ryancox/3xN1/data/generated/ml_stratified/metrics_safe.csv")
-    p.add_argument("--log-sketch", default="/home/ryancox/3xN1/data/generated/ml_stratified/log_sketch.csv")
-    p.add_argument("--parity-runs", default="/home/ryancox/3xN1/data/generated/ml_stratified/parity_runs.csv")
-    p.add_argument("--transitions", default="/home/ryancox/3xN1/data/generated/ml_stratified/residue_transitions_mod32.csv")
-    p.add_argument("--families", default="/home/ryancox/3xN1/data/generated/ml_labels/families.csv")
-    p.add_argument("--output-dir", default="/home/ryancox/3xN1/data/generated/contrastive_v9")
+    p.add_argument("--metrics-safe", default="data/generated/ml_stratified/metrics_safe.csv")
+    p.add_argument("--log-sketch", default="data/generated/ml_stratified/log_sketch.csv")
+    p.add_argument("--parity-runs", default="data/generated/ml_stratified/parity_runs.csv")
+    p.add_argument("--transitions", default="data/generated/ml_stratified/residue_transitions_mod32.csv")
+    p.add_argument("--families", default="data/generated/ml_labels/families.csv")
+    p.add_argument("--output-dir", default="data/generated/contrastive_v9")
     p.add_argument("--primary-label", default="range_band",
                    choices=("range_band", "bit_length", "peak_ratio_bucket"))
     p.add_argument("--feature-set", default="metrics",
@@ -184,7 +184,7 @@ def evaluate_neighbors(embeddings, labels, k=2, chunk=8000):
         e = min(s + chunk, N)
         sim = feat[s:e] @ feat.T                       # [chunk, N]
         sim[torch.arange(e - s), torch.arange(s, e, device=dev)] = float("-inf")
-        top = sim.topk(k + 1, dim=1).indices           # [chunk, k+1]
+        top = sim.topk(k, dim=1).indices           # [chunk, k+1]
         nl = lt[top]
         selfm = top == torch.arange(s, e, device=dev).unsqueeze(1)
         nl[selfm] = lt[N - 1] + 1                      # mark self as different

@@ -1,15 +1,15 @@
 {
   "schema_version": "evidence_public_summary_v1",
-  "run_id": "2026-06-17T13:10:00Z",
-  "git_commit": "bc97300",
-  "generated_at_utc": "2026-06-17T20:13:20.160781+00:00",
+  "run_id": "2026-06-17T15:00:00Z",
+  "git_commit": "d7480ef",
+  "generated_at_utc": "2026-06-17T22:16:28.709850+00:00",
   "confidence": {
     "label": "source-neighborhood-supported",
     "rank": 2,
     "claim_is_proof": false,
     "claim_is_source_neighborhood_supported": true,
     "claim_is_candidate_pattern": false,
-    "interpretation": "Supervised embedding now beats raw-metrics k-NN across all coarse labels: v10 multi-task reaches +88.0% lift on range_band (raw +13.5%), +72.0% on bit_length (raw +29.8%), and +85.1% on peak_ratio_bucket (raw +56.0%). This retires the self-supervised contrastive line (v4-v7), which collapsed to +0.23% on range_band. Remaining open question is the fine coalescence_family_id target, where raw-metrics lift is only +0.85%.",
+    "interpretation": "Supervised embedding now beats raw-metrics k-NN across all coarse labels: v10 multi-task reaches +88.6% lift on range_band (raw +13.9%), +72.2% on bit_length (raw +31.3%), and +85.4% on peak_ratio_bucket (raw +57.1%) -- k=2 corrected. This retires the self-supervised contrastive line (v4-v7), which collapsed to +0.23% on range_band. Remaining open question is the fine coalescence_family_id target, where raw-metrics lift is only +12.5% (k=2).",
     "promotion_blockers": []
   },
   "audit": {
@@ -45,11 +45,8 @@
         "name": "GNN-only",
         "lift_percent": {
           "mean": null,
-          "std": 0.01202541741264542,
-          "ci_95": [
-            0.0018578355819264497,
-            0.007893447529517336
-          ]
+          "std": null,
+          "ci_95": null
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -61,17 +58,15 @@
           "stopping_time_bucket": true,
           "peak_ratio_bucket": true,
           "first_drop_bucket": true
-        }
+        },
+        "notes": " mean not computed; std/ci nulled (not reproducible)."
       },
       {
         "name": "hybrid",
         "lift_percent": {
           "mean": 83.336,
-          "std": 0.01202541741264542,
-          "ci_95": [
-            0.0018578355819264497,
-            0.007893447529517336
-          ]
+          "std": null,
+          "ci_95": null
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -89,11 +84,8 @@
         "name": "image-only",
         "lift_percent": {
           "mean": null,
-          "std": 0.01202541741264542,
-          "ci_95": [
-            0.0018578355819264497,
-            0.007893447529517336
-          ]
+          "std": null,
+          "ci_95": null
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -105,17 +97,15 @@
           "stopping_time_bucket": true,
           "peak_ratio_bucket": true,
           "first_drop_bucket": true
-        }
+        },
+        "notes": " mean not computed; std/ci nulled (not reproducible)."
       },
       {
         "name": "metrics-only",
         "lift_percent": {
           "mean": 84.118,
-          "std": 0.01202541741264542,
-          "ci_95": [
-            0.0018578355819264497,
-            0.007893447529517336
-          ]
+          "std": null,
+          "ci_95": null
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -133,11 +123,8 @@
         "name": "parity-sequence-only",
         "lift_percent": {
           "mean": 2.59,
-          "std": 0.01202541741264542,
-          "ci_95": [
-            0.0018578355819264497,
-            0.007893447529517336
-          ]
+          "std": null,
+          "ci_95": null
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -155,11 +142,8 @@
         "name": "residue-sequence-only",
         "lift_percent": {
           "mean": 42.514,
-          "std": 0.01202541741264542,
-          "ci_95": [
-            0.0018578355819264497,
-            0.007893447529517336
-          ]
+          "std": null,
+          "ci_95": null
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -177,11 +161,8 @@
         "name": "shape-only",
         "lift_percent": {
           "mean": 71.64,
-          "std": 0.01202541741264542,
-          "ci_95": [
-            0.0018578355819264497,
-            0.007893447529517336
-          ]
+          "std": null,
+          "ci_95": null
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -199,11 +180,8 @@
         "name": "v3 metrics, family_pairs, 80ep, 50k",
         "lift_percent": {
           "mean": 17.92,
-          "std": 0.0,
-          "ci_95": [
-            17.92,
-            17.92
-          ]
+          "std": null,
+          "ci_95": null
         },
         "n_folds": 1,
         "n_seeds": 1,
@@ -214,11 +192,8 @@
         "name": "v3 hybrid, combined_pairs, 40ep, 100k",
         "lift_percent": {
           "mean": 15.31,
-          "std": 0.0,
-          "ci_95": [
-            15.31,
-            15.31
-          ]
+          "std": null,
+          "ci_95": null
         },
         "n_folds": 1,
         "n_seeds": 1,
@@ -229,11 +204,8 @@
         "name": "v3 hybrid, combined_pairs, 40ep, 50k",
         "lift_percent": {
           "mean": 13.43,
-          "std": 0.0,
-          "ci_95": [
-            13.43,
-            13.43
-          ]
+          "std": null,
+          "ci_95": null
         },
         "n_folds": 1,
         "n_seeds": 1,
@@ -244,11 +216,8 @@
         "name": "v3 hybrid, combined_pairs, 40ep, 50k, temp=0.15",
         "lift_percent": {
           "mean": 6.18,
-          "std": 0.0,
-          "ci_95": [
-            6.18,
-            6.18
-          ]
+          "std": null,
+          "ci_95": null
         },
         "n_folds": 1,
         "n_seeds": 1,
@@ -259,11 +228,8 @@
         "name": "v1 hybrid, 50k, corrected baseline",
         "lift_percent": {
           "mean": 83.34,
-          "std": 0.0,
-          "ci_95": [
-            83.34,
-            83.34
-          ]
+          "std": null,
+          "ci_95": null
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -288,11 +254,11 @@
       {
         "name": "v9 supervised, range_band, 60ep",
         "lift_percent": {
-          "mean": 92.74,
+          "mean": 92.817,
           "std": 0.0,
           "ci_95": [
-            92.74,
-            92.74
+            92.817,
+            92.817
           ]
         },
         "n_folds": 1,
@@ -303,11 +269,11 @@
       {
         "name": "v10 multi-task supervised, range_band+bit_length+peak_ratio, 60ep",
         "lift_percent": {
-          "mean": 87.99,
+          "mean": 88.585,
           "std": 0.0,
           "ci_95": [
-            87.99,
-            87.99
+            88.585,
+            88.585
           ]
         },
         "n_folds": 1,
@@ -318,7 +284,7 @@
     ],
     "interpretation": {
       "signal_type": "supervised embedding recovers structure",
-      "reason": "Self-supervised contrastive (v4-v7) collapsed below the raw-feature baseline: v7 got +0.23% lift on range_band while raw-metrics k-NN already gives +13.5%. Diagnostics proved the m0-m31 metrics carry overwhelming signal (a 40-epoch supervised MLP hits 95.8% range_band accuracy). v9 single-label supervised embedding reaches +92.7% lift; v10 multi-task supervised embedding beats raw-metrics k-NN on range_band (+88.0%), bit_length (+72.0%) and peak_ratio_bucket (+85.1%) -- the first general-purpose embedding. Self-supervised contrastive was the wrong tool once labels are available.",
+      "reason": "Self-supervised contrastive (v4-v7) collapsed below the raw-feature baseline: v7 got +0.23% lift on range_band while raw-metrics k-NN already gives +13.9% (k=2). Diagnostics proved the m0-m31 metrics carry overwhelming signal (a 40-epoch supervised MLP hits 95.8% range_band accuracy). v9 single-label supervised embedding reaches +92.8% lift; v10 multi-task supervised embedding beats raw-metrics k-NN on range_band (+88.6%), bit_length (+72.2%) and peak_ratio_bucket (+85.4%) -- the first general-purpose embedding. v11 few-shot prototypical lifts the fine family_id (>=5-member families) from +12.5% to +64.0%. Self-supervised contrastive was the wrong tool once labels are available. (k=2 corrected; see knn_recompute.json.)",
       "may_promote_confidence": false
     },
     "holdouts": {
@@ -381,7 +347,7 @@
     "unknown_unmatched_percent": 0
   },
   "next_experiment": {
-    "summary": "Fine coalescence_family_id target: 61,754 classes with ~1.6 examples each. v10 proves the coarse-label pipeline works, but raw-metrics k-NN lift on family_id is only +0.85%, and with 1-2 examples per class neither supervised classification nor contrastive learning has enough signal. Next: test whether family_id is well-defined in a richer feature space before training; consider multi-task on finer labels or a different family definition rather than another loss function.",
+    "summary": "Fine coalescence_family_id at full granularity: 61,754 classes, 58% singletons. v11 re-clustering recovers 77% of family structure (NMI 0.768) at a learnable ~50-member granularity and few-shot prototypical reaches +64.0% on >=5-member families. Next: train/eval-split on the re-clustered families as the label (non-circularly) for a single general-purpose fine-structure embedding, and add family-disjoint held-out evaluation. Add SHA-256 pinning of feature files and make safe-metrics the default export mode.",
     "falsification_target": "If a richer feature set cannot lift family_id neighbor purity above the raw-metrics +0.85% baseline, the current family definition is not learnable from trajectory features and the family scheme should be revised."
   },
   "public_safety": {

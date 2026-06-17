@@ -44,15 +44,15 @@ ALL_BRANCHES = ("metrics", "shape", "parity", "residue")
 # ------------------------------------------------------------------
 def parse_args():
     p = argparse.ArgumentParser(description="v10: multi-task supervised embedding")
-    p.add_argument("--metrics-safe", default="/home/ryancox/3xN1/data/generated/ml_stratified/metrics_safe.csv")
-    p.add_argument("--families", default="/home/ryancox/3xN1/data/generated/ml_labels/families.csv")
-    p.add_argument("--log-sketch", default="/home/ryancox/3xN1/data/generated/ml_stratified/log_sketch.csv")
-    p.add_argument("--parity-runs", default="/home/ryancox/3xN1/data/generated/ml_stratified/parity_runs.csv")
-    p.add_argument("--transitions", default="/home/ryancox/3xN1/data/generated/ml_stratified/residue_transitions_mod32.csv")
+    p.add_argument("--metrics-safe", default="data/generated/ml_stratified/metrics_safe.csv")
+    p.add_argument("--families", default="data/generated/ml_labels/families.csv")
+    p.add_argument("--log-sketch", default="data/generated/ml_stratified/log_sketch.csv")
+    p.add_argument("--parity-runs", default="data/generated/ml_stratified/parity_runs.csv")
+    p.add_argument("--transitions", default="data/generated/ml_stratified/residue_transitions_mod32.csv")
     p.add_argument("--feature-set", default="metrics", choices=("metrics", "hybrid", "full"),
                    help="metrics=m0-m31 only (original); hybrid/full=all branches (ours)")
     p.add_argument("--sequence-len", type=int, default=128)
-    p.add_argument("--output-dir", default="/home/ryancox/3xN1/data/generated/contrastive_v10")
+    p.add_argument("--output-dir", default="data/generated/contrastive_v10")
     p.add_argument("--epochs", type=int, default=60)
     p.add_argument("--batch-size", type=int, default=2048)
     p.add_argument("--embedding-dim", type=int, default=64)
@@ -163,7 +163,7 @@ def knn_lift(feat, labels, k=2, chunk=8000):
         e = min(s + chunk, N)
         sim = feat[s:e] @ feat.T
         sim[torch.arange(e - s), torch.arange(s, e, device=dev)] = float("-inf")
-        top = sim.topk(k + 1, dim=1).indices
+        top = sim.topk(k, dim=1).indices
         nl = lt[top]
         selfm = top == torch.arange(s, e, device=dev).unsqueeze(1)
         nl[selfm] = lt[N - 1] + 1

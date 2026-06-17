@@ -108,16 +108,18 @@
     0.19959949627518653,
     0.19652792923152446
   ],
-  "neighbor_purity": 0.98985,
+  "neighbor_purity": 0.99067,
   "random_baseline_purity": 0.0625,
-  "purity_lift": 0.92735,
-  "best_lift": 0.92735,
+  "purity_lift": 0.92817,
+  "best_lift": 0.92817,
   "comparison": {
     "v7_self_supervised_lift": 0.00233,
-    "raw_metrics_knn_lift": 0.1346
+    "raw_metrics_knn_lift": 0.1391
   },
   "outputs": {
     "embeddings": "embeddings.csv",
     "checkpoint": "encoder.pt"
-  }
+  },
+  "metric_k": 2,
+  "metric_note": "neighbor-purity lift uses corrected k=2 (self excluded, then topk(2)); an earlier off-by-one used topk(3) and was mislabeled k=2 (see knn_recompute.json)."
 }

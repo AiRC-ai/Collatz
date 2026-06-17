@@ -32,19 +32,23 @@ metrics+shape+parity+residue). Both trained models use the v10 multi-task
 supervised method. Authoritative source:
 `data/generated/evidence/model_comparison.json`.
 
+> **Metric correction:** an earlier off-by-one in the kNN code used `topk(3)`
+> after excluding self and was mislabeled `k=2`; it is fixed (now `topk(2)`) and
+> every number below is recomputed. Before/after: `data/generated/evidence/knn_recompute.json`.
+
 | Label | Classes | Non-AI baseline (raw) | Original (metrics-only) | Ours (hybrid) |
 |---|---:|---:|---:|---:|
-| range_band | 16 | +13.5% | +88.0% | +89.3% |
-| bit_length | 17 | +29.8% | +72.0% | +72.7% |
-| peak_ratio_bucket | 28 | +56.0% | +85.1% | +83.8% |
-| **summed lift** | - | - | +2.451 | +2.459 |
+| range_band | 16 | +13.9% | +88.6% | +89.8% |
+| bit_length | 17 | +31.3% | +72.2% | +72.8% |
+| peak_ratio_bucket | 28 | +57.1% | +85.4% | +84.2% |
+| **summed lift** | - | - | +2.462 | +2.468 |
 
 ![Original (metrics-only) vs ours (hybrid)](docs/media/v9-v10-supervised-chart.svg)
 
 **Both trained models beat the non-AI baseline on every label.** But **ours
-(hybrid) is tied with original (metrics-only)** -- hybrid is +1.3 pts on
-range_band, +0.7 on bit_length, and -1.3 on peak_ratio_bucket (summed delta
-+0.007). The win came from the supervised METHOD over the prior
+(hybrid) is tied with original (metrics-only)** -- hybrid is +1.2 pts on
+range_band, +0.6 on bit_length, and -1.2 on peak_ratio_bucket (summed delta
++0.006). The win came from the supervised METHOD over the prior
 self-supervised contrastive line (v4-v7), which collapsed to +0.23% on
 `range_band` -- below the zero-learning non-AI baseline (+13.5%) -- not from
 the hybrid FEATURES over metrics-only. Full postmortem:
@@ -65,7 +69,7 @@ attacks it two ways, both on metrics-only features (hybrid hurts the fine target
 
 **Few-shot prototypical learning (the method win).** On the 1,269 families with
 >=5 members (7,101 rows), a prototypical-network embedding lifts k=2 retrieval
-from the raw-metrics baseline **+11.1%** to **+58.1%** -- 5.2x.
+from the raw-metrics baseline **+12.5%** to **+64.0%** -- 5.1x.
 
 **Re-clustered families (the structural win).** k-means in metrics space into
 ~2,000 families (~50 members each) covers all 100,000 rows (vs 58% singletons),
@@ -85,17 +89,17 @@ numbers in the README.
 
 <!-- BEGIN GENERATED EVIDENCE SNAPSHOT -->
 - Confidence: `source-neighborhood-supported`
-- Meaning: Supervised embedding now beats raw-metrics k-NN across all coarse labels: v10 multi-task reaches +88.0% lift on range_band (raw +13.5%), +72.0% on bit_length (raw +29.8%), and +85.1% on peak_ratio_bucket (raw +56.0%). This retires the self-supervised contrastive line (v4-v7), which collapsed to +0.23% on range_band. Remaining open question is the fine coalescence_family_id target, where raw-metrics lift is only +0.85%.
+- Meaning: Supervised embedding now beats raw-metrics k-NN across all coarse labels: v10 multi-task reaches +88.6% lift on range_band (raw +13.9%), +72.2% on bit_length (raw +31.3%), and +85.4% on peak_ratio_bucket (raw +57.1%) -- k=2 corrected. This retires the self-supervised contrastive line (v4-v7), which collapsed to +0.23% on range_band. Remaining open question is the fine coalescence_family_id target, where raw-metrics lift is only +12.5% (k=2).
 - Audit: `1,200,000,000` rows over `1..1,200,000,000`; full audit completed: `true`.
 - Coverage: topology `113,958` rows (`0.009%` of audit); stratified evidence sample `110,141` rows (`0.009%`).
 - Neural result: `100,000` sample rows; GPU used: `true`; parallel jobs completed: `0`.
 - Learned lift: weakest range `0.529%`, fold minimum `0.417%`, numeric-adjacency lift `1.294%`.
-- Best current ablation: `v9 supervised, range_band, 60ep at 92.740%`.
-- Interpretation: `supervised embedding recovers structure`; Self-supervised contrastive (v4-v7) collapsed below the raw-feature baseline: v7 got +0.23% lift on range_band while raw-metrics k-NN already gives +13.5%. Diagnostics proved the m0-m31 metrics carry overwhelming signal (a 40-epoch supervised MLP hits 95.8% range_band accuracy). v9 single-label supervised embedding reaches +92.7% lift; v10 multi-task supervised embedding beats raw-metrics k-NN on range_band (+88.0%), bit_length (+72.0%) and peak_ratio_bucket (+85.1%) -- the first general-purpose embedding. Self-supervised contrastive was the wrong tool once labels are available..
+- Best current ablation: `v9 supervised, range_band, 60ep at 92.817%`.
+- Interpretation: `supervised embedding recovers structure`; Self-supervised contrastive (v4-v7) collapsed below the raw-feature baseline: v7 got +0.23% lift on range_band while raw-metrics k-NN already gives +13.9% (k=2). Diagnostics proved the m0-m31 metrics carry overwhelming signal (a 40-epoch supervised MLP hits 95.8% range_band accuracy). v9 single-label supervised embedding reaches +92.8% lift; v10 multi-task supervised embedding beats raw-metrics k-NN on range_band (+88.6%), bit_length (+72.2%) and peak_ratio_bucket (+85.4%) -- the first general-purpose embedding. v11 few-shot prototypical lifts the fine family_id (>=5-member families) from +12.5% to +64.0%. Self-supervised contrastive was the wrong tool once labels are available. (k=2 corrected; see knn_recompute.json.).
 - Healthy negative control: `metrics-only` beats `hybrid` (`84.118%` vs `83.336%`), so richer neural structure has not yet earned promotion beyond simpler trajectory metrics.
 - Promotion blockers: `none`.
 - Source alignment: `5,186 / 5,191` matched; unknown unmatched rows `0`.
-- Next experiment: Fine coalescence_family_id target: 61,754 classes with ~1.6 examples each. v10 proves the coarse-label pipeline works, but raw-metrics k-NN lift on family_id is only +0.85%, and with 1-2 examples per class neither supervised classification nor contrastive learning has enough signal. Next: test whether family_id is well-defined in a richer feature space before training; consider multi-task on finer labels or a different family definition rather than another loss function.
+- Next experiment: Fine coalescence_family_id at full granularity: 61,754 classes, 58% singletons. v11 re-clustering recovers 77% of family structure (NMI 0.768) at a learnable ~50-member granularity and few-shot prototypical reaches +64.0% on >=5-member families. Next: train/eval-split on the re-clustered families as the label (non-circularly) for a single general-purpose fine-structure embedding, and add family-disjoint held-out evaluation. Add SHA-256 pinning of feature files and make safe-metrics the default export mode.
 - This is empirical evidence, not a Collatz proof.
 <!-- END GENERATED EVIDENCE SNAPSHOT -->
 

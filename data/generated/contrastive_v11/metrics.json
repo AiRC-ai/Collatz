@@ -28,8 +28,8 @@
     "family5_prototypical": {
       "n_families": 1269,
       "n_rows": 7101,
-      "raw_metrics_lift": 0.11109,
-      "prototypical_lift": 0.58093,
+      "raw_metrics_lift": 0.12529,
+      "prototypical_lift": 0.63994,
       "beats_raw": true,
       "loss_history": [
         0.3004441261291504,
@@ -101,12 +101,15 @@
         0.08220948278903961,
         0.26171985268592834,
         0.11903433501720428
-      ]
+      ],
+      "metric_k_note": "circular: cluster label defined in metrics space; raw/prototypical lifts are effective-k=3 (not recomputed; circular regardless of k)"
     }
   },
   "note": "family5: prototypical learned metric vs raw-metrics on >=5-member original families (non-circular). recluster: k-means target (raw lift is circular since clusters defined in metrics space; the meaningful signal is the diagnostics: modal_range_band_purity and NMI vs original family_id).",
   "outputs": {
     "family5_embeddings": "family5_embeddings.csv",
     "recluster_embeddings": "recluster_embeddings.csv"
-  }
+  },
+  "metric_k": 2,
+  "metric_note": "neighbor-purity lift uses corrected k=2 (self excluded, then topk(2)); an earlier off-by-one used topk(3) and was mislabeled k=2 (see knn_recompute.json)."
 }

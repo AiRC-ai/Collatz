@@ -23,30 +23,30 @@
 <line x1="64" y1="196.0" x2="1136" y2="196.0" stroke="#1f2a44" stroke-width="1"/>
 <text x="54" y="201.0" fill="#64748b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" text-anchor="end">100</text>
 <text x="20" y="376" fill="#8693b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13" text-anchor="middle" transform="rotate(-90 20 376)">lift (%)</text>
-<rect x="114.66666666666666" y="507.5584" width="76" height="48.441599999999994" rx="6" fill="#64748b"/>
-<text x="152.66666666666666" y="499.5584" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+13.5</text>
-<rect x="204.66666666666666" y="239.236" width="76" height="316.764" rx="6" fill="#60a5fa"/>
-<text x="242.66666666666666" y="231.236" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+88.0</text>
-<rect x="294.66666666666663" y="234.36520000000002" width="76" height="321.6348" rx="6" fill="#22c55e"/>
-<text x="332.66666666666663" y="226.36520000000002" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+89.3</text>
+<rect x="114.66666666666666" y="505.924" width="76" height="50.07600000000002" rx="6" fill="#64748b"/>
+<text x="152.66666666666666" y="497.924" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+13.9</text>
+<rect x="204.66666666666666" y="237.07599999999996" width="76" height="318.92400000000004" rx="6" fill="#60a5fa"/>
+<text x="242.66666666666666" y="229.07599999999996" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+88.6</text>
+<rect x="294.66666666666663" y="232.75599999999997" width="76" height="323.244" rx="6" fill="#22c55e"/>
+<text x="332.66666666666663" y="224.75599999999997" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+89.8</text>
 <line x1="108.66666666666666" y1="533.5" x2="376.66666666666663" y2="533.5" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5 4"/>
 <text x="380.66666666666663" y="537.5" fill="#f59e0b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">random 0.062</text>
 <text x="242.66666666666666" y="590" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">range_band (16)</text>
-<rect x="472.0" y="448.5904" width="76" height="107.40960000000001" rx="6" fill="#64748b"/>
-<text x="510.0" y="440.5904" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+29.8</text>
-<rect x="562.0" y="296.77119999999996" width="76" height="259.22880000000004" rx="6" fill="#60a5fa"/>
-<text x="600.0" y="288.77119999999996" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+72.0</text>
-<rect x="652.0" y="294.4024" width="76" height="261.5976" rx="6" fill="#22c55e"/>
-<text x="690.0" y="286.4024" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+72.7</text>
+<rect x="472.0" y="443.392" width="76" height="112.608" rx="6" fill="#64748b"/>
+<text x="510.0" y="435.392" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+31.3</text>
+<rect x="562.0" y="296.152" width="76" height="259.848" rx="6" fill="#60a5fa"/>
+<text x="600.0" y="288.152" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+72.2</text>
+<rect x="652.0" y="294.06399999999996" width="76" height="261.93600000000004" rx="6" fill="#22c55e"/>
+<text x="690.0" y="286.06399999999996" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+72.8</text>
 <line x1="466.0" y1="461.698" x2="734.0" y2="461.698" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5 4"/>
 <text x="738.0" y="465.698" fill="#f59e0b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">random 0.262</text>
 <text x="600.0" y="590" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">bit_length (17)</text>
-<rect x="829.3333333333333" y="354.4504" width="76" height="201.5496" rx="6" fill="#64748b"/>
-<text x="867.3333333333333" y="346.4504" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+56.0</text>
-<rect x="919.3333333333333" y="249.514" width="76" height="306.486" rx="6" fill="#60a5fa"/>
-<text x="957.3333333333333" y="241.514" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+85.1</text>
-<rect x="1009.3333333333333" y="254.1472" width="76" height="301.8528" rx="6" fill="#22c55e"/>
-<text x="1047.3333333333333" y="246.1472" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+83.8</text>
+<rect x="829.3333333333333" y="350.44000000000005" width="76" height="205.55999999999995" rx="6" fill="#64748b"/>
+<text x="867.3333333333333" y="342.44000000000005" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+57.1</text>
+<rect x="919.3333333333333" y="248.488" width="76" height="307.512" rx="6" fill="#60a5fa"/>
+<text x="957.3333333333333" y="240.488" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+85.4</text>
+<rect x="1009.3333333333333" y="252.7" width="76" height="303.3" rx="6" fill="#22c55e"/>
+<text x="1047.3333333333333" y="244.7" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+84.2</text>
 <line x1="823.3333333333333" y1="509.5924" x2="1091.3333333333333" y2="509.5924" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5 4"/>
 <text x="1095.3333333333333" y="513.5924" fill="#f59e0b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">random 0.129</text>
 <text x="957.3333333333333" y="590" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">peak_ratio (28)</text>
@@ -58,18 +58,18 @@
 <text x="189.0" y="626" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">prior AI: v7</text>
 <text x="189.0" y="639" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">self-supervised</text>
 <rect x="334" y="594" width="210" height="22" rx="6" fill="#1f2a44"/>
-<rect x="334" y="594" width="28" height="22" rx="6" fill="#64748b"/>
-<text x="439.0" y="608" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">+13.46%</text>
+<rect x="334" y="594" width="29" height="22" rx="6" fill="#64748b"/>
+<text x="439.0" y="608" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">+13.91%</text>
 <text x="439.0" y="626" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">non-AI baseline</text>
 <text x="439.0" y="639" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">raw metrics</text>
 <rect x="584" y="594" width="210" height="22" rx="6" fill="#1f2a44"/>
-<rect x="584" y="594" width="184" height="22" rx="6" fill="#60a5fa"/>
-<text x="689.0" y="608" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">+87.99%</text>
+<rect x="584" y="594" width="186" height="22" rx="6" fill="#60a5fa"/>
+<text x="689.0" y="608" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">+88.59%</text>
 <text x="689.0" y="626" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">original:</text>
 <text x="689.0" y="639" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">metrics-only</text>
 <rect x="834" y="594" width="210" height="22" rx="6" fill="#1f2a44"/>
-<rect x="834" y="594" width="187" height="22" rx="6" fill="#22c55e"/>
-<text x="939.0" y="608" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">+89.34%</text>
+<rect x="834" y="594" width="188" height="22" rx="6" fill="#22c55e"/>
+<text x="939.0" y="608" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">+89.79%</text>
 <text x="939.0" y="626" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">ours:</text>
 <text x="939.0" y="639" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">hybrid</text>
 </svg>

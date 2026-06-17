@@ -35,9 +35,9 @@ import torch.nn.functional as F
 
 def parse_args():
     p = argparse.ArgumentParser(description="v11: prototypical few-shot + re-clustered families")
-    p.add_argument("--metrics-safe", default="/home/ryancox/3xN1/data/generated/ml_stratified/metrics_safe.csv")
-    p.add_argument("--families", default="/home/ryancox/3xN1/data/generated/ml_labels/families.csv")
-    p.add_argument("--output-dir", default="/home/ryancox/3xN1/data/generated/contrastive_v11")
+    p.add_argument("--metrics-safe", default="data/generated/ml_stratified/metrics_safe.csv")
+    p.add_argument("--families", default="data/generated/ml_labels/families.csv")
+    p.add_argument("--output-dir", default="data/generated/contrastive_v11")
     p.add_argument("--n-clusters", type=int, default=2000, help="k-means clusters for re-cluster target")
     p.add_argument("--min-family", type=int, default=5, help="min members to keep an original family")
     p.add_argument("--n-way", type=int, default=30)
@@ -146,7 +146,7 @@ def knn_lift(feat, labels, k=2, chunk=8000):
         sim = feat[s:e] @ feat.T
         for j in range(e - s):
             sim[j, s + j] = -1e9
-        top = sim.topk(k + 1, dim=1).indices
+        top = sim.topk(k, dim=1).indices
         nl = lt[top]
         sm = top == torch.arange(s, e, device=dev).unsqueeze(1)
         nl[sm] = lt[N - 1] + 1
