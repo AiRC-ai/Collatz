@@ -1,22 +1,21 @@
 #!/usr/bin/env python3
-"""Render the headline model-comparison chart (SVG): new AI models vs the
-original non-AI baseline, on one consistent metric.
+"""Render the headline model-comparison chart (SVG): original (metrics-only) vs
+ours (hybrid), with the non-AI raw-metrics baseline as the floor.
 
-Reads data/generated/evidence/model_comparison.json (the authoritative
-consolidated comparison) and emits docs/media/v9-v10-supervised-chart.svg.
-
-Metric everywhere: k=2 nearest-neighbor same-label purity minus the random
-baseline, over 100,000 Collatz trajectories. "non-AI baseline" = raw
-trajectory metrics (m0-m31), no learning. "new AI" = v9 (single-task supervised)
-and v10 (multi-task supervised) embeddings.
+Reads data/generated/evidence/model_comparison.json and emits
+docs/media/v9-v10-supervised-chart.svg. One consistent metric throughout:
+k=2 nearest-neighbor same-label purity minus the random baseline, over 100,000
+Collatz trajectories. Both trained models use the v10 multi-task supervised
+method; only the input features differ (original=metrics-only, ours=hybrid=all
+branches).
 """
 from __future__ import annotations
 import argparse, html, json
 from pathlib import Path
 
-COL = {"raw": "#64748b", "v9": "#a78bfa", "v10": "#22c55e"}  # slate, purple, green
-LEGEND = {"raw": "non-AI baseline (raw metrics)", "v9": "v9 new AI (single-task)", "v10": "v10 new AI (multi-task)"}
-SHORT = {"range_band": "range_band", "bit_length": "bit_length", "peak_ratio_bucket": "peak_ratio_bucket"}
+COL = {"raw": "#64748b", "original": "#60a5fa", "ours": "#22c55e"}  # slate, blue, green
+LEGEND = {"raw": "non-AI baseline (raw metrics)", "original": "original (metrics-only)", "ours": "ours (hybrid, all branches)"}
+SHORT = {"range_band": "range_band", "bit_length": "bit_length", "peak_ratio_bucket": "peak_ratio"}
 V7_RANGE_BAND_LIFT = 0.00233  # prior AI: v7 self-supervised contrastive (retired)
 
 
@@ -25,39 +24,31 @@ def esc(s): return html.escape(str(s), quote=True)
 
 def load_data(path):
     d = json.loads(Path(path).read_text())
-    rows = []
-    for r in d["results"]:
-        rows.append({
-            "label": r["label"],
-            "n_classes": r["n_classes"],
-            "baseline": r["random_baseline"],
-            "raw": r["non_ai_raw_metrics_lift"],
-            "v9": r["v9_single_task_lift"],
-            "v10": r["v10_multi_task_lift"],
-        })
-    return rows
+    return [{"label": r["label"], "n_classes": r["n_classes"], "baseline": r["random_baseline"],
+             "raw": r["non_ai_raw_metrics_lift"], "original": r["original_metrics_only_lift"],
+             "ours": r["ours_hybrid_lift"]} for r in d["results"]]
 
 
 def render(rows):
     W, H, max_val = 1200, 680, 1.0
     left, top, plot_w, plot_h = 64, 196, 1072, 360
     group_w = plot_w / len(rows)
-    bar_w, gap = 70, 14
+    bar_w, gap = 76, 14
     def y(v): return top + plot_h - plot_h * (max(v, 0) / max_val)
 
     svg = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-labelledby="title desc">']
-    svg.append('<title id="title">New AI models vs original non-AI baseline</title>')
-    svg.append('<desc id="desc">Neighbor-purity lift (k=2) by label: non-AI raw-metrics baseline vs v9 single-task and v10 multi-task supervised embeddings.</desc>')
+    svg.append('<title id="title">Original (metrics-only) vs ours (hybrid)</title>')
+    svg.append('<desc id="desc">k=2 neighbor-purity lift by label: non-AI raw baseline vs original metrics-only vs ours hybrid, all under the v10 supervised method.</desc>')
     svg.append('<defs><linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">'
                '<stop offset="0" stop-color="#101a33"/><stop offset="1" stop-color="#0b1326"/></linearGradient></defs>')
     svg.append(f'<rect width="{W}" height="{H}" fill="#080d1a"/>')
-    svg.append(f'<text x="64" y="62" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">New AI models vs the original non-AI baseline</text>')
-    svg.append(f'<text x="64" y="90" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15">Neighbor-purity lift over random baseline (k=2, 100k trajectories, one consistent metric). v10 beats the non-AI baseline on all three labels.</text>')
+    svg.append(f'<text x="64" y="62" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">Original (metrics-only) vs ours (hybrid)</text>')
+    svg.append(f'<text x="64" y="90" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15">k=2 neighbor-purity lift over random baseline (100k trajectories, one metric). Both models beat the non-AI baseline; ours (hybrid) is tied with original (metrics-only).</text>')
     lx = 64
-    for key in ("raw", "v9", "v10"):
+    for key in ("raw", "original", "ours"):
         svg.append(f'<rect x="{lx}" y="112" width="16" height="16" rx="4" fill="{COL[key]}"/>')
         svg.append(f'<text x="{lx+24}" y="125" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">{LEGEND[key]}</text>')
-        lx += 250
+        lx += 290
     svg.append(f'<rect x="{left-20}" y="{top-30}" width="{plot_w+40}" height="{plot_h+70}" rx="10" fill="url(#panel)" stroke="#2b385e"/>')
     for frac in [0.0, 0.25, 0.5, 0.75, 1.0]:
         gy = top + plot_h - plot_h * frac
@@ -66,7 +57,7 @@ def render(rows):
     svg.append(f'<text x="{left-44}" y="{top+plot_h//2}" fill="#8693b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13" text-anchor="middle" transform="rotate(-90 {left-44} {top+plot_h//2})">lift (%)</text>')
     for gi, r in enumerate(rows):
         gx = left + group_w * gi + group_w / 2
-        vals = [("raw", r["raw"]), ("v9", r["v9"]), ("v10", r["v10"])]
+        vals = [("raw", r["raw"]), ("original", r["original"]), ("ours", r["ours"])]
         total_w = 3 * bar_w + 2 * gap
         start_x = gx - total_w / 2
         for bi, (key, v) in enumerate(vals):
@@ -81,15 +72,14 @@ def render(rows):
     # progress strip
     py = 600
     svg.append(f'<rect x="64" y="{py-44}" width="1072" height="92" rx="10" fill="url(#panel)" stroke="#2b385e"/>')
-    svg.append(f'<text x="84" y="{py-22}" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">Progress on range_band lift: prior self-supervised AI collapsed below the non-AI baseline; new supervised AI recovers and generalizes.</text>')
+    svg.append(f'<text x="84" y="{py-22}" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">Progress on range_band lift: the win was the supervised METHOD over self-supervised contrastive, not the hybrid FEATURES over metrics-only.</text>')
     steps = [("prior AI: v7\nself-supervised", V7_RANGE_BAND_LIFT, "#ef4444"),
              ("non-AI baseline\nraw metrics", rows[0]["raw"], "#64748b"),
-             ("new AI: v9\nsingle-task", rows[0]["v9"], "#a78bfa"),
-             ("new AI: v10\nmulti-task (sweep)", rows[0]["v10"], "#22c55e")]
+             ("original:\nmetrics-only", rows[0]["original"], "#60a5fa"),
+             ("ours:\nhybrid", rows[0]["ours"], "#22c55e")]
     sw = 250
     for i, (name, v, color) in enumerate(steps):
-        sx = 84 + i * sw
-        bw = 210
+        sx = 84 + i * sw; bw = 210
         svg.append(f'<rect x="{sx}" y="{py-6}" width="{bw}" height="22" rx="6" fill="#1f2a44"/>')
         svg.append(f'<rect x="{sx}" y="{py-6}" width="{int(bw*min(v/max_val,1.0))}" height="22" rx="6" fill="{color}"/>')
         svg.append(f'<text x="{sx+bw/2}" y="{py+8}" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">{v*100:+.2f}%</text>')
@@ -100,7 +90,7 @@ def render(rows):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Render new-AI-vs-non-AI comparison chart SVG.")
+    ap = argparse.ArgumentParser(description="Render original-vs-ours comparison chart SVG.")
     ap.add_argument("--input", default="data/generated/evidence/model_comparison.json")
     ap.add_argument("--output", default="docs/media/v9-v10-supervised-chart.svg")
     args = ap.parse_args()

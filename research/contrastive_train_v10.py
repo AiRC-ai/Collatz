@@ -38,6 +38,7 @@ import torch.nn.functional as F
 
 # The three coarse labels learned jointly. Order is fixed for stable indexing.
 TASKS = ("range_band", "bit_length", "peak_ratio_bucket")
+ALL_BRANCHES = ("metrics", "shape", "parity", "residue")
 
 
 # ------------------------------------------------------------------
@@ -45,6 +46,12 @@ def parse_args():
     p = argparse.ArgumentParser(description="v10: multi-task supervised embedding")
     p.add_argument("--metrics-safe", default="/home/ryancox/3xN1/data/generated/ml_stratified/metrics_safe.csv")
     p.add_argument("--families", default="/home/ryancox/3xN1/data/generated/ml_labels/families.csv")
+    p.add_argument("--log-sketch", default="/home/ryancox/3xN1/data/generated/ml_stratified/log_sketch.csv")
+    p.add_argument("--parity-runs", default="/home/ryancox/3xN1/data/generated/ml_stratified/parity_runs.csv")
+    p.add_argument("--transitions", default="/home/ryancox/3xN1/data/generated/ml_stratified/residue_transitions_mod32.csv")
+    p.add_argument("--feature-set", default="metrics", choices=("metrics", "hybrid", "full"),
+                   help="metrics=m0-m31 only (original); hybrid/full=all branches (ours)")
+    p.add_argument("--sequence-len", type=int, default=128)
     p.add_argument("--output-dir", default="/home/ryancox/3xN1/data/generated/contrastive_v10")
     p.add_argument("--epochs", type=int, default=60)
     p.add_argument("--batch-size", type=int, default=2048)
@@ -94,6 +101,31 @@ def read_labels(path, starts, col):
             if n in idx:
                 labels[idx[n]] = row.get(col, "unknown")
     return labels
+
+
+def read_token_sequence(path, starts, seq_len):
+    wanted = set(starts)
+    by_n = {}
+    with path.open(newline="") as h:
+        for row in csv.DictReader(h):
+            n = int(row["n"])
+            if n not in wanted:
+                continue
+            raw = (row.get("tokens", "") or "").split(";")
+            vals = [float(int(v) & 0xffff) / 65535.0 for v in raw if v]
+            arr = torch.tensor(vals if vals else [0.0], dtype=torch.float32)
+            if arr.shape[0] < seq_len:
+                arr = torch.cat([arr, torch.zeros(seq_len - arr.shape[0])])
+            else:
+                arr = arr[:seq_len]
+            by_n[n] = arr
+    return torch.stack([by_n[n] for n in starts])
+
+
+def active_branches(fs):
+    # "hybrid"/"full" = all feature branches (the project's "ours" representation)
+    return ("metrics",) if fs == "metrics" else ALL_BRANCHES
+
 
 
 # ------------------------------------------------------------------
@@ -173,9 +205,25 @@ def main():
 
     # ---- Load features + all three label sets ----
     print("\nLoading data...")
+    branch_names = active_branches(args.feature_set)
     starts, m_data = read_matrix(Path(args.metrics_safe), "m", args.limit)
     N = len(starts)
-    print(f"  metrics {m_data.shape} | {N} items")
+    inputs = {"metrics": m_data}
+    input_dims = {"metrics": int(m_data.shape[1])}
+    print(f"  metrics {m_data.shape} | {N} items | feature_set={args.feature_set} branches={branch_names}")
+    if "shape" in branch_names:
+        s_starts, s_data = read_matrix(Path(args.log_sketch), "s", args.limit)
+        assert len(s_starts) == N, "shape row count mismatch"
+        inputs["shape"] = s_data; input_dims["shape"] = int(s_data.shape[1])
+        print(f"  shape (log_sketch) {s_data.shape}")
+    if "parity" in branch_names:
+        inputs["parity"] = read_token_sequence(Path(args.parity_runs), starts, args.sequence_len)
+        input_dims["parity"] = int(inputs["parity"].shape[1])
+        print(f"  parity {inputs['parity'].shape}")
+    if "residue" in branch_names:
+        inputs["residue"] = read_token_sequence(Path(args.transitions), starts, args.sequence_len)
+        input_dims["residue"] = int(inputs["residue"].shape[1])
+        print(f"  residue {inputs['residue'].shape}")
 
     label_sets = {}
     cls_per_task = []
@@ -190,9 +238,9 @@ def main():
         counts = Counter(labels)
         print(f"  {task}: {len(cls)} classes (min={min(counts.values())}, max={max(counts.values())})")
 
-    X = m_data.to(device)
+    X = torch.cat([inputs[b] for b in branch_names], dim=1).to(device)
     Y = {t: label_ids[t].to(device) for t in TASKS}
-    total_input = m_data.shape[1]
+    total_input = sum(input_dims[b] for b in branch_names)
 
     # ---- Train/test split ----
     g = torch.Generator().manual_seed(args.seed)
@@ -299,6 +347,8 @@ def main():
         "tool": "research/contrastive_train_v10.py",
         "status": "complete",
         "method": "multi_task_supervised_embedding",
+        "feature_set": args.feature_set,
+        "branches": list(branch_names),
         "device": str(device),
         "cuda_device": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
         "embedding_count": N,

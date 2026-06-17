@@ -22,28 +22,34 @@ or validation.
 
 ![Historical Collatz evidence trend](docs/media/evidence-history.svg)
 
-### New AI models vs the original non-AI baseline
+### Original (metrics-only) vs ours (hybrid)
 
-All numbers below use one consistent metric: k=2 nearest-neighbor same-label
-purity minus the random baseline, over 100,000 Collatz trajectories. The
-**non-AI baseline** is the raw trajectory metrics (`m0`-`m31`) with no learning.
-Authoritative source: `data/generated/evidence/model_comparison.json`.
+All numbers use one consistent metric: k=2 nearest-neighbor same-label purity
+minus the random baseline, over 100,000 Collatz trajectories. The **non-AI
+baseline** is the raw trajectory metrics (`m0`-`m31`) with no learning.
+**Original** = metrics-only features; **ours** = hybrid (all branches:
+metrics+shape+parity+residue). Both trained models use the v10 multi-task
+supervised method. Authoritative source:
+`data/generated/evidence/model_comparison.json`.
 
-| Label | Classes | Non-AI baseline (raw metrics) | v9 - new AI (single-task) | v10 - new AI (multi-task) |
+| Label | Classes | Non-AI baseline (raw) | Original (metrics-only) | Ours (hybrid) |
 |---|---:|---:|---:|---:|
-| range_band | 16 | +13.5% | +92.7% | +88.0% |
-| bit_length | 17 | +29.8% | +73.4% | +72.0% |
-| peak_ratio_bucket | 28 | +56.0% | +23.7% | +85.1% |
-| **beats non-AI baseline on** | - | - | 2 of 3 | **3 of 3** |
+| range_band | 16 | +13.5% | +88.0% | +89.3% |
+| bit_length | 17 | +29.8% | +72.0% | +72.7% |
+| peak_ratio_bucket | 28 | +56.0% | +85.1% | +83.8% |
+| **summed lift** | - | - | +2.451 | +2.459 |
 
-![New AI models vs the original non-AI baseline](docs/media/v9-v10-supervised-chart.svg)
+![Original (metrics-only) vs ours (hybrid)](docs/media/v9-v10-supervised-chart.svg)
 
-**v10** (one 64-d embedding trained to predict all three labels at once) beats
-the non-AI baseline on every label. **v9** (trained on `range_band` only) beats
-it on the two magnitude labels but loses on `peak_ratio_bucket` because it
-specializes. Both retire the prior self-supervised contrastive line (v4-v7),
-which collapsed to **+0.23%** on `range_band` -- worse than the zero-learning
-non-AI baseline (+13.5%). Full postmortem: [docs/NEURAL_ENGINE_V9.md](docs/NEURAL_ENGINE_V9.md).
+**Both trained models beat the non-AI baseline on every label.** But **ours
+(hybrid) is tied with original (metrics-only)** -- hybrid is +1.3 pts on
+range_band, +0.7 on bit_length, and -1.3 on peak_ratio_bucket (summed delta
++0.007). The win came from the supervised METHOD over the prior
+self-supervised contrastive line (v4-v7), which collapsed to +0.23% on
+`range_band` -- below the zero-learning non-AI baseline (+13.5%) -- not from
+the hybrid FEATURES over metrics-only. Full postmortem:
+[docs/NEURAL_ENGINE_V9.md](docs/NEURAL_ENGINE_V9.md).
+
 
 > **Metric note (do not mix):** the older ablation numbers elsewhere in this
 > repo (`metrics-only 84.118%`, `hybrid 83.336%`, etc.) are a *different* metric

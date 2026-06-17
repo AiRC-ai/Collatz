@@ -85,6 +85,33 @@ Result (best epoch 60, summed lift +2.4513):
 (+85.1% vs raw +56.0%), the label v9 lost on. This is the first general-purpose
 retrieval embedding in the project.
 
+## v10 hybrid vs metrics-only -- the honest feature comparison
+
+The question was whether "our" richer representation (hybrid = all branches:
+metrics + shape + parity + residue) actually beats the "original" metrics-only
+representation. v10 was extended to take `--feature-set hybrid|full`, and a
+hybrid v10 was trained with the same multi-task supervised method, then compared
+to the metrics-only v10 on the same k=2 neighbor-purity metric.
+
+| Label | Non-AI baseline (raw) | Original (metrics-only) | Ours (hybrid) | Hybrid vs original |
+|---|---:|---:|---:|---:|
+| range_band | +13.5% | +88.0% | +89.3% | +1.3 (hybrid) |
+| bit_length | +29.8% | +72.0% | +72.7% | +0.7 (hybrid) |
+| peak_ratio_bucket | +56.0% | +85.1% | +83.8% | -1.3 (metrics-only) |
+| **summed lift** | - | +2.451 | +2.459 | +0.007 |
+
+**Result: ours (hybrid) is tied with original (metrics-only).** The extra
+branches add essentially nothing for these coarse labels -- consistent with the
+raw-kNN diagnostic that showed `log_sketch` (shape) has zero signal for
+range_band. The decisive gain came from switching the METHOD (supervised vs
+self-supervised contrastive: +0.23% -> +88%), not from switching the FEATURES
+(hybrid vs metrics-only: tied). So the hybrid representation is a safe superset
+(no worse) but has not earned its extra complexity for the coarse labels; the
+value of the hybrid work stays an open question for the fine
+`coalescence_family_id` target, where richer features might matter.
+
+This is empirical evidence, not a Collatz proof.
+
 ## Architecture
 
 ```

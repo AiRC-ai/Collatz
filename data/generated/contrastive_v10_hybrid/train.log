@@ -1,0 +1,86 @@
+v10 MULTI-TASK | tasks=('range_band', 'bit_length', 'peak_ratio_bucket') device=cuda
+
+Loading data...
+  metrics torch.Size([100000, 32]) | 100000 items | feature_set=hybrid branches=('metrics', 'shape', 'parity', 'residue')
+  shape (log_sketch) torch.Size([100000, 128])
+  parity torch.Size([100000, 128])
+  residue torch.Size([100000, 128])
+  range_band: 16 classes (min=6250, max=6250)
+  bit_length: 17 classes (min=1, max=34465)
+  peak_ratio_bucket: 28 classes (min=1, max=22177)
+  split: train=80000 test=20000 | input_dim=416
+  model params: 65,597
+
+Training: 60 epochs, batch=2048
+  epoch 1/60 loss=5.9346 accs=[rang=22.8%, bit_=62.0%, peak=59.2%] lifts=[rang=+0.334, bit_=+0.478, peak=+0.628] sum=+1.4400
+  epoch 2/60 loss=3.3229
+  epoch 3/60 loss=2.3502
+  epoch 4/60 loss=1.9253
+  epoch 5/60 loss=1.6849 accs=[rang=69.5%, bit_=94.5%, peak=86.1%] lifts=[rang=+0.779, bit_=+0.708, peak=+0.790] sum=+2.2770
+  epoch 6/60 loss=1.5248
+  epoch 7/60 loss=1.3889
+  epoch 8/60 loss=1.2857
+  epoch 9/60 loss=1.1979
+  epoch 10/60 loss=1.1293 accs=[rang=81.8%, bit_=95.9%, peak=90.3%] lifts=[rang=+0.840, bit_=+0.718, peak=+0.814] sum=+2.3727
+  epoch 11/60 loss=1.0639
+  epoch 12/60 loss=1.0247
+  epoch 13/60 loss=1.0094
+  epoch 14/60 loss=0.9523
+  epoch 15/60 loss=0.8925 accs=[rang=86.0%, bit_=96.4%, peak=92.6%] lifts=[rang=+0.860, bit_=+0.721, peak=+0.825] sum=+2.4061
+  epoch 16/60 loss=0.8469
+  epoch 17/60 loss=0.8259
+  epoch 18/60 loss=0.8026
+  epoch 19/60 loss=0.7766
+  epoch 20/60 loss=0.7500 accs=[rang=88.4%, bit_=97.8%, peak=94.1%] lifts=[rang=+0.873, bit_=+0.723, peak=+0.830] sum=+2.4264
+  epoch 21/60 loss=0.7253
+  epoch 22/60 loss=0.7090
+  epoch 23/60 loss=0.6880
+  epoch 24/60 loss=0.6697
+  epoch 25/60 loss=0.6542 accs=[rang=91.4%, bit_=98.0%, peak=94.7%] lifts=[rang=+0.877, bit_=+0.724, peak=+0.833] sum=+2.4340
+  epoch 26/60 loss=0.6382
+  epoch 27/60 loss=0.6229
+  epoch 28/60 loss=0.6049
+  epoch 29/60 loss=0.6121
+  epoch 30/60 loss=0.5780 accs=[rang=93.0%, bit_=98.2%, peak=95.2%] lifts=[rang=+0.884, bit_=+0.725, peak=+0.835] sum=+2.4442
+  epoch 31/60 loss=0.5702
+  epoch 32/60 loss=0.5634
+  epoch 33/60 loss=0.5480
+  epoch 34/60 loss=0.5519
+  epoch 35/60 loss=0.5367 accs=[rang=94.8%, bit_=98.8%, peak=95.9%] lifts=[rang=+0.888, bit_=+0.725, peak=+0.836] sum=+2.4491
+  epoch 36/60 loss=0.5242
+  epoch 37/60 loss=0.5176
+  epoch 38/60 loss=0.5091
+  epoch 39/60 loss=0.5064
+  epoch 40/60 loss=0.4971 accs=[rang=95.2%, bit_=98.7%, peak=96.3%] lifts=[rang=+0.890, bit_=+0.726, peak=+0.838] sum=+2.4536
+  epoch 41/60 loss=0.4908
+  epoch 42/60 loss=0.4857
+  epoch 43/60 loss=0.4750
+  epoch 44/60 loss=0.4768
+  epoch 45/60 loss=0.4724 accs=[rang=95.6%, bit_=98.9%, peak=96.6%] lifts=[rang=+0.891, bit_=+0.726, peak=+0.838] sum=+2.4556
+  epoch 46/60 loss=0.4677
+  epoch 47/60 loss=0.4642
+  epoch 48/60 loss=0.4624
+  epoch 49/60 loss=0.4587
+  epoch 50/60 loss=0.4536 accs=[rang=96.2%, bit_=98.9%, peak=96.7%] lifts=[rang=+0.893, bit_=+0.727, peak=+0.838] sum=+2.4579
+  epoch 51/60 loss=0.4520
+  epoch 52/60 loss=0.4526
+  epoch 53/60 loss=0.4489
+  epoch 54/60 loss=0.4459
+  epoch 55/60 loss=0.4437 accs=[rang=96.3%, bit_=99.0%, peak=96.8%] lifts=[rang=+0.893, bit_=+0.727, peak=+0.838] sum=+2.4586
+  epoch 56/60 loss=0.4430
+  epoch 57/60 loss=0.4403
+  epoch 58/60 loss=0.4425
+  epoch 59/60 loss=0.4416
+  epoch 60/60 loss=0.4429 accs=[rang=96.4%, bit_=99.0%, peak=96.8%] lifts=[rang=+0.893, bit_=+0.727, peak=+0.838] sum=+2.4585
+
+Final evaluation (best checkpoint by summed lift)...
+
+v10 MULTI-TASK | embedding_dim=64 best_epoch=55
+  label                classes  baseline     raw-kNN     v10-emb      acc     verdict
+  ------------------------------------------------------------------------
+  range_band                16    0.0625     +0.1346     +0.8934    96.3%    v10 WINS
+  bit_length                17    0.2620     +0.2984     +0.7267    99.0%    v10 WINS
+  peak_ratio_bucket         28    0.1289     +0.5599     +0.8385    96.8%    v10 WINS
+
+  summed lift (best epoch 55): +2.4586
+  outputs: data/generated/contrastive_v10_hybrid

@@ -1,17 +1,21 @@
 {
   "metric": "neighbor_purity_lift_k2",
   "dataset": "100000 Collatz trajectories (airc1 RTX 3090)",
-  "note": "All numbers on the SAME metric: k=2 nearest-neighbor same-label purity minus random baseline. Non-AI baseline = raw trajectory metrics (m0-m31), no learning.",
+  "note": "All numbers on the SAME metric: k=2 nearest-neighbor same-label purity minus random baseline. Original=metrics-only features (m0-m31); Ours=hybrid features (metrics+shape+parity+residue). Both trained with the v10 multi-task supervised method.",
   "models": {
     "non_ai_raw_metrics": {
-      "kind": "non-AI baseline (no learning)",
-      "features": "m0-m31 standardized"
+      "kind": "non-AI baseline (raw metrics, no learning)",
+      "features": "m0-m31"
     },
-    "v9_supervised_single": {
-      "kind": "new AI model (supervised, range_band only)"
+    "original_metrics_only": {
+      "kind": "original representation",
+      "features": "m0-m31 (metrics-only)",
+      "method": "v10 supervised multi-task"
     },
-    "v10_supervised_multitask": {
-      "kind": "new AI model (supervised, multi-task)"
+    "ours_hybrid": {
+      "kind": "ours representation",
+      "features": "metrics+shape+parity+residue (all branches)",
+      "method": "v10 supervised multi-task"
     }
   },
   "results": [
@@ -20,34 +24,39 @@
       "n_classes": 16,
       "random_baseline": 0.0625,
       "non_ai_raw_metrics_lift": 0.13456,
-      "v9_single_task_lift": 0.92734,
-      "v10_multi_task_lift": 0.8799,
-      "v10_beats_raw": true,
-      "v9_beats_raw": true
+      "original_metrics_only_lift": 0.8799,
+      "ours_hybrid_lift": 0.89343,
+      "hybrid_beats_metrics_only": true,
+      "hybrid_beats_raw": true
     },
     {
       "label": "bit_length",
       "n_classes": 17,
       "random_baseline": 0.26195,
       "non_ai_raw_metrics_lift": 0.29836,
-      "v9_single_task_lift": 0.73396,
-      "v10_multi_task_lift": 0.72008,
-      "v10_beats_raw": true,
-      "v9_beats_raw": true
+      "original_metrics_only_lift": 0.72008,
+      "ours_hybrid_lift": 0.72666,
+      "hybrid_beats_metrics_only": true,
+      "hybrid_beats_raw": true
     },
     {
       "label": "peak_ratio_bucket",
       "n_classes": 28,
       "random_baseline": 0.12891,
       "non_ai_raw_metrics_lift": 0.55986,
-      "v9_single_task_lift": 0.23731,
-      "v10_multi_task_lift": 0.85135,
-      "v10_beats_raw": true,
-      "v9_beats_raw": false
+      "original_metrics_only_lift": 0.85135,
+      "ours_hybrid_lift": 0.83848,
+      "hybrid_beats_metrics_only": false,
+      "hybrid_beats_raw": true
     }
   ],
+  "summed_lift": {
+    "original_metrics_only": 2.45133,
+    "ours_hybrid": 2.45857,
+    "delta_ours_minus_original": 0.00724
+  },
   "prior_ai_reference": {
     "v7_self_supervised_contrastive_range_band_lift": 0.00233,
-    "note": "v4-v7 self-supervised contrastive collapsed below the non-AI baseline (v7 +0.23% vs raw +13.5% on range_band). Retired by v9/v10."
+    "note": "Prior self-supervised contrastive (v4-v7) collapsed to +0.23% on range_band, below the non-AI baseline. Retired by the supervised method."
   }
 }
