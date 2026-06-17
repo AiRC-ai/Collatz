@@ -51,19 +51,19 @@
     <text x="88" y="314" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="20" font-weight="800">Neural Evidence</text>
     <text x="88" y="338" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Lift values compare learned neighborhoods against controlled baselines.</text>
 
-    <text x="88" y="384" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Best ablation: metrics-only</text>
+    <text x="88" y="384" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Best ablation: v9 supervised, range_band, 60ep</text>
     <rect x="88" y="398" width="372" height="18" rx="9" fill="#1f2a44"/>
     <rect x="88" y="398" width="323" height="18" rx="9" fill="url(#green)"/>
-    <text x="474" y="413" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">84.118%</text>
+    <text x="474" y="413" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">92.740%</text>
 
     <text x="88" y="444" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Hybrid representation</text>
     <rect x="88" y="458" width="372" height="18" rx="9" fill="#1f2a44"/>
-    <rect x="88" y="458" width="320" height="18" rx="9" fill="#60a5fa"/>
+    <rect x="88" y="458" width="290" height="18" rx="9" fill="#60a5fa"/>
     <text x="474" y="473" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">83.336%</text>
 
     <text x="88" y="504" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">Weakest range holdout</text>
     <rect x="88" y="518" width="372" height="18" rx="9" fill="#1f2a44"/>
-    <rect x="88" y="518" width="2" height="18" rx="9" fill="#a78bfa"/>
+    <rect x="88" y="518" width="1" height="18" rx="9" fill="#a78bfa"/>
     <text x="474" y="533" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">0.529%</text>
     <text x="88" y="562" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Numeric-adjacency lift: 1.294%</text>
   </g>
@@ -84,9 +84,14 @@
 
     <rect x="640" y="540" width="448" height="1" fill="#263450"/>
     <text x="640" y="566" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Next falsification test</text>
-    <text x="640" y="590" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Add hard negative sampling to the v1-encoder family-pair model and</text>
-    <text x="640" y="607" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">scale to 200 epochs to push lift above 50%.</text>
+    <text x="640" y="590" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Fine coalescence_family_id target: 61,754 classes with ~1.6 examples</text>
+    <text x="640" y="607" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">each. v10 proves the coarse-label pipeline works, but raw-metrics k-NN</text>
+    <text x="640" y="624" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">lift on family_id is only +0.85%, and with 1-2 examples per class</text>
+    <text x="640" y="641" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">neither supervised classification nor contrastive learning has enough</text>
+    <text x="640" y="658" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">signal. Next: test whether family_id is well-defined in a richer</text>
+    <text x="640" y="675" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">feature space before training; consider multi-task on finer labels or a</text>
+    <text x="640" y="692" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">different family definition rather than another loss function.</text>
   </g>
 
-  <text x="64" y="642" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Generated at 2026-06-10T17:22:38.936877+00:00 from public-safe canonical evidence. Operations telemetry never raises confidence.</text>
+  <text x="64" y="642" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Generated at 2026-06-17T20:13:20.160781+00:00 from public-safe canonical evidence. Operations telemetry never raises confidence.</text>
 </svg>

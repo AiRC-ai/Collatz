@@ -1,0 +1,75 @@
+v9 SUPERVISED | feature_set=metrics label=range_band supcon_weight=0.0 device=cuda
+
+Loading data...
+  metrics torch.Size([100000, 32]) | 100000 items, 16 classes (min=6250, max=6250)
+  split: train=80000 test=20000 | input_dim=32
+  model params: 13,520
+
+Training: 60 epochs, batch=2048
+  epoch 1/60 loss=2.2476 acc=38.6% lift=+0.5631 best_lift=+0.5631 lr=0.00300
+  epoch 2/60 loss=1.3402
+  epoch 3/60 loss=0.9595
+  epoch 4/60 loss=0.7764
+  epoch 5/60 loss=0.6767 acc=86.9% lift=+0.8736 best_lift=+0.8736 lr=0.00295
+  epoch 6/60 loss=0.5981
+  epoch 7/60 loss=0.5422
+  epoch 8/60 loss=0.4993
+  epoch 9/60 loss=0.4721
+  epoch 10/60 loss=0.4363 acc=91.5% lift=+0.9065 best_lift=+0.9065 lr=0.00280
+  epoch 11/60 loss=0.4082
+  epoch 12/60 loss=0.3872
+  epoch 13/60 loss=0.3706
+  epoch 14/60 loss=0.3542
+  epoch 15/60 loss=0.3424 acc=93.1% lift=+0.9136 best_lift=+0.9136 lr=0.00256
+  epoch 16/60 loss=0.3241
+  epoch 17/60 loss=0.3218
+  epoch 18/60 loss=0.3089
+  epoch 19/60 loss=0.2970
+  epoch 20/60 loss=0.2926 acc=93.8% lift=+0.9182 best_lift=+0.9182 lr=0.00225
+  epoch 21/60 loss=0.2816
+  epoch 22/60 loss=0.2787
+  epoch 23/60 loss=0.2711
+  epoch 24/60 loss=0.2674
+  epoch 25/60 loss=0.2611 acc=94.4% lift=+0.9214 best_lift=+0.9214 lr=0.00189
+  epoch 26/60 loss=0.2551
+  epoch 27/60 loss=0.2486
+  epoch 28/60 loss=0.2521
+  epoch 29/60 loss=0.2427
+  epoch 30/60 loss=0.2380 acc=96.5% lift=+0.9220 best_lift=+0.9220 lr=0.00150
+  epoch 31/60 loss=0.2331
+  epoch 32/60 loss=0.2340
+  epoch 33/60 loss=0.2287
+  epoch 34/60 loss=0.2254
+  epoch 35/60 loss=0.2277 acc=96.2% lift=+0.9204 best_lift=+0.9220 lr=0.00111
+  epoch 36/60 loss=0.2216
+  epoch 37/60 loss=0.2202
+  epoch 38/60 loss=0.2150
+  epoch 39/60 loss=0.2148
+  epoch 40/60 loss=0.2129 acc=97.7% lift=+0.9265 best_lift=+0.9265 lr=0.00075
+  epoch 41/60 loss=0.2108
+  epoch 42/60 loss=0.2092
+  epoch 43/60 loss=0.2085
+  epoch 44/60 loss=0.2073
+  epoch 45/60 loss=0.2083 acc=97.6% lift=+0.9257 best_lift=+0.9265 lr=0.00044
+  epoch 46/60 loss=0.2054
+  epoch 47/60 loss=0.2050
+  epoch 48/60 loss=0.2050
+  epoch 49/60 loss=0.2036
+  epoch 50/60 loss=0.2014 acc=98.1% lift=+0.9264 best_lift=+0.9265 lr=0.00020
+  epoch 51/60 loss=0.2003
+  epoch 52/60 loss=0.1998
+  epoch 53/60 loss=0.2002
+  epoch 54/60 loss=0.1980
+  epoch 55/60 loss=0.1993 acc=98.5% lift=+0.9274 best_lift=+0.9274 lr=0.00005
+  epoch 56/60 loss=0.1978
+  epoch 57/60 loss=0.1999
+  epoch 58/60 loss=0.1977
+  epoch 59/60 loss=0.1996
+  epoch 60/60 loss=0.1965 acc=98.6% lift=+0.9273 best_lift=+0.9274 lr=0.00000
+
+Final evaluation (best checkpoint)...
+
+v9 SUPERVISED | label=range_band feature_set=metrics
+  rows=100000 test_acc=98.5% | embedding purity=0.9899 baseline=0.0625 lift=+0.9274 best_lift=+0.9274
+  vs v7 self-supervised lift=+0.0023 ; vs raw-knn lift=+0.1346
+  outputs: data/generated/contrastive_v9

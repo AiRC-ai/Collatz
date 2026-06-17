@@ -22,6 +22,15 @@ or validation.
 
 ![Historical Collatz evidence trend](docs/media/evidence-history.svg)
 
+![Supervised embedding v9/v10 vs raw-metrics k-NN](docs/media/v9-v10-supervised-chart.svg)
+
+The supervised embedding line (v9 single-task, v10 multi-task) retires the
+self-supervised contrastive approach: v10 trains one 64-d embedding to predict
+range_band, bit_length, and peak_ratio_bucket at once and beats raw-metrics
+k-NN on all three (+88.0% / +72.0% / +85.1% lift), where v7 self-supervised
+contrastive collapsed to +0.23% on range_band. See
+[docs/NEURAL_ENGINE_V9.md](docs/NEURAL_ENGINE_V9.md) for the full postmortem.
+
 The block below is generated from
 `data/generated/evidence/latest_public_summary.json`. Do not hand-edit evidence
 numbers in the README.
@@ -34,21 +43,23 @@ numbers in the README.
 
 ![v5 Ablation Chart](docs/media/v5-ablation-chart.svg)
 
+![v9/v10 Supervised Embedding Chart](docs/media/v9-v10-supervised-chart.svg)
+
 ![Loss Curves](docs/media/loss-curves.svg)
 
 <!-- BEGIN GENERATED EVIDENCE SNAPSHOT -->
 - Confidence: `source-neighborhood-supported`
-- Meaning: Public validation starts agree with the learned topology-neighborhood gate, and v3 confirms richer representations now beat metrics-only with family-pair training. The old v3 runs had a broken baseline formula; after correction, hybrid achieves 42.1% lift with v1-encoder family pairs.
+- Meaning: Supervised embedding now beats raw-metrics k-NN across all coarse labels: v10 multi-task reaches +88.0% lift on range_band (raw +13.5%), +72.0% on bit_length (raw +29.8%), and +85.1% on peak_ratio_bucket (raw +56.0%). This retires the self-supervised contrastive line (v4-v7), which collapsed to +0.23% on range_band. Remaining open question is the fine coalescence_family_id target, where raw-metrics lift is only +0.85%.
 - Audit: `1,200,000,000` rows over `1..1,200,000,000`; full audit completed: `true`.
 - Coverage: topology `113,958` rows (`0.009%` of audit); stratified evidence sample `110,141` rows (`0.009%`).
 - Neural result: `100,000` sample rows; GPU used: `true`; parallel jobs completed: `0`.
 - Learned lift: weakest range `0.529%`, fold minimum `0.417%`, numeric-adjacency lift `1.294%`.
-- Best current ablation: `metrics-only at 84.118%`.
-- Interpretation: `metric-dominant signal`; metrics-only lift exceeds hybrid lift under the current evidence run (healthy negative control). v4 proved model-mined hard negatives fail. v5 mined from raw metrics but used 61K classes (1.6 examples each) — no signal to learn. v7 tested raw-metrics hard negatives with coarse labels but the embedding still failed to learn family structure (lift 0.23% vs random 6.25%). Next: hybrid features with InfoNCE loss.
+- Best current ablation: `v9 supervised, range_band, 60ep at 92.740%`.
+- Interpretation: `supervised embedding recovers structure`; Self-supervised contrastive (v4-v7) collapsed below the raw-feature baseline: v7 got +0.23% lift on range_band while raw-metrics k-NN already gives +13.5%. Diagnostics proved the m0-m31 metrics carry overwhelming signal (a 40-epoch supervised MLP hits 95.8% range_band accuracy). v9 single-label supervised embedding reaches +92.7% lift; v10 multi-task supervised embedding beats raw-metrics k-NN on range_band (+88.0%), bit_length (+72.0%) and peak_ratio_bucket (+85.1%) -- the first general-purpose embedding. Self-supervised contrastive was the wrong tool once labels are available..
 - Healthy negative control: `metrics-only` beats `hybrid` (`84.118%` vs `83.336%`), so richer neural structure has not yet earned promotion beyond simpler trajectory metrics.
 - Promotion blockers: `none`.
 - Source alignment: `5,186 / 5,191` matched; unknown unmatched rows `0`.
-- Next experiment: v8: hybrid features (all branches) with InfoNCE/NT-Xent loss. v7 (metrics-only, triplet loss, raw-metrics negatives) failed — loss dropped but lift stayed at 0.23%. The embedding preserved metric signal without learning family structure. InfoNCE with harder negatives from hybrid space should provide cleaner optimization.
+- Next experiment: Fine coalescence_family_id target: 61,754 classes with ~1.6 examples each. v10 proves the coarse-label pipeline works, but raw-metrics k-NN lift on family_id is only +0.85%, and with 1-2 examples per class neither supervised classification nor contrastive learning has enough signal. Next: test whether family_id is well-defined in a richer feature space before training; consider multi-task on finer labels or a different family definition rather than another loss function.
 - This is empirical evidence, not a Collatz proof.
 <!-- END GENERATED EVIDENCE SNAPSHOT -->
 

@@ -1,0 +1,83 @@
+v10 MULTI-TASK | tasks=('range_band', 'bit_length', 'peak_ratio_bucket') device=cuda
+
+Loading data...
+  metrics torch.Size([100000, 32]) | 100000 items
+  range_band: 16 classes (min=6250, max=6250)
+  bit_length: 17 classes (min=1, max=34465)
+  peak_ratio_bucket: 28 classes (min=1, max=22177)
+  split: train=80000 test=20000 | input_dim=32
+  model params: 16,445
+
+Training: 60 epochs, batch=2048
+  epoch 1/60 loss=6.2069 accs=[rang=30.3%, bit_=72.6%, peak=57.6%] lifts=[rang=+0.435, bit_=+0.582, peak=+0.646] sum=+1.6634
+  epoch 2/60 loss=3.3104
+  epoch 3/60 loss=2.3879
+  epoch 4/60 loss=1.9872
+  epoch 5/60 loss=1.7668 accs=[rang=71.3%, bit_=93.9%, peak=87.3%] lifts=[rang=+0.801, bit_=+0.703, peak=+0.818] sum=+2.3221
+  epoch 6/60 loss=1.6062
+  epoch 7/60 loss=1.4900
+  epoch 8/60 loss=1.4016
+  epoch 9/60 loss=1.3356
+  epoch 10/60 loss=1.2692 accs=[rang=83.6%, bit_=96.3%, peak=92.2%] lifts=[rang=+0.849, bit_=+0.713, peak=+0.838] sum=+2.3999
+  epoch 11/60 loss=1.2020
+  epoch 12/60 loss=1.1719
+  epoch 13/60 loss=1.1605
+  epoch 14/60 loss=1.0977
+  epoch 15/60 loss=1.0468 accs=[rang=87.5%, bit_=96.3%, peak=94.2%] lifts=[rang=+0.861, bit_=+0.716, peak=+0.844] sum=+2.4209
+  epoch 16/60 loss=1.0132
+  epoch 17/60 loss=0.9833
+  epoch 18/60 loss=0.9566
+  epoch 19/60 loss=0.9346
+  epoch 20/60 loss=0.9042 accs=[rang=88.1%, bit_=97.3%, peak=95.3%] lifts=[rang=+0.869, bit_=+0.717, peak=+0.847] sum=+2.4342
+  epoch 21/60 loss=0.8818
+  epoch 22/60 loss=0.8581
+  epoch 23/60 loss=0.8395
+  epoch 24/60 loss=0.8236
+  epoch 25/60 loss=0.8103 accs=[rang=90.2%, bit_=97.5%, peak=96.0%] lifts=[rang=+0.874, bit_=+0.719, peak=+0.848] sum=+2.4411
+  epoch 26/60 loss=0.7897
+  epoch 27/60 loss=0.7693
+  epoch 28/60 loss=0.7654
+  epoch 29/60 loss=0.7590
+  epoch 30/60 loss=0.7397 accs=[rang=92.7%, bit_=97.1%, peak=96.3%] lifts=[rang=+0.876, bit_=+0.719, peak=+0.850] sum=+2.4453
+  epoch 31/60 loss=0.7291
+  epoch 32/60 loss=0.7217
+  epoch 33/60 loss=0.7103
+  epoch 34/60 loss=0.7051
+  epoch 35/60 loss=0.6955 accs=[rang=95.9%, bit_=98.1%, peak=95.9%] lifts=[rang=+0.878, bit_=+0.720, peak=+0.851] sum=+2.4486
+  epoch 36/60 loss=0.6828
+  epoch 37/60 loss=0.6774
+  epoch 38/60 loss=0.6672
+  epoch 39/60 loss=0.6619
+  epoch 40/60 loss=0.6580 accs=[rang=96.0%, bit_=98.4%, peak=97.2%] lifts=[rang=+0.878, bit_=+0.720, peak=+0.851] sum=+2.4484
+  epoch 41/60 loss=0.6568
+  epoch 42/60 loss=0.6507
+  epoch 43/60 loss=0.6422
+  epoch 44/60 loss=0.6468
+  epoch 45/60 loss=0.6410 accs=[rang=96.1%, bit_=98.3%, peak=97.4%] lifts=[rang=+0.879, bit_=+0.720, peak=+0.851] sum=+2.4493
+  epoch 46/60 loss=0.6339
+  epoch 47/60 loss=0.6288
+  epoch 48/60 loss=0.6292
+  epoch 49/60 loss=0.6271
+  epoch 50/60 loss=0.6192 accs=[rang=96.8%, bit_=98.4%, peak=97.5%] lifts=[rang=+0.880, bit_=+0.720, peak=+0.851] sum=+2.4509
+  epoch 51/60 loss=0.6239
+  epoch 52/60 loss=0.6156
+  epoch 53/60 loss=0.6198
+  epoch 54/60 loss=0.6153
+  epoch 55/60 loss=0.6183 accs=[rang=97.2%, bit_=98.7%, peak=97.5%] lifts=[rang=+0.880, bit_=+0.720, peak=+0.851] sum=+2.4511
+  epoch 56/60 loss=0.6127
+  epoch 57/60 loss=0.6211
+  epoch 58/60 loss=0.6178
+  epoch 59/60 loss=0.6127
+  epoch 60/60 loss=0.6155 accs=[rang=97.4%, bit_=98.6%, peak=97.5%] lifts=[rang=+0.880, bit_=+0.720, peak=+0.851] sum=+2.4513
+
+Final evaluation (best checkpoint by summed lift)...
+
+v10 MULTI-TASK | embedding_dim=64 best_epoch=60
+  label                classes  baseline     raw-kNN     v10-emb      acc     verdict
+  ------------------------------------------------------------------------
+  range_band                16    0.0625     +0.1346     +0.8799    97.4%    v10 WINS
+  bit_length                17    0.2620     +0.2984     +0.7201    98.6%    v10 WINS
+  peak_ratio_bucket         28    0.1289     +0.5599     +0.8513    97.5%    v10 WINS
+
+  summed lift (best epoch 60): +2.4513
+  outputs: data/generated/contrastive_v10

@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
+<title id="title">Supervised embedding vs raw-metrics k-NN</title>
+<desc id="desc">Neighbor-purity lift (k=2) by label for raw-metrics k-NN, v9 single-task, and v10 multi-task supervised embeddings.</desc>
+<defs><linearGradient id="panel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#101a33"/><stop offset="1" stop-color="#0b1326"/></linearGradient></defs>
+<rect width="1200" height="680" fill="#080d1a"/>
+<text x="64" y="62" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="26" font-weight="800">Supervised embedding beats raw metrics on every coarse label</text>
+<text x="64" y="90" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15">Neighbor-purity lift over random baseline (k=2, 100k trajectories). v10 multi-task trains one 64-d embedding to predict all three labels at once.</text>
+<rect x="64" y="112" width="16" height="16" rx="4" fill="#64748b"/>
+<text x="88" y="125" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">raw-metrics k-NN</text>
+<rect x="264" y="112" width="16" height="16" rx="4" fill="#a78bfa"/>
+<text x="288" y="125" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">v9 single-task</text>
+<rect x="464" y="112" width="16" height="16" rx="4" fill="#22c55e"/>
+<text x="488" y="125" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">v10 multi-task</text>
+<rect x="44" y="166" width="1112" height="430" rx="10" fill="url(#panel)" stroke="#2b385e"/>
+<line x1="64" y1="556.0" x2="1136" y2="556.0" stroke="#1f2a44" stroke-width="1"/>
+<text x="54" y="561.0" fill="#64748b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" text-anchor="end">0</text>
+<line x1="64" y1="466.0" x2="1136" y2="466.0" stroke="#1f2a44" stroke-width="1"/>
+<text x="54" y="471.0" fill="#64748b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" text-anchor="end">25</text>
+<line x1="64" y1="376.0" x2="1136" y2="376.0" stroke="#1f2a44" stroke-width="1"/>
+<text x="54" y="381.0" fill="#64748b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" text-anchor="end">50</text>
+<line x1="64" y1="286.0" x2="1136" y2="286.0" stroke="#1f2a44" stroke-width="1"/>
+<text x="54" y="291.0" fill="#64748b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" text-anchor="end">75</text>
+<line x1="64" y1="196.0" x2="1136" y2="196.0" stroke="#1f2a44" stroke-width="1"/>
+<text x="54" y="201.0" fill="#64748b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" text-anchor="end">100</text>
+<text x="20" y="376" fill="#8693b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13" text-anchor="middle" transform="rotate(-90 20 376)">lift (%)</text>
+<rect x="123.66666666666666" y="507.5584" width="70" height="48.441599999999994" rx="6" fill="#64748b"/>
+<text x="158.66666666666666" y="499.5584" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+13.5</text>
+<rect x="207.66666666666666" y="222.154" width="70" height="333.846" rx="6" fill="#a78bfa"/>
+<text x="242.66666666666666" y="214.154" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+92.7</text>
+<rect x="291.66666666666663" y="239.23239999999998" width="70" height="316.7676" rx="6" fill="#22c55e"/>
+<text x="326.66666666666663" y="231.23239999999998" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+88.0</text>
+<line x1="117.66666666666666" y1="533.5" x2="367.66666666666663" y2="533.5" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="371.66666666666663" y="537.5" fill="#f59e0b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">random 0.062</text>
+<text x="242.66666666666666" y="590" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">range_band</text>
+<text x="242.66666666666666" y="610" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" text-anchor="middle">v10 acc 97.4%</text>
+<rect x="481.0" y="448.58320000000003" width="70" height="107.41679999999997" rx="6" fill="#64748b"/>
+<text x="516.0" y="440.58320000000003" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+29.8</text>
+<rect x="565.0" y="291.76" width="70" height="264.24" rx="6" fill="#a78bfa"/>
+<text x="600.0" y="283.76" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+73.4</text>
+<rect x="649.0" y="296.77119999999996" width="70" height="259.22880000000004" rx="6" fill="#22c55e"/>
+<text x="684.0" y="288.77119999999996" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+72.0</text>
+<line x1="475.0" y1="461.698" x2="725.0" y2="461.698" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="729.0" y="465.698" fill="#f59e0b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">random 0.262</text>
+<text x="600.0" y="590" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">bit_length</text>
+<text x="600.0" y="610" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" text-anchor="middle">v10 acc 98.6%</text>
+<rect x="838.3333333333333" y="354.4504" width="70" height="201.5496" rx="6" fill="#64748b"/>
+<text x="873.3333333333333" y="346.4504" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+56.0</text>
+<rect x="922.3333333333333" y="470.572" width="70" height="85.428" rx="6" fill="#a78bfa"/>
+<text x="957.3333333333333" y="462.572" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+23.7</text>
+<rect x="1006.3333333333333" y="249.51760000000002" width="70" height="306.4824" rx="6" fill="#22c55e"/>
+<text x="1041.3333333333333" y="241.51760000000002" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800" text-anchor="middle">+85.1</text>
+<line x1="832.3333333333333" y1="509.5924" x2="1082.3333333333333" y2="509.5924" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="1086.3333333333333" y="513.5924" fill="#f59e0b" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11">random 0.129</text>
+<text x="957.3333333333333" y="590" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="700" text-anchor="middle">peak_ratio</text>
+<text x="957.3333333333333" y="610" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" text-anchor="middle">v10 acc 97.5%</text>
+<rect x="64" y="556" width="1072" height="92" rx="10" fill="url(#panel)" stroke="#2b385e"/>
+<text x="84" y="578" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="800">Progress (range_band lift): self-supervised contrastive collapsed; supervised embedding recovers and generalizes.</text>
+<rect x="84" y="594" width="210" height="22" rx="6" fill="#1f2a44"/>
+<rect x="84" y="594" width="0" height="22" rx="6" fill="#ef4444"/>
+<text x="189.0" y="608" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">+0.23%</text>
+<text x="189.0" y="626" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">v7 self-supervised</text>
+<text x="189.0" y="639" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">contrastive</text>
+<rect x="334" y="594" width="210" height="22" rx="6" fill="#1f2a44"/>
+<rect x="334" y="594" width="28" height="22" rx="6" fill="#64748b"/>
+<text x="439.0" y="608" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">+13.46%</text>
+<text x="439.0" y="626" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">raw-metrics k-NN</text>
+<text x="439.0" y="639" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">(zero training)</text>
+<rect x="584" y="594" width="210" height="22" rx="6" fill="#1f2a44"/>
+<rect x="584" y="594" width="194" height="22" rx="6" fill="#a78bfa"/>
+<text x="689.0" y="608" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">+92.73%</text>
+<text x="689.0" y="626" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">v9 single-task</text>
+<text x="689.0" y="639" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">supervised</text>
+<rect x="834" y="594" width="210" height="22" rx="6" fill="#1f2a44"/>
+<rect x="834" y="594" width="184" height="22" rx="6" fill="#22c55e"/>
+<text x="939.0" y="608" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12" font-weight="700" text-anchor="middle">+87.99%</text>
+<text x="939.0" y="626" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">v10 multi-task</text>
+<text x="939.0" y="639" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="11" text-anchor="middle">supervised (sweep)</text>
+</svg>
