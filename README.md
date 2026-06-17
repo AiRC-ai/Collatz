@@ -22,30 +22,38 @@ or validation.
 
 ![Historical Collatz evidence trend](docs/media/evidence-history.svg)
 
-![Supervised embedding v9/v10 vs raw-metrics k-NN](docs/media/v9-v10-supervised-chart.svg)
+### New AI models vs the original non-AI baseline
 
-The supervised embedding line (v9 single-task, v10 multi-task) retires the
-self-supervised contrastive approach: v10 trains one 64-d embedding to predict
-range_band, bit_length, and peak_ratio_bucket at once and beats raw-metrics
-k-NN on all three (+88.0% / +72.0% / +85.1% lift), where v7 self-supervised
-contrastive collapsed to +0.23% on range_band. See
-[docs/NEURAL_ENGINE_V9.md](docs/NEURAL_ENGINE_V9.md) for the full postmortem.
+All numbers below use one consistent metric: k=2 nearest-neighbor same-label
+purity minus the random baseline, over 100,000 Collatz trajectories. The
+**non-AI baseline** is the raw trajectory metrics (`m0`-`m31`) with no learning.
+Authoritative source: `data/generated/evidence/model_comparison.json`.
+
+| Label | Classes | Non-AI baseline (raw metrics) | v9 - new AI (single-task) | v10 - new AI (multi-task) |
+|---|---:|---:|---:|---:|
+| range_band | 16 | +13.5% | +92.7% | +88.0% |
+| bit_length | 17 | +29.8% | +73.4% | +72.0% |
+| peak_ratio_bucket | 28 | +56.0% | +23.7% | +85.1% |
+| **beats non-AI baseline on** | - | - | 2 of 3 | **3 of 3** |
+
+![New AI models vs the original non-AI baseline](docs/media/v9-v10-supervised-chart.svg)
+
+**v10** (one 64-d embedding trained to predict all three labels at once) beats
+the non-AI baseline on every label. **v9** (trained on `range_band` only) beats
+it on the two magnitude labels but loses on `peak_ratio_bucket` because it
+specializes. Both retire the prior self-supervised contrastive line (v4-v7),
+which collapsed to **+0.23%** on `range_band` -- worse than the zero-learning
+non-AI baseline (+13.5%). Full postmortem: [docs/NEURAL_ENGINE_V9.md](docs/NEURAL_ENGINE_V9.md).
+
+> **Metric note (do not mix):** the older ablation numbers elsewhere in this
+> repo (`metrics-only 84.118%`, `hybrid 83.336%`, etc.) are a *different* metric
+> -- family-pair retrieval lift -- and are **not comparable** to the
+> neighbor-purity lift in the table above. They are retained only as history
+> (see Prior experiments below).
 
 The block below is generated from
 `data/generated/evidence/latest_public_summary.json`. Do not hand-edit evidence
 numbers in the README.
-
-![v3 Ablation Chart](docs/media/v3-results-chart.svg)
-
-![Legacy Baseline Chart](docs/media/legacy-results-chart.svg)
-
-![v4 Ablation Chart](docs/media/v4-ablation-chart.svg)
-
-![v5 Ablation Chart](docs/media/v5-ablation-chart.svg)
-
-![v9/v10 Supervised Embedding Chart](docs/media/v9-v10-supervised-chart.svg)
-
-![Loss Curves](docs/media/loss-curves.svg)
 
 <!-- BEGIN GENERATED EVIDENCE SNAPSHOT -->
 - Confidence: `source-neighborhood-supported`
@@ -77,6 +85,23 @@ Longer operating notes live in:
 - [Runner](docs/RUNNER.md)
 - [Reproducibility](docs/REPRODUCIBILITY.md)
 - [Build notes](docs/BUILD.md)
+
+## Prior experiments (legacy family-pair metric)
+
+The charts below are from earlier ablations on a *different* metric (family-pair
+retrieval lift, not the neighbor-purity lift used above) and the self-supervised
+contrastive runs that v9/v10 retired. Kept for history, not for comparison with
+the current numbers.
+
+![v3 Ablation Chart](docs/media/v3-results-chart.svg)
+
+![Legacy Baseline Chart](docs/media/legacy-results-chart.svg)
+
+![v4 Ablation Chart](docs/media/v4-ablation-chart.svg)
+
+![v5 Ablation Chart](docs/media/v5-ablation-chart.svg)
+
+![Loss Curves](docs/media/loss-curves.svg)
 
 ## Visual Research Artifacts
 
