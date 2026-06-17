@@ -1,8 +1,8 @@
 {
   "schema_version": "evidence_public_summary_v1",
-  "run_id": "2026-05-24T05:06:40Z",
+  "run_id": "2026-06-17T03:45:00Z",
   "git_commit": "unknown",
-  "generated_at_utc": "2026-06-11T04:29:08.396598+00:00",
+  "generated_at_utc": "2026-06-17T08:40:58.972772+00:00",
   "confidence": {
     "label": "source-neighborhood-supported",
     "rank": 2,
@@ -36,7 +36,7 @@
   },
   "neural": {
     "latest_run": {
-      "sample_rows": 50000,
+      "sample_rows": 100000,
       "gpu_used": true,
       "parallel_jobs_completed": 0
     },
@@ -46,7 +46,10 @@
         "lift_percent": {
           "mean": null,
           "std": 0.01202541741264542,
-          "ci_95": [0.0018578355819264497, 0.007893447529517336]
+          "ci_95": [
+            0.0018578355819264497,
+            0.007893447529517336
+          ]
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -65,7 +68,10 @@
         "lift_percent": {
           "mean": 83.336,
           "std": 0.01202541741264542,
-          "ci_95": [0.0018578355819264497, 0.007893447529517336]
+          "ci_95": [
+            0.0018578355819264497,
+            0.007893447529517336
+          ]
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -84,7 +90,10 @@
         "lift_percent": {
           "mean": null,
           "std": 0.01202541741264542,
-          "ci_95": [0.0018578355819264497, 0.007893447529517336]
+          "ci_95": [
+            0.0018578355819264497,
+            0.007893447529517336
+          ]
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -103,7 +112,10 @@
         "lift_percent": {
           "mean": 84.118,
           "std": 0.01202541741264542,
-          "ci_95": [0.0018578355819264497, 0.007893447529517336]
+          "ci_95": [
+            0.0018578355819264497,
+            0.007893447529517336
+          ]
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -122,7 +134,10 @@
         "lift_percent": {
           "mean": 2.59,
           "std": 0.01202541741264542,
-          "ci_95": [0.0018578355819264497, 0.007893447529517336]
+          "ci_95": [
+            0.0018578355819264497,
+            0.007893447529517336
+          ]
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -141,7 +156,10 @@
         "lift_percent": {
           "mean": 42.514,
           "std": 0.01202541741264542,
-          "ci_95": [0.0018578355819264497, 0.007893447529517336]
+          "ci_95": [
+            0.0018578355819264497,
+            0.007893447529517336
+          ]
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -160,7 +178,10 @@
         "lift_percent": {
           "mean": 71.64,
           "std": 0.01202541741264542,
-          "ci_95": [0.0018578355819264497, 0.007893447529517336]
+          "ci_95": [
+            0.0018578355819264497,
+            0.007893447529517336
+          ]
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -179,7 +200,10 @@
         "lift_percent": {
           "mean": 17.92,
           "std": 0.0,
-          "ci_95": [17.92, 17.92]
+          "ci_95": [
+            17.92,
+            17.92
+          ]
         },
         "n_folds": 1,
         "n_seeds": 1,
@@ -191,7 +215,10 @@
         "lift_percent": {
           "mean": 15.31,
           "std": 0.0,
-          "ci_95": [15.31, 15.31]
+          "ci_95": [
+            15.31,
+            15.31
+          ]
         },
         "n_folds": 1,
         "n_seeds": 1,
@@ -203,7 +230,10 @@
         "lift_percent": {
           "mean": 13.43,
           "std": 0.0,
-          "ci_95": [13.43, 13.43]
+          "ci_95": [
+            13.43,
+            13.43
+          ]
         },
         "n_folds": 1,
         "n_seeds": 1,
@@ -215,7 +245,10 @@
         "lift_percent": {
           "mean": 6.18,
           "std": 0.0,
-          "ci_95": [6.18, 6.18]
+          "ci_95": [
+            6.18,
+            6.18
+          ]
         },
         "n_folds": 1,
         "n_seeds": 1,
@@ -227,7 +260,10 @@
         "lift_percent": {
           "mean": 83.34,
           "std": 0.0,
-          "ci_95": [83.34, 83.34]
+          "ci_95": [
+            83.34,
+            83.34
+          ]
         },
         "n_folds": 5,
         "n_seeds": 5,
@@ -235,29 +271,24 @@
         "notes": "Original v1 with corrected baseline (was: 84.12% with broken baseline)"
       },
       {
-        "name": "v5 hybrid, family_pairs, raw_metrics_negatives, 200ep",
+        "name": "v7 metrics, range_band, raw_metrics_negatives, 200ep",
         "lift_percent": {
-          "mean": null,
+          "mean": 0.233,
           "std": 0.0,
-          "ci_95": [null, null]
+          "ci_95": [
+            0.233,
+            0.233
+          ]
         },
         "n_folds": 1,
         "n_seeds": 1,
         "n_samples": 100000,
-        "notes": "Hard negatives mined from raw metrics space (not model embeddings). Currently training epoch 10/200 — lift = 0.00% (early stage).",
-        "training_progress": {
-          "current_epoch": 10,
-          "total_epochs": 200,
-          "current_loss": 0.2920,
-          "current_lift": 0.0,
-          "best_lift": 0.0001,
-          "next_evaluation": 20
-        }
+        "notes": "Metrics-only features, 16 range_band classes, raw-metrics hard negatives (k=50). Triplet loss + 20% auxiliary preservation. Loss dropped 0.095\u21920.0016 but lift stuck at 0.23% (random baseline 6.25%). Embedding did not learn family structure."
       }
     ],
     "interpretation": {
       "signal_type": "metric-dominant signal",
-      "reason": "metrics-only lift exceeds hybrid lift under the current evidence run (healthy negative control). v4 proved model-mined hard negatives fail early in training — v5 pivots to mining negatives from raw metrics space which encodes the family signal. v5 at epoch 10/200: loss decreasing (0.336 → 0.292), lift not yet emerged.",
+      "reason": "metrics-only lift exceeds hybrid lift under the current evidence run (healthy negative control). v4 proved model-mined hard negatives fail. v5 mined from raw metrics but used 61K classes (1.6 examples each) \u2014 no signal to learn. v6 was incomplete. v7 with raw-metrics mining and coarse labels still fails: lift stuck at 0.23% despite loss dropping to 0.0016. The embedding preserves metric structure but does not learn range_band family structure. Next: try hybrid features with InfoNCE loss.",
       "may_promote_confidence": false
     },
     "holdouts": {
@@ -320,7 +351,7 @@
     "unknown_unmatched_percent": 0
   },
   "next_experiment": {
-    "summary": "v5: raw-metrics hard negative mining. v4 failed because model embeddings start bad and mine wrong negatives. Mining from raw metrics (84% lift signal) should fix this. Currently at epoch 10/200, lift=0.00%, loss=0.292 (down from 0.336). Target lift > 42%.",
+    "summary": "v8: hybrid features (all branches), InfoNCE/NT-Xent loss, temperature=0.15, 200 epochs, range_band labels. Pivot from triplet loss (v7) because the embedding was preserving raw metrics signal without learning family structure. InfoNCE with harder negatives from hybrid feature space should provide a cleaner optimization target.",
     "falsification_target": "Any true mismatch in public validation targets or degradation below matched-control baselines blocks confidence promotion."
   },
   "public_safety": {
