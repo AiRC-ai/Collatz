@@ -58,5 +58,22 @@
   "prior_ai_reference": {
     "v7_self_supervised_contrastive_range_band_lift": 0.00233,
     "note": "Prior self-supervised contrastive (v4-v7) collapsed to +0.23% on range_band, below the non-AI baseline. Retired by the supervised method."
+  },
+  "fine_structure_v11": {
+    "target": "coalescence_family_id (families with >=5 members)",
+    "n_families": 1269,
+    "n_rows": 7101,
+    "raw_metrics_lift": 0.11109,
+    "prototypical_few_shot_lift": 0.58093,
+    "improvement": "5.2x the raw-metrics baseline (few-shot prototypical, metrics-only)",
+    "recluster": {
+      "n_clusters": 1999,
+      "avg_members": 50.03,
+      "modal_range_band_purity": 0.2228,
+      "nmi_cluster_family_id": 0.7684,
+      "nmi_cluster_range_band": 0.1344,
+      "nmi_family_id_range_band": 0.4149,
+      "note": "Re-clustering in metrics space yields ~50-member families covering all 100k rows; only 22% magnitude; recovers 77% of the original fine family structure (NMI 0.768). This fixes the 58%-singleton problem that made the original family_id unlearnable for most rows."
+    }
   }
 }

@@ -1,0 +1,93 @@
+v11 PROTOTYPICAL | device=cuda | metrics-only features
+  metrics torch.Size([100000, 32]) | 100000 items
+
+Re-clustering: k-means K=2000 in metrics space...
+  1999 clusters | sizes min=1 med=47 max=192 avg=50.0
+  magnitude check: modal range_band purity/cluster = 0.223 (1.0=clusters ARE magnitude, lower=finer structure)
+  NMI(cluster, range_band)=0.134  NMI(cluster, family_id)=0.768  NMI(family_id, range_band)=0.415
+
+Prototypical training on original families with >= 5 members...
+  1269 families, 7101 rows
+  baseline raw-metrics k-NN lift (k=2): +0.1111
+    episode 1/3000 loss=3.1256 fam5_lift=+0.1469
+    episode 500/3000 loss=0.2197 fam5_lift=+0.5446
+    episode 1000/3000 loss=0.0299 fam5_lift=+0.5599
+    episode 1500/3000 loss=0.1429 fam5_lift=+0.5726
+    episode 2000/3000 loss=0.0109 fam5_lift=+0.5685
+    episode 2500/3000 loss=0.0203 fam5_lift=+0.5749
+    episode 3000/3000 loss=0.2098 fam5_lift=+0.5809
+  -> prototypical fam5 embedding lift=+0.5809 vs raw +0.1111 (beats raw: True)
+
+Prototypical training on re-clustered families (K=2000)...
+  baseline raw-metrics k-NN lift by cluster (k=2): +0.6458 (circular: clusters defined in this space)
+    episode 1/3000 loss=3.0095 recluster_lift=+0.6475
+    episode 500/3000 loss=0.0632 recluster_lift=+0.6561
+    episode 1000/3000 loss=0.0697 recluster_lift=+0.6619
+    episode 1500/3000 loss=0.1585 recluster_lift=+0.6640
+    episode 2000/3000 loss=0.0640 recluster_lift=+0.6671
+    episode 2500/3000 loss=0.1848 recluster_lift=+0.6676
+    episode 3000/3000 loss=0.1190 recluster_lift=+0.6713
+  -> prototypical recluster embedding lift=+0.6713 vs raw +0.6458
+
+v11 done | outputs: data/generated/contrastive_v11
+{
+  "recluster": {
+    "n_clusters": 1999,
+    "sizes": {
+      "min": 1,
+      "median": 47,
+      "max": 192,
+      "avg": 50.03
+    },
+    "modal_range_band_purity": 0.2228,
+    "nmi_cluster_range_band": 0.1344,
+    "nmi_cluster_family_id": 0.7684,
+    "nmi_family_id_range_band": 0.4149
+  },
+  "family5_prototypical": {
+    "n_families": 1269,
+    "n_rows": 7101,
+    "raw_metrics_lift": 0.11109,
+    "prototypical_lift": 0.58093,
+    "beats_raw": true,
+    "loss_history": [
+      0.3004441261291504,
+      0.15036112070083618,
+      0.11198652535676956,
+      0.15896514058113098,
+      0.2196759134531021,
+      0.03229247406125069,
+      0.08853020519018173,
+      0.055933691561222076,
+      0.1532454639673233,
+      0.02987675555050373,
+      0.07875875383615494,
+      0.046822939068078995,
+      0.033183760941028595,
+      0.06986845284700394,
+      0.14286775887012482,
+      0.09381277114152908,
+      0.030011173337697983,
+      0.005237651523202658,
+      0.01614701747894287,
+      0.01086826715618372,
+      0.10601609200239182,
+      0.08796776831150055,
+      0.025682110339403152,
+      0.04321662709116936,
+      0.020250648260116577,
+      0.09701740741729736,
+      0.11970657855272293,
+      0.03757299855351448,
+      0.01707042194902897,
+      0.2097889930009842
+    ]
+  },
+  "recluster_prototypical": {
+    "n_clusters": 1999,
+    "n_rows": 100000,
+    "raw_metrics_lift": 0.64576,
+    "prototypical_lift": 0.67128,
+    "beats_raw": true,
+    "loss_history": [
+      0.4

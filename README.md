@@ -57,6 +57,28 @@ the hybrid FEATURES over metrics-only. Full postmortem:
 > neighbor-purity lift in the table above. They are retained only as history
 > (see Prior experiments below).
 
+### Fine-structure frontier (v11)
+
+The coarse labels above are saturated; the open target is the fine
+`coalescence_family_id`, which is 58% singletons (unlearnable as classes). v11
+attacks it two ways, both on metrics-only features (hybrid hurts the fine target):
+
+**Few-shot prototypical learning (the method win).** On the 1,269 families with
+>=5 members (7,101 rows), a prototypical-network embedding lifts k=2 retrieval
+from the raw-metrics baseline **+11.1%** to **+58.1%** -- 5.2x.
+
+**Re-clustered families (the structural win).** k-means in metrics space into
+~2,000 families (~50 members each) covers all 100,000 rows (vs 58% singletons),
+is only 22% magnitude (finer structure, not just `range_band`), and recovers
+**77% of the original fine family structure** (NMI 0.768 vs NMI(family_id,
+range_band) 0.415). So the fine family structure is real and learnable at a
+coarser granularity -- the singleton problem was a granularity artifact.
+
+![v11 fine-structure: prototypical few-shot + re-clustered families](docs/media/v11-fine-structure-chart.svg)
+
+Source: `data/generated/contrastive_v11/metrics.json`. Full write-up:
+[docs/NEURAL_ENGINE_V11.md](docs/NEURAL_ENGINE_V11.md).
+
 The block below is generated from
 `data/generated/evidence/latest_public_summary.json`. Do not hand-edit evidence
 numbers in the README.

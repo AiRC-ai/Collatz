@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="t d">
+<title id="t">v11 fine-structure: prototypical few-shot + re-clustered families</title>
+<desc id="d">Fine-family retrieval lift: raw metrics vs prototypical learned embedding, plus re-cluster diagnostics.</desc>
+<defs><linearGradient id="p" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#101a33"/><stop offset="1" stop-color="#0b1326"/></linearGradient></defs>
+<rect width="1200" height="560" fill="#080d1a"/>
+<text x="64" y="54" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="24" font-weight="800">Fine-structure frontier (v11): few-shot beats the singleton wall</text>
+<text x="64" y="80" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14">k=2 neighbor-purity lift on &gt;=5-member original families (1,269 families, 7,101 rows). metrics-only features.</text>
+<rect x="64" y="110" width="560" height="380" rx="10" fill="url(#p)" stroke="#2b385e"/>
+<text x="92" y="142" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700">Fine-family retrieval lift</text>
+<rect x="130" y="180" width="180" height="280" rx="8" fill="#1f2a44"/>
+<rect x="130" y="416" width="180" height="44" rx="8" fill="#64748b"/>
+<text x="220.0" y="404" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="800" text-anchor="middle">+11.1%</text>
+<text x="220.0" y="490" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13" text-anchor="middle">raw metrics</text>
+<text x="220.0" y="508" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13" text-anchor="middle">(no learning)</text>
+<rect x="360" y="180" width="180" height="280" rx="8" fill="#1f2a44"/>
+<rect x="360" y="228" width="180" height="232" rx="8" fill="#22c55e"/>
+<text x="450.0" y="216" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="22" font-weight="800" text-anchor="middle">+58.1%</text>
+<text x="450.0" y="490" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13" text-anchor="middle">prototypical</text>
+<text x="450.0" y="508" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13" text-anchor="middle">(few-shot learned)</text>
+<text x="92" y="540" fill="#86efac" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="14" font-weight="700">+58.1% vs +11.1% = 5.2x the raw baseline</text>
+<rect x="660" y="110" width="476" height="380" rx="10" fill="url(#p)" stroke="#2b385e"/>
+<text x="688" y="142" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="16" font-weight="700">Re-clustered families (K=2000)</text>
+<text x="688" y="180" fill="#60a5fa" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700">clusters</text>
+<text x="824" y="180" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">1999  (avg 50.03 members, covers all 100k)</text>
+<text x="688" y="220" fill="#60a5fa" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700">vs original families</text>
+<text x="824" y="220" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">only 22% magnitude (modal range_band purity 0.22)</text>
+<text x="688" y="260" fill="#60a5fa" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13" font-weight="700">recovers family_id</text>
+<text x="824" y="260" fill="#dbe7ff" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">NMI(cluster, family_id) = 0.768  (vs NMI(family_id, range_band) = 0.415)</text>
+<text x="688" y="300" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">clusters are NOT just magnitude; they recover 77% of the fine family</text>
+<text x="688" y="340" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">structure at a learnable granularity (~50 members each).</text>
+</svg>
