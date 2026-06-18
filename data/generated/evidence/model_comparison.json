@@ -79,5 +79,45 @@
       "note": "Re-clustering in metrics space yields ~50-member families covering all 100k rows; only 22% magnitude; recovers 77% of the original fine family structure (NMI 0.768). This fixes the 58%-singleton problem that made the original family_id unlearnable for most rows."
     }
   },
-  "metric_note": "k=2 nearest-neighbor same-label purity minus random baseline (CORRECTED: self excluded then topk(2); an earlier off-by-one used topk(3) and was mislabeled k=2 -- see knn_recompute.json for the before/after)."
+  "metric_note": "k=2 nearest-neighbor same-label purity minus random baseline (CORRECTED: self excluded then topk(2); an earlier off-by-one used topk(3) and was mislabeled k=2 -- see knn_recompute.json for the before/after).",
+  "held_out_validation_v12": {
+    "family_disjoint_fine": {
+      "setup": "train prototypical on 80% of >=5-member families, evaluate k=2 retrieval on held-out 20% of families (unseen in training), 3 seeds",
+      "n_train_families": 1016,
+      "n_test_families": 253,
+      "raw_metrics_lift_test": 0.25112,
+      "held_out_lift_mean": 0.82259,
+      "held_out_lift_std": 0.01219,
+      "held_out_lift_ci95": [
+        0.7987,
+        0.84649
+      ],
+      "verdict": "generalizes to UNSEEN families; beats raw on the same held-out pool; tight 3-seed CI"
+    },
+    "row_disjoint_coarse": {
+      "setup": "train multi-task supervised on 80% of rows, evaluate k=2 retrieval on held-out 20% of rows per coarse label",
+      "per_label": [
+        {
+          "label": "range_band",
+          "raw_metrics_lift_test": 0.1197,
+          "held_out_lift_test": 0.8479,
+          "beats_raw": true
+        },
+        {
+          "label": "bit_length",
+          "raw_metrics_lift_test": 0.2511,
+          "held_out_lift_test": 0.7088,
+          "beats_raw": true
+        },
+        {
+          "label": "peak_ratio_bucket",
+          "raw_metrics_lift_test": 0.504,
+          "held_out_lift_test": 0.8328,
+          "beats_raw": true
+        }
+      ],
+      "verdict": "coarse embedding generalizes to held-out rows; held-out lifts match the in-sample v10 numbers"
+    },
+    "metric_note": "Held-out (non-transductive): queries and pool come only from the held-out split. The v9-v11 all-row k-NN was transductive; these confirm the results generalize."
+  }
 }

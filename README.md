@@ -82,6 +82,40 @@ coarser granularity -- the singleton problem was a granularity artifact.
 
 Source: `data/generated/contrastive_v11/metrics.json`. Full write-up:
 [docs/NEURAL_ENGINE_V11.md](docs/NEURAL_ENGINE_V11.md).
+### Held-out validation (v12) -- not transductive
+
+The v9-v11 k-NN purity was computed over all rows (in-sample/transductive). v12
+re-runs the key claims on held-out, disjoint splits (queries and pool come only
+from the held-out split):
+
+**Family-disjoint (fine family_id, >=5 members).** Train prototypical on 80%
+of families, evaluate retrieval on the held-out 20% of families -- families the
+model never saw. 3 seeds:
+
+| metric | value |
+|---|---:|
+| raw-metrics lift (test pool) | +25.1% |
+| held-out prototypical lift (mean) | **+82.3%** |
+| std across 3 seeds | +/-1.2% (CI95 +79.9% .. +84.6%) |
+
+The fine-family result generalizes to *unseen* families, not transductive
+overfitting, with a tight seed CI.
+
+**Row-disjoint (coarse multi-task).** Train on 80% of rows, evaluate retrieval
+on held-out 20% of rows per coarse label:
+
+| Label | raw (test) | held-out (test) |
+|---|---:|---:|
+| range_band | +12.0% | +84.8% |
+| bit_length | +25.1% | +70.9% |
+| peak_ratio_bucket | +50.4% | +83.3% |
+
+The coarse embedding generalizes to held-out rows; held-out lifts match the
+in-sample v10 numbers, so they are not row-memorization.
+
+Source: `data/generated/contrastive_v12/metrics.json`. Full write-up:
+[docs/NEURAL_ENGINE_V12.md](docs/NEURAL_ENGINE_V12.md).
+
 
 The block below is generated from
 `data/generated/evidence/latest_public_summary.json`. Do not hand-edit evidence

@@ -1,0 +1,44 @@
+v12 HELD-OUT EVAL | device=cuda | k=2 corrected metric
+  metrics torch.Size([100000, 32]) | 100000 items
+
+[A] FAMILY-DISJOINT fine family_id (>= 5 members): 1269 families
+  seed=20260520: test_families=253 rows=1428 | raw=+0.2511 held_out=+0.8397 (in-sample was +0.6399)
+  seed=20260521: test_families=253 rows=1388 | raw=+0.2442 held_out=+0.8122 (in-sample was +0.6399)
+  seed=20260522: test_families=253 rows=1408 | raw=+0.2619 held_out=+0.8158 (in-sample was +0.6399)
+
+[B] ROW-DISJOINT coarse multi-task: 100000 rows, 80/20 split
+  label              raw(test)   held_out(test)  beats_raw
+  range_band        +0.1197    +0.8479       True
+  bit_length        +0.2511    +0.7088       True
+  peak_ratio_bucket +0.5040    +0.8328       True
+
+v12 done | outputs: data/generated/contrastive_v12
+{
+  "family_disjoint_held_out_lift_mean": 0.82259,
+  "std": 0.01219,
+  "raw": 0.25112,
+  "coarse": {
+    "n_train_rows": 80000,
+    "n_test_rows": 20000,
+    "per_label": [
+      {
+        "label": "range_band",
+        "raw_metrics_lift_test": 0.11966,
+        "held_out_lift_test": 0.84791,
+        "beats_raw": true
+      },
+      {
+        "label": "bit_length",
+        "raw_metrics_lift_test": 0.2511,
+        "held_out_lift_test": 0.7088,
+        "beats_raw": true
+      },
+      {
+        "label": "peak_ratio_bucket",
+        "raw_metrics_lift_test": 0.50405,
+        "held_out_lift_test": 0.83285,
+        "beats_raw": true
+      }
+    ]
+  }
+}

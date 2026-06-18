@@ -1,0 +1,74 @@
+{
+  "dataset_type": "collatz_contrastive_embeddings_v12",
+  "tool": "research/heldout_eval_v12.py",
+  "status": "complete",
+  "method": "held_out_disjoint_evaluations",
+  "device": "cuda",
+  "metric": "k=2 neighbor-purity lift (corrected), held-out (queries/pool from the held-out split only)",
+  "family_disjoint_fine": {
+    "n_train_families": 1016,
+    "n_test_families": 253,
+    "raw_metrics_lift_mean": 0.25112,
+    "held_out_lift_mean": 0.82259,
+    "held_out_lift_std": 0.01219,
+    "held_out_lift_ci95": [
+      0.7987,
+      0.84649
+    ],
+    "in_sample_reference_lift": 0.6399,
+    "seeds": [
+      {
+        "seed": 20260520,
+        "n_train_families": 1016,
+        "n_test_families": 253,
+        "n_test_rows": 1428,
+        "raw_metrics_lift": 0.25112,
+        "held_out_lift": 0.83971,
+        "in_sample_reference": 0.6399
+      },
+      {
+        "seed": 20260521,
+        "n_train_families": 1016,
+        "n_test_families": 253,
+        "n_test_rows": 1388,
+        "raw_metrics_lift": 0.24415,
+        "held_out_lift": 0.81223,
+        "in_sample_reference": 0.6399
+      },
+      {
+        "seed": 20260522,
+        "n_train_families": 1016,
+        "n_test_families": 253,
+        "n_test_rows": 1408,
+        "raw_metrics_lift": 0.26186,
+        "held_out_lift": 0.81584,
+        "in_sample_reference": 0.6399
+      }
+    ]
+  },
+  "row_disjoint_coarse": {
+    "n_train_rows": 80000,
+    "n_test_rows": 20000,
+    "per_label": [
+      {
+        "label": "range_band",
+        "raw_metrics_lift_test": 0.11966,
+        "held_out_lift_test": 0.84791,
+        "beats_raw": true
+      },
+      {
+        "label": "bit_length",
+        "raw_metrics_lift_test": 0.2511,
+        "held_out_lift_test": 0.7088,
+        "beats_raw": true
+      },
+      {
+        "label": "peak_ratio_bucket",
+        "raw_metrics_lift_test": 0.50405,
+        "held_out_lift_test": 0.83285,
+        "beats_raw": true
+      }
+    ]
+  },
+  "note": "Family-disjoint trains prototypical on 80% of >=5-member families and evaluates retrieval on the held-out 20% of families (unseen in training), 3 seeds -> mean+/-std. Row-disjoint trains multi-task supervised on 80% of rows and evaluates retrieval on held-out 20% of rows per coarse label. These are true held-out (non-transductive) generalization tests, unlike the all-row k-NN in v9-v11."
+}

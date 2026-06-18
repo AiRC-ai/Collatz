@@ -1,8 +1,8 @@
 {
   "schema_version": "evidence_public_summary_v1",
   "run_id": "2026-06-17T15:00:00Z",
-  "git_commit": "d7480ef",
-  "generated_at_utc": "2026-06-17T22:16:28.709850+00:00",
+  "git_commit": "a9a43f5",
+  "generated_at_utc": "2026-06-18T03:08:01.027898+00:00",
   "confidence": {
     "label": "source-neighborhood-supported",
     "rank": 2,
@@ -20,8 +20,12 @@
     "feature_schema_version": "feature_v1",
     "binary_schema_version": "bin_v1",
     "full_audit_completed": true,
-    "feature_file_sha256": null,
-    "metadata_sha256": null
+    "feature_file_sha256": "009ec611ddb301f790eaf66dd9a95b2388506edaf96b83840666d674df18baea",
+    "metadata_sha256": null,
+    "feature_file": "data/generated/features.bin (188GB, 1.2B rows)",
+    "feature_file_size_bytes": 188760000108,
+    "feature_file_mtime": "2026-05-23T21:17:00Z (approx)",
+    "feature_file_sha256_note": "features.bin is a 188 GB topology audit file; full SHA-256 not computed inline. The ML evidence above is pinned by neural.input_file_hashes (metrics_safe.csv etc.)."
   },
   "coverage": {
     "topology": {
@@ -306,6 +310,31 @@
       "NDCG@10": 0.4841692712718954,
       "ARI": 1.0,
       "NMI": 1.0
+    },
+    "input_file_hashes": {
+      "note": "SHA-256 of the exact input files used by the v9-v12 ML runs (pinned for reproducibility). Paths relative to repo root.",
+      "files": {
+        "data/generated/ml_stratified/metrics_safe.csv": {
+          "sha256": "db6e5917964ef339e46bc3f5123ff62426717bffe2b2c7ad0d1b41b31aa87101",
+          "bytes": 27280263
+        },
+        "data/generated/ml_stratified/log_sketch.csv": {
+          "sha256": "7a23ec8ed020fcf0a095079bac847e296e3a2554784a3d54d2c9230e8b65170f",
+          "bytes": 162728050
+        },
+        "data/generated/ml_stratified/parity_runs.csv": {
+          "sha256": "24b008ea4d93f1c6a122dbfd5df6935f3c3960f1054b8a1ca0727b56ccafd0d2",
+          "bytes": 29192375
+        },
+        "data/generated/ml_stratified/residue_transitions_mod32.csv": {
+          "sha256": "8153e9b3f67cff9d82bc814ae5ca79d1d11c2b25aa5ceac2b934a2b9019f5205",
+          "bytes": 49797678
+        },
+        "data/generated/ml_labels/families.csv": {
+          "sha256": "96643f7628539f8de29dcbb947c17b7d5299ebb964010662126037c3dd3c5eef",
+          "bytes": 9511993
+        }
+      }
     }
   },
   "source_alignment": {
@@ -357,5 +386,13 @@
     "contains_usernames": false,
     "contains_absolute_local_paths": false,
     "contains_raw_internal_command_traces": false
+  },
+  "ml_input_hashes": {
+    "metrics_safe.csv": "db6e5917964ef339e46bc3f5123ff62426717bffe2b2c7ad0d1b41b31aa87101",
+    "log_sketch.csv": "7a23ec8ed020fcf0a095079bac847e296e3a2554784a3d54d2c9230e8b65170f",
+    "parity_runs.csv": "24b008ea4d93f1c6a122dbfd5df6935f3c3960f1054b8a1ca0727b56ccafd0d2",
+    "residue_transitions_mod32.csv": "8153e9b3f67cff9d82bc814ae5ca79d1d11c2b25aa5ceac2b934a2b9019f5205",
+    "families.csv": "96643f7628539f8de29dcbb947c17b7d5299ebb964010662126037c3dd3c5eef",
+    "note": "SHA-256 of the exact input files used by the v9-v12 ML runs (airc1). Pin these for ML-evidence reproducibility. The audit features.bin (1.2B rows, 188GB) is hashed separately and stored in audit.feature_file_sha256."
   }
 }
