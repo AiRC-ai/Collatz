@@ -16,6 +16,45 @@ The new performance path is C++20 with fixed-width integer fast paths. Python is
 not used for classical Collatz scanning, dataset generation, progress serving,
 or validation.
 
+## Summary: what was done and what came out of it
+
+This started as a Collatz scanner and grew into an ML + evidence project. Here is
+the plain version of what happened and what is in the repo now.
+
+**What we did**
+
+- Tried to learn Collatz trajectory structure with self-supervised contrastive
+  models (v1-v8). They kept collapsing -- best result +0.23%, worse than using
+  the raw trajectory metrics with no learning at all.
+- Diagnosed why: the trajectory metrics already carry the signal; the
+  self-supervised method was the wrong tool. Switched to supervised learning.
+- Built supervised embeddings (v9/v10) that beat the no-learning baseline on the
+  coarse labels (range, bit-length, peak-ratio).
+- Tested "our" richer hybrid features against the original metrics-only features:
+  they tie -- the extra features do not help.
+- Attacked the fine "family" target with few-shot prototypical learning (v11):
+  +64% in-sample, and re-clustered to show the family structure is real.
+- Validated honestly with held-out splits (v12): the results generalize to
+  unseen families (+82% held-out), not just in-sample tricks.
+- Tried to turn it toward a proof (v13 + proof work): built a reusable tool that
+  falsifies candidate "proof" invariants and pinpointed where the simple ones
+  break (the `n = 3 mod 4` step). This is not a proof.
+
+**What we ended up making**
+
+1. **A supervised embedding** that beats the raw-metrics baseline on coarse
+   trajectory labels -- a usable "find similar trajectories" vector.
+2. **A few-shot prototypical model** that separates fine Collatz families and
+   generalizes to held-out families.
+3. **A reusable invariant falsifier** -- a tool that kills bad Collatz-proof
+   candidates fast so effort goes to survivors.
+4. **An honest evidence layer**: every ML claim is held-out-validated, input
+   files are SHA-256 pinned, and nothing is called a proof (it is not).
+
+**Bottom line:** empirical structure discovery plus a proof-candidate falsifier,
+not a Collatz proof. The conjecture remains open. Details and numbers in the
+sections below.
+
 ## Current Evidence Snapshot
 
 ![Current Collatz evidence dashboard snapshot](docs/media/dashboard-summary.svg)
