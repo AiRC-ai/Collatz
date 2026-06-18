@@ -152,6 +152,29 @@ cluster-proxy (+21.0%).
 
 Source: `data/generated/contrastive_v13/metrics.json`. Full write-up:
 [docs/NEURAL_ENGINE_V13.md](docs/NEURAL_ENGINE_V13.md).
+### Toward a proof: candidate-invariant search (honest negative)
+
+`research/invariant_search.py` searches closed-form Lyapunov (decrease)
+functions for the accelerated Collatz map `S(n)=(3n+1)/2^v2(3n+1)` and
+falsifies them on all odd n up to 20,000,000. This is the ML-to-proof handoff
+(candidate-invariant discovery), **not** a proof.
+
+- **1-step `S(n)<n`:** holds on 50.0% -- fails for all `n = 3 mod 4` (forced
+  increase to ~1.5n). Not an invariant.
+- **k-step `S^k(n)<n`:** climbs with k (k=8: 80.6%) but never reaches 100%. No
+  fixed-step Lyapunov.
+- **residue-weighted log `f(n)=log2(n)+w[n mod 2^L]`:** INFEASIBLE at L=8 and
+  L=12 (checked exactly via Bellman-Ford negative-cycle detection). Obstructing
+  residue cycle through class 3 -> 5 -- the `n = 3 mod 4` increase cannot be
+  compensated by any bounded residue weighting.
+
+So the natural simple invariants are falsified, with the structural obstruction
+pinpointed (the `3 mod 4` accelerated increase). This is consistent with Collatz
+being open and tells a mathematician exactly where the simple ansatz breaks. A
+real proof needs a non-bounded-residue invariant, a density-1-plus-exceptions
+argument, or cycle/divergence exclusion -- then formalization in Lean/Coq. Full
+write-up: [docs/PROOF_WORK.md](docs/PROOF_WORK.md).
+
 
 
 

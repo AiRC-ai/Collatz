@@ -1,0 +1,31 @@
+{
+  "tool": "research/invariant_search.py",
+  "N": 20000000,
+  "L": 8,
+  "kmax": 8,
+  "A_1step_decrease_rate": 0.499999949999995,
+  "A_failures": 5000000,
+  "A_total_odd_n": 9999999,
+  "B_kstep_decrease_rates": {
+    "1": 0.499999949999995,
+    "2": 0.499999949999995,
+    "3": 0.6874999687499969,
+    "4": 0.6562499656249966,
+    "5": 0.7734374773437477,
+    "6": 0.7460934746093475,
+    "7": 0.7255855725585573,
+    "8": 0.8061514806151481
+  },
+  "C_residue_weighted_lyapunov": {
+    "feasible_on_sample": false,
+    "L": 8,
+    "n_residue_nodes": 128,
+    "n_pair_constraints": 1024,
+    "obstruction_edge": {
+      "from": 3,
+      "to": 5,
+      "log2_ratio_required": 0.737
+    }
+  },
+  "honest_caveat": "Empirical 100% on a finite sample is necessary-but-not-sufficient. A feasible candidate C is a CONJECTURE to prove, not a proof. 1-step and k-step rates < 100% confirm no simple fixed-step Lyapunov function exists (consistent with Collatz being open)."
+}

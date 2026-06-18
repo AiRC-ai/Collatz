@@ -1,0 +1,16 @@
+invariant search | odd n in 3..20000000 (step 2) | L=8 (256 residue classes) | kmax=8
+[A] 1-step S(n)<n: holds on 50.0000% of 9999999 odd n (fails 5000000)
+    top failing residues (mod 256): [(3, 78125), (7, 78125), (11, 78125), (15, 78125)]
+[B] k=1: S^k(n)<n (or reach 1) on 50.0000%
+[B] k=2: S^k(n)<n (or reach 1) on 50.0000%
+[B] k=3: S^k(n)<n (or reach 1) on 68.7500%
+[B] k=4: S^k(n)<n (or reach 1) on 65.6250%
+[B] k=5: S^k(n)<n (or reach 1) on 77.3437%
+[B] k=6: S^k(n)<n (or reach 1) on 74.6093%
+[B] k=7: S^k(n)<n (or reach 1) on 72.5586%
+[B] k=8: S^k(n)<n (or reach 1) on 80.6151%
+[C] residue-weighted log Lyapunov (L=8): INFEASIBLE (1024 binding pair-constraints, 128 residue nodes)
+    obstructing edge residue 3 -> 5 (negative-cycle in -D)
+
+outputs: data/generated/proof/invariant_metrics.json
+outputs: data/generated/proof/CONJECTURES.md
