@@ -173,6 +173,13 @@ pinpointed (the `3 mod 4` accelerated increase). This is consistent with Collatz
 being open and tells a mathematician exactly where the simple ansatz breaks. A
 real proof needs a non-bounded-residue invariant, a density-1-plus-exceptions
 argument, or cycle/divergence exclusion -- then formalization in Lean/Coq. Full
+
+`research/invariant_falsifier.py` is the reusable engine: throw any candidate
+invariant at it and it reports survival on all odd n up to 2e7 plus the exact
+residue-weighted feasibility check. Run against the richer classes the obstruction
+pointed at (halving-count and multi-step coupling), every candidate was falsified
+-- most already at n=3 -- and the residue-weighted ansatz stays infeasible at L=12.
+The durable asset is the falsifier, not any one-shot result.
 write-up: [docs/PROOF_WORK.md](docs/PROOF_WORK.md).
 
 

@@ -1,0 +1,374 @@
+{
+  "tool": "research/invariant_falsifier.py",
+  "N": 2000000,
+  "L": 12,
+  "candidates": [
+    {
+      "candidate": "log2(n)",
+      "survival": 0.499999,
+      "first_fail_n": 3,
+      "top_failing_residues_mod256": [
+        [
+          3,
+          7813
+        ],
+        [
+          7,
+          7813
+        ],
+        [
+          11,
+          7813
+        ],
+        [
+          15,
+          7813
+        ]
+      ]
+    },
+    {
+      "candidate": "log2(n)+0.5*v2(3n+1)",
+      "survival": 0.433333,
+      "first_fail_n": 3,
+      "top_failing_residues_mod256": [
+        [
+          3,
+          7813
+        ],
+        [
+          7,
+          7813
+        ],
+        [
+          11,
+          7813
+        ],
+        [
+          15,
+          7813
+        ]
+      ]
+    },
+    {
+      "candidate": "log2(n)+1.0*v2(3n+1)",
+      "survival": 0.428571,
+      "first_fail_n": 3,
+      "top_failing_residues_mod256": [
+        [
+          3,
+          7813
+        ],
+        [
+          7,
+          7813
+        ],
+        [
+          11,
+          7813
+        ],
+        [
+          15,
+          7813
+        ]
+      ]
+    },
+    {
+      "candidate": "log2(n)+1.5*v2(3n+1)",
+      "survival": 0.419607,
+      "first_fail_n": 3,
+      "top_failing_residues_mod256": [
+        [
+          3,
+          7813
+        ],
+        [
+          7,
+          7813
+        ],
+        [
+          11,
+          7813
+        ],
+        [
+          13,
+          7813
+        ]
+      ]
+    },
+    {
+      "candidate": "log2(n)+2.0*v2(3n+1)",
+      "survival": 0.419354,
+      "first_fail_n": 3,
+      "top_failing_residues_mod256": [
+        [
+          3,
+          7813
+        ],
+        [
+          7,
+          7813
+        ],
+        [
+          11,
+          7813
+        ],
+        [
+          13,
+          7813
+        ]
+      ]
+    },
+    {
+      "candidate": "log2(n)+2.5*v2(3n+1)",
+      "survival": 0.417337,
+      "first_fail_n": 3,
+      "top_failing_residues_mod256": [
+        [
+          3,
+          7813
+        ],
+        [
+          7,
+          7813
+        ],
+        [
+          11,
+          7813
+        ],
+        [
+          13,
+          7813
+        ]
+      ]
+    },
+    {
+      "candidate": "log2(n)+3.0*v2(3n+1)",
+      "survival": 0.417322,
+      "first_fail_n": 3,
+      "top_failing_residues_mod256": [
+        [
+          3,
+          7813
+        ],
+        [
+          7,
+          7813
+        ],
+        [
+          11,
+          7813
+        ],
+        [
+          13,
+          7813
+        ]
+      ]
+    },
+    {
+      "candidate": "log2(n)+4.0*v2(3n+1)",
+      "survival": 0.416829,
+      "first_fail_n": 3,
+      "top_failing_residues_mod256": [
+        [
+          3,
+          7813
+        ],
+        [
+          7,
+          7813
+        ],
+        [
+          11,
+          7813
+        ],
+        [
+          13,
+          7813
+        ]
+      ]
+    },
+    {
+      "candidate": "log2(n)+1.0*v2(3n+1)+0.5*v2(3S(n)+1)",
+      "survival": 0.41727,
+      "first_fail_n": 3,
+      "top_failing_residues_mod256": [
+        [
+          3,
+          7813
+        ],
+        [
+          7,
+          7813
+        ],
+        [
+          11,
+          7813
+        ],
+        [
+          15,
+          7813
+        ]
+      ]
+    },
+    {
+      "candidate": "log2(n)+1.0*v2(3n+1)+1.0*v2(3S(n)+1)",
+      "survival": 0.42857,
+      "first_fail_n": 3,
+      "top_failing_residues_mod256": [
+        [
+          3,
+          7813
+        ],
+        [
+          7,
+          7813
+        ],
+        [
+          11,
+          7813
+        ],
+        [
+          15,
+          7813
+        ]
+      ]
+    },
+    {
+      "candidate": "log2(n)+1.0*v2(3n+1)+1.5*v2(3S(n)+1)",
+      "survival": 0.45617,
+      "first_fail_n": 3,
+      "top_failing_residues_mod256": [
+        [
+          3,
+          7813
+        ],
+        [
+          7,
+          7813
+        ],
+        [
+          11,
+          7813
+        ],
+        [
+          15,
+          7813
+        ]
+      ]
+    },
+    {
+      "candidate": "log2(n)+2.0*v2(3n+1)+0.5*v2(3S(n)+1)",
+      "survival": 0.406076,
+      "first_fail_n": 3,
+      "top_failing_residues_mod256": [
+        [
+          3,
+          7813
+        ],
+        [
+          7,
+          7813
+        ],
+        [
+          11,
+          7813
+        ],
+        [
+          15,
+          7813
+        ]
+      ]
+    },
+    {
+      "candidate": "log2(n)+2.0*v2(3n+1)+1.0*v2(3S(n)+1)",
+      "survival": 0.413334,
+      "first_fail_n": 3,
+      "top_failing_residues_mod256": [
+        [
+          3,
+          7813
+        ],
+        [
+          7,
+          7813
+        ],
+        [
+          11,
+          7813
+        ],
+        [
+          15,
+          7813
+        ]
+      ]
+    },
+    {
+      "candidate": "log2(n)+2.0*v2(3n+1)+1.5*v2(3S(n)+1)",
+      "survival": 0.406075,
+      "first_fail_n": 3,
+      "top_failing_residues_mod256": [
+        [
+          3,
+          7813
+        ],
+        [
+          7,
+          7813
+        ],
+        [
+          11,
+          7813
+        ],
+        [
+          15,
+          7813
+        ]
+      ]
+    },
+    {
+      "candidate": "log2(n)-log2(3)*[n==3 mod4]",
+      "survival": 0.499999,
+      "first_fail_n": 3,
+      "top_failing_residues_mod256": [
+        [
+          3,
+          7813
+        ],
+        [
+          7,
+          7813
+        ],
+        [
+          11,
+          7813
+        ],
+        [
+          15,
+          7813
+        ]
+      ]
+    }
+  ],
+  "best_halving_coupling": {
+    "c": 0.5,
+    "survival": 0.433333
+  },
+  "best_2step_coupling": {
+    "c1_c2": [
+      1.0,
+      1.5
+    ],
+    "survival": 0.45617
+  },
+  "residue_weighted_feasibility_L": {
+    "L": 12,
+    "feasible": false,
+    "n_constraints": 20166,
+    "n_nodes": 2048,
+    "obstruction_edge": [
+      3,
+      5
+    ]
+  },
+  "honest_caveat": "Survival < 100% means the candidate is falsified (not a valid Lyapunov function). 100% on a finite sample is a candidate for proof, not a proof. Every tested candidate was falsified."
+}

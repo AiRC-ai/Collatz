@@ -96,3 +96,40 @@ Outputs: `data/generated/proof/invariant_metrics.json`, `CONJECTURES.md`, `run.l
 
 This is empirical evidence and a falsification of simple candidate invariants,
 not a Collatz proof.
+
+## Falsification of richer candidate classes (reusable engine)
+
+`research/invariant_falsifier.py` is the reusable engine: give it any candidate
+Lyapunov function f(n) and it reports the survival fraction (f(S(n))<f(n)) on all
+odd n up to N, the first failure, and the failing-residue pattern, plus the exact
+residue-weighted feasibility check at configurable L. Run at N=2e7 odd n / L=12
+against the richer classes the obstruction pointed at (halving-count and
+multi-step coupling -- i.e. using more than a bounded residue window):
+
+| candidate | survival | first failure |
+|---|---:|---:|
+| log2(n) | 50.0% | n=3 |
+| log2(n)+c*v2(3n+1), best c=0.5 | 43.3% | n=3 |
+| log2(n)+c1*v2(3n+1)+c2*v2(3S(n)+1), best (1.0,1.5) | 45.6% | n=3 |
+| log2(n)-log2(3)*[n=3 mod 4] (explicit exception) | 50.0% | n=3 |
+| residue-weighted log, L=12 | INFEASIBLE | cycle 3->5 |
+
+**Every richer candidate is falsified -- most already at n=3** (S(3)=5 > 3, and
+the halving-count terms are anti-correlated with the needed direction, so they
+make it *worse*, not better). The residue-weighted ansatz stays infeasible at
+L=12 with the same 3->5 obstruction.
+
+**Interpretation.** The obstruction is robust: compensating the `n = 3 mod 4`
+increase with halving-count info or a bounded residue weighting does not work --
+the v2 sequence is aligned the wrong way, and the residue cycle 3->5 forces a
+non-negative compensation sum. This formally closes the "find a better
+bounded-residue / halving-count weighting" line. A surviving invariant, if one
+exists, must be non-local in a stronger sense (e.g. depend on the full parity
+prefix as an unbounded object, or on magnitude in a non-monotone closed form) --
+and finding such a closed form is exactly the open problem.
+
+**The durable asset is the engine.** It is not a one-shot result: any future
+candidate invariant can be tested with `python3 research/invariant_falsifier.py`
+(add the callable to the candidates list). Its job is to kill bad conjectures
+fast so effort concentrates on survivors. To date it has killed every closed-form
+candidate thrown at it, which is the honest expected outcome for Collatz.

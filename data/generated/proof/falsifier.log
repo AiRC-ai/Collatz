@@ -1,0 +1,22 @@
+invariant falsifier | odd n in 3..2000000 | L=12
+  [log2(n)                                   ] survival 49.9999%  first_fail=3  top_fail_res=[(3, 7813), (7, 7813), (11, 7813), (15, 7813)]
+  [log2(n)+0.5*v2(3n+1)                      ] survival 43.3333%  first_fail=3  top_fail_res=[(3, 7813), (7, 7813), (11, 7813), (15, 7813)]
+  [log2(n)+1.0*v2(3n+1)                      ] survival 42.8571%  first_fail=3  top_fail_res=[(3, 7813), (7, 7813), (11, 7813), (15, 7813)]
+  [log2(n)+1.5*v2(3n+1)                      ] survival 41.9607%  first_fail=3  top_fail_res=[(3, 7813), (7, 7813), (11, 7813), (13, 7813)]
+  [log2(n)+2.0*v2(3n+1)                      ] survival 41.9354%  first_fail=3  top_fail_res=[(3, 7813), (7, 7813), (11, 7813), (13, 7813)]
+  [log2(n)+2.5*v2(3n+1)                      ] survival 41.7337%  first_fail=3  top_fail_res=[(3, 7813), (7, 7813), (11, 7813), (13, 7813)]
+  [log2(n)+3.0*v2(3n+1)                      ] survival 41.7322%  first_fail=3  top_fail_res=[(3, 7813), (7, 7813), (11, 7813), (13, 7813)]
+  [log2(n)+4.0*v2(3n+1)                      ] survival 41.6829%  first_fail=3  top_fail_res=[(3, 7813), (7, 7813), (11, 7813), (13, 7813)]
+  [log2(n)+1.0*v2(3n+1)+0.5*v2(3S(n)+1)      ] survival 41.7270%  first_fail=3  top_fail_res=[(3, 7813), (7, 7813), (11, 7813), (15, 7813)]
+  [log2(n)+1.0*v2(3n+1)+1.0*v2(3S(n)+1)      ] survival 42.8570%  first_fail=3  top_fail_res=[(3, 7813), (7, 7813), (11, 7813), (15, 7813)]
+  [log2(n)+1.0*v2(3n+1)+1.5*v2(3S(n)+1)      ] survival 45.6170%  first_fail=3  top_fail_res=[(3, 7813), (7, 7813), (11, 7813), (15, 7813)]
+  [log2(n)+2.0*v2(3n+1)+0.5*v2(3S(n)+1)      ] survival 40.6076%  first_fail=3  top_fail_res=[(3, 7813), (7, 7813), (11, 7813), (15, 7813)]
+  [log2(n)+2.0*v2(3n+1)+1.0*v2(3S(n)+1)      ] survival 41.3334%  first_fail=3  top_fail_res=[(3, 7813), (7, 7813), (11, 7813), (15, 7813)]
+  [log2(n)+2.0*v2(3n+1)+1.5*v2(3S(n)+1)      ] survival 40.6075%  first_fail=3  top_fail_res=[(3, 7813), (7, 7813), (11, 7813), (15, 7813)]
+  [log2(n)-log2(3)*[n==3 mod4]               ] survival 49.9999%  first_fail=3  top_fail_res=[(3, 7813), (7, 7813), (11, 7813), (15, 7813)]
+
+  best halving-coupling: c=0.5 survival 43.3333%
+  best 2-step coupling: (c1,c2)=(1.0, 1.5) survival 45.6170%
+  residue-weighted log L=12: INFEASIBLE (20166 constraints, 2048 nodes) obstruction=(3, 5)
+
+outputs: data/generated/proof/falsifier_metrics.json
