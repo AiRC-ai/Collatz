@@ -115,6 +115,44 @@ in-sample v10 numbers, so they are not row-memorization.
 
 Source: `data/generated/contrastive_v12/metrics.json`. Full write-up:
 [docs/NEURAL_ENGINE_V12.md](docs/NEURAL_ENGINE_V12.md).
+### Re-cluster characterization (v13) -- what the clusters are, and an honest negative
+
+v11 flagged that its re-cluster retrieval number was circular (clusters defined
+in metrics space). v13 closes that:
+
+**What the ~2,000 clusters are** (NMI with each known label, k=2):
+
+| Label | NMI(cluster, label) | modal purity |
+|---|---:|---:|
+| range_band | 0.134 | 0.223 |
+| bit_length | 0.155 | 0.495 |
+| peak_ratio_bucket | 0.310 | 0.603 |
+| coalescence_family_id | **0.768** | 0.030 |
+
+The clusters recover fine family structure (NMI 0.768) and are NOT magnitude
+(range_band NMI 0.134, only 22% pure); their strongest single-label alignment is
+peak_ratio. So the clusters are fine-family + peak-ratio structure, not magnitude.
+
+**Cluster target is circular.** Cluster-disjoint held-out: raw +88.6%, held-out
++89.4%. Raw is near-ceiling because k-means clusters are Voronoi cells in metrics
+space -- so retrieval-by-cluster is circular by construction (this confirms the
+reviewer's point about the v11 recluster number).
+
+**Cluster-proxy does not beat raw metrics on the real target.** Train prototypical
+on the cluster labels (never seeing `family_id`), then evaluate family-disjoint on
+the original fine `family_id` (>=5 members): raw **+24.7%**, cluster-trained
+held-out **+21.0%** (std +/-0.9). It does NOT beat raw metrics.
+
+**Net:** re-clustering is a useful *diagnostic* (it proves fine structure exists at
+a learnable, non-magnitude granularity), but it is not a training target that
+beats raw metrics for fine-family retrieval. The winning fine-family approach
+remains *direct* few-shot prototypical supervision on the fine families
+themselves (v12: +82.3% held-out), which far exceeds both raw (+24.7%) and the
+cluster-proxy (+21.0%).
+
+Source: `data/generated/contrastive_v13/metrics.json`. Full write-up:
+[docs/NEURAL_ENGINE_V13.md](docs/NEURAL_ENGINE_V13.md).
+
 
 
 The block below is generated from

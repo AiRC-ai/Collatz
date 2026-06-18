@@ -1,0 +1,98 @@
+{
+  "dataset_type": "collatz_contrastive_embeddings_v13",
+  "tool": "research/recluster_eval_v13.py",
+  "status": "complete",
+  "method": "non_circular_recluster_eval_plus_characterization",
+  "device": "cuda",
+  "metric": "k=2 neighbor-purity lift (corrected)",
+  "recluster": {
+    "n_clusters": 1999,
+    "sizes": {
+      "min": 1,
+      "median": 47,
+      "max": 192,
+      "avg": 50.03
+    }
+  },
+  "characterization": {
+    "range_band": {
+      "nmi_cluster_label": 0.1344,
+      "size_weighted_modal_purity": 0.2228
+    },
+    "bit_length": {
+      "nmi_cluster_label": 0.1545,
+      "size_weighted_modal_purity": 0.4952
+    },
+    "peak_ratio_bucket": {
+      "nmi_cluster_label": 0.3099,
+      "size_weighted_modal_purity": 0.6026
+    },
+    "coalescence_family_id": {
+      "nmi_cluster_label": 0.7684,
+      "size_weighted_modal_purity": 0.0301
+    }
+  },
+  "cluster_disjoint_heldout": {
+    "raw_mean": 0.8856,
+    "held_out_mean": 0.8944,
+    "held_out_std": 0.00173,
+    "held_out_ci95": [
+      0.89102,
+      0.89778
+    ],
+    "seeds": [
+      {
+        "seed": 20260520,
+        "n_train_clusters": 1600,
+        "n_test_clusters": 399,
+        "raw": 0.88263,
+        "held_out": 0.89244
+      },
+      {
+        "seed": 20260521,
+        "n_train_clusters": 1600,
+        "n_test_clusters": 399,
+        "raw": 0.88743,
+        "held_out": 0.89664
+      },
+      {
+        "seed": 20260522,
+        "n_train_clusters": 1600,
+        "n_test_clusters": 399,
+        "raw": 0.88674,
+        "held_out": 0.89412
+      }
+    ]
+  },
+  "general_purpose_cross_target": {
+    "setup": "embedding trained ONLY on cluster-proxy labels (never saw family_id); evaluated family-disjoint on original fine family_id >=5",
+    "raw_mean": 0.24696,
+    "held_out_mean": 0.20971,
+    "held_out_std": 0.00873,
+    "held_out_ci95": [
+      0.19259,
+      0.22683
+    ],
+    "seeds": [
+      {
+        "seed": 20260520,
+        "n_test_families": 253,
+        "raw": 0.25112,
+        "held_out": 0.21366
+      },
+      {
+        "seed": 20260521,
+        "n_test_families": 253,
+        "raw": 0.25492,
+        "held_out": 0.21787
+      },
+      {
+        "seed": 20260522,
+        "n_test_families": 253,
+        "raw": 0.23485,
+        "held_out": 0.1976
+      }
+    ]
+  },
+  "note": "C is non-circular (train/test clusters disjoint). D trains only on cluster-proxy labels and tests cross-target on the original fine family_id (family-disjoint). The v11 recluster number was circular; these are not."
+}

@@ -1,0 +1,45 @@
+v13 RECLUSTER EVAL | device=cuda | k=2 corrected
+  metrics torch.Size([100000, 32]) | 100000 items
+
+[A] Re-cluster k-means K=2000...
+  1999 clusters | min=1 med=47 max=192 avg=50.0
+
+[B] Cluster characterization (what do the clusters capture?):
+  range_band             NMI=0.134  modal_purity=0.223
+  bit_length             NMI=0.155  modal_purity=0.495
+  peak_ratio_bucket      NMI=0.310  modal_purity=0.603
+  coalescence_family_id  NMI=0.768  modal_purity=0.030
+
+[C] Cluster-disjoint held-out (train on 80% clusters, retrieve on held-out 20% clusters), 3 seeds:
+  seed=20260520: test_clusters=399 rows=20247 raw=+0.8826 held_out=+0.8924
+  seed=20260521: test_clusters=399 rows=19224 raw=+0.8874 held_out=+0.8966
+  seed=20260522: test_clusters=399 rows=20544 raw=+0.8867 held_out=+0.8941
+
+[D] General-purpose embedding: train prototypical on ALL clusters, eval cross-target on held-out fine family_id (>=5)...
+  seed=20260520: test_families=253 raw=+0.2511 cluster-trained_held_out=+0.2137
+  seed=20260521: test_families=253 raw=+0.2549 cluster-trained_held_out=+0.2179
+  seed=20260522: test_families=253 raw=+0.2349 cluster-trained_held_out=+0.1976
+
+v13 done | outputs: data/generated/contrastive_v13
+{
+  "characterization": {
+    "range_band": {
+      "nmi_cluster_label": 0.1344,
+      "size_weighted_modal_purity": 0.2228
+    },
+    "bit_length": {
+      "nmi_cluster_label": 0.1545,
+      "size_weighted_modal_purity": 0.4952
+    },
+    "peak_ratio_bucket": {
+      "nmi_cluster_label": 0.3099,
+      "size_weighted_modal_purity": 0.6026
+    },
+    "coalescence_family_id": {
+      "nmi_cluster_label": 0.7684,
+      "size_weighted_modal_purity": 0.0301
+    }
+  },
+  "cluster_disjoint_heldout": 0.8944,
+  "cross_target_heldout": 0.20971
+}
