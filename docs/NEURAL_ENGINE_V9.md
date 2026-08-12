@@ -10,7 +10,7 @@ because the labels are available and that is the reliable tool for this case.
 ## The diagnostic that ended the contrastive line
 
 Before writing another loss function, three zero/low-training checks were run on
-the real 100k dataset (airc1, RTX 3090):
+the real 100k dataset (RTX 3090 reference workstation):
 
 1. **Raw-metrics k-NN (zero training).** Take the 32 standardized `m0..m31`
    metrics, L2-normalize, find the 2 nearest neighbors, measure same-label
@@ -127,7 +127,7 @@ Outputs (in `data/generated/contrastive_v9|v10/`): `embeddings.csv`
 
 ## Reproduce
 
-On airc1 (or any CUDA box with the generated dataset):
+On a CUDA workstation with the generated dataset:
 
 ```bash
 python3 research/contrastive_train_v9.py  --output-dir data/generated/contrastive_v9

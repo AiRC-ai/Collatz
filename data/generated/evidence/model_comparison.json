@@ -1,6 +1,6 @@
 {
   "metric": "neighbor_purity_lift_k2",
-  "dataset": "100000 Collatz trajectories (airc1 RTX 3090)",
+  "dataset": "100000 Collatz trajectories (RTX 3090 reference workstation)",
   "note": "All numbers on the SAME metric: k=2 nearest-neighbor same-label purity minus random baseline. Original=metrics-only features (m0-m31); Ours=hybrid features (metrics+shape+parity+residue). Both trained with the v10 multi-task supervised method.",
   "models": {
     "non_ai_raw_metrics": {

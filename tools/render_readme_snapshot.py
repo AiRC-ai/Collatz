@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render or update the README evidence snapshot from canonical JSON."""
+"""Render or update the public evidence snapshot from canonical JSON."""
 
 from __future__ import annotations
 
@@ -87,7 +87,7 @@ def render(data: dict) -> str:
 def update_readme(readme: Path, snapshot: str) -> None:
     text = readme.read_text()
     if BEGIN not in text or END not in text:
-        raise SystemExit(f"README is missing generated snapshot markers: {readme}")
+        raise SystemExit(f"document is missing generated snapshot markers: {readme}")
     before, rest = text.split(BEGIN, 1)
     _, after = rest.split(END, 1)
     readme.write_text(before + snapshot + after)
@@ -96,16 +96,16 @@ def update_readme(readme: Path, snapshot: str) -> None:
 def readme_snapshot_block(readme: Path) -> str:
     text = readme.read_text()
     if BEGIN not in text or END not in text:
-        raise SystemExit(f"README is missing generated snapshot markers: {readme}")
+        raise SystemExit(f"document is missing generated snapshot markers: {readme}")
     _, rest = text.split(BEGIN, 1)
     block, _ = rest.split(END, 1)
     return BEGIN + block + END + "\n"
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Render README evidence snapshot from canonical JSON.")
+    parser = argparse.ArgumentParser(description="Render the public evidence snapshot from canonical JSON.")
     parser.add_argument("--input", default="data/generated/evidence/latest_public_summary.json")
-    parser.add_argument("--readme", default="README.md")
+    parser.add_argument("--readme", default="docs/RESEARCH_RECORD.md")
     parser.add_argument("--update-readme", action="store_true")
     parser.add_argument("--check-readme", action="store_true")
     parser.add_argument("--expect")
@@ -115,11 +115,11 @@ def main() -> None:
     if args.check_readme:
         actual = readme_snapshot_block(Path(args.readme))
         if snapshot != actual:
-            raise SystemExit("README generated evidence block is out of sync")
+            raise SystemExit("generated evidence block is out of sync")
     elif args.expect:
         expected = Path(args.expect).read_text()
         if snapshot != expected:
-            raise SystemExit("rendered README snapshot differs from expected fixture")
+            raise SystemExit("rendered evidence snapshot differs from expected fixture")
     elif args.update_readme:
         update_readme(Path(args.readme), snapshot.rstrip("\n"))
     else:

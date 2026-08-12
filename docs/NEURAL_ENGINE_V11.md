@@ -84,8 +84,8 @@ prototypical episode: sample N_way classes, K_shot support + Q_query per class;
   prototype = mean support embedding; loss = CE(-dist(query, prototypes))
 ```
 
-k-means is a from-scratch GPU implementation (no sklearn on airc1); NMI is
-computed from joint histograms.
+k-means is a from-scratch GPU implementation (no sklearn on the reference CUDA
+workstation); NMI is computed from joint histograms.
 
 ## Reproduce
 
