@@ -80,19 +80,16 @@
 
     <rect x="640" y="456" width="448" height="64" rx="8" fill="#070b16" stroke="#263450"/>
     <text x="660" y="482" fill="#9fb0d4" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">PROMOTION BLOCKERS</text>
-    <text x="660" y="504" fill="#facc15" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">none</text>
+    <text x="660" y="504" fill="#facc15" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">metrics_only_exceeds_hybrid, matched_controls_incomplete, +1 more</text>
 
     <rect x="640" y="540" width="448" height="1" fill="#263450"/>
     <text x="640" y="566" fill="#e2e8f0" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="15" font-weight="800">Next falsification test</text>
-    <text x="640" y="590" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Fine coalescence_family_id at full granularity: 61,754 classes, 58%</text>
-    <text x="640" y="607" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">singletons. v11 re-clustering recovers 77% of family structure (NMI</text>
-    <text x="640" y="624" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">0.768) at a learnable ~50-member granularity and few-shot prototypical</text>
-    <text x="640" y="641" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">reaches +64.0% on &gt;=5-member families. Next: train/eval-split on the</text>
-    <text x="640" y="658" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">re-clustered families as the label (non-circularly) for a single</text>
-    <text x="640" y="675" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">general-purpose fine-structure embedding, and add family-disjoint held-</text>
-    <text x="640" y="692" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">out evaluation. Add SHA-256 pinning of feature files and make safe-</text>
-    <text x="640" y="709" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">metrics the default export mode.</text>
+    <text x="640" y="590" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">Evaluate non-circular feature hypotheses for direct fine-family</text>
+    <text x="640" y="607" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">retrieval under family-disjoint splits, using raw metrics and the</text>
+    <text x="640" y="624" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">failed cluster-proxy representation as mandatory controls. Separately,</text>
+    <text x="640" y="641" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">test richer invariant classes with the existing bounded falsifier</text>
+    <text x="640" y="658" fill="#aab6d3" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="13">before considering formalization.</text>
   </g>
 
-  <text x="64" y="642" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Generated at 2026-06-17T22:16:28.709850+00:00 from public-safe canonical evidence. Operations telemetry never raises confidence.</text>
+  <text x="64" y="642" fill="#7384ad" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="12">Generated at 2026-06-18T03:08:01.027898+00:00 from public-safe canonical evidence. Operations telemetry never raises confidence.</text>
 </svg>

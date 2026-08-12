@@ -9,8 +9,12 @@
     "claim_is_proof": false,
     "claim_is_source_neighborhood_supported": true,
     "claim_is_candidate_pattern": false,
-    "interpretation": "Supervised embedding now beats raw-metrics k-NN across all coarse labels: v10 multi-task reaches +88.6% lift on range_band (raw +13.9%), +72.2% on bit_length (raw +31.3%), and +85.4% on peak_ratio_bucket (raw +57.1%) -- k=2 corrected. This retires the self-supervised contrastive line (v4-v7), which collapsed to +0.23% on range_band. Remaining open question is the fine coalescence_family_id target, where raw-metrics lift is only +12.5% (k=2).",
-    "promotion_blockers": []
+    "interpretation": "Held-out evaluation supports direct supervised structure learning: family-disjoint prototypical retrieval reaches +82.3% lift versus +25.1% for raw metrics on unseen families, and the coarse multi-task embedding beats raw metrics on all three held-out labels. The v13 cluster-proxy control underperforms raw metrics (+21.0% versus +24.7%), so re-clustering remains a diagnostic rather than a promoted training result. This is empirical evidence, not a proof.",
+    "promotion_blockers": [
+      "metrics_only_exceeds_hybrid",
+      "matched_controls_incomplete",
+      "missing_lift_statistics"
+    ]
   },
   "audit": {
     "active_feature_file": "data/generated/features.bin",
@@ -190,6 +194,14 @@
         "n_folds": 1,
         "n_seeds": 1,
         "n_samples": 50000,
+        "matched_controls": {
+          "bit_length": false,
+          "range_band": false,
+          "residue_class": false,
+          "stopping_time_bucket": false,
+          "peak_ratio_bucket": false,
+          "first_drop_bucket": false
+        },
         "notes": "Multi-branch metrics encoder + family pairs + 80ep"
       },
       {
@@ -202,6 +214,14 @@
         "n_folds": 1,
         "n_seeds": 1,
         "n_samples": 100000,
+        "matched_controls": {
+          "bit_length": false,
+          "range_band": false,
+          "residue_class": false,
+          "stopping_time_bucket": false,
+          "peak_ratio_bucket": false,
+          "first_drop_bucket": false
+        },
         "notes": "Multi-branch encoder + combined pairs (self-noise + family)"
       },
       {
@@ -214,6 +234,14 @@
         "n_folds": 1,
         "n_seeds": 1,
         "n_samples": 50000,
+        "matched_controls": {
+          "bit_length": false,
+          "range_band": false,
+          "residue_class": false,
+          "stopping_time_bucket": false,
+          "peak_ratio_bucket": false,
+          "first_drop_bucket": false
+        },
         "notes": "Multi-branch encoder + combined pairs"
       },
       {
@@ -226,6 +254,14 @@
         "n_folds": 1,
         "n_seeds": 1,
         "n_samples": 50000,
+        "matched_controls": {
+          "bit_length": false,
+          "range_band": false,
+          "residue_class": false,
+          "stopping_time_bucket": false,
+          "peak_ratio_bucket": false,
+          "first_drop_bucket": false
+        },
         "notes": "Higher temperature degraded performance"
       },
       {
@@ -238,6 +274,14 @@
         "n_folds": 5,
         "n_seeds": 5,
         "n_samples": 50000,
+        "matched_controls": {
+          "bit_length": false,
+          "range_band": false,
+          "residue_class": false,
+          "stopping_time_bucket": false,
+          "peak_ratio_bucket": false,
+          "first_drop_bucket": false
+        },
         "notes": "Original v1 with corrected baseline (was: 84.12% with broken baseline)"
       },
       {
@@ -253,6 +297,14 @@
         "n_folds": 1,
         "n_seeds": 1,
         "n_samples": 100000,
+        "matched_controls": {
+          "bit_length": false,
+          "range_band": false,
+          "residue_class": false,
+          "stopping_time_bucket": false,
+          "peak_ratio_bucket": false,
+          "first_drop_bucket": false
+        },
         "notes": "Metrics-only features, 16 range_band classes, raw-metrics hard negatives (k=50). Triplet loss + 20% auxiliary preservation. Loss dropped 0.095\u21920.0016 but lift stuck at 0.23% (random baseline 6.25%). Embedding did not learn family structure."
       },
       {
@@ -268,6 +320,14 @@
         "n_folds": 1,
         "n_seeds": 1,
         "n_samples": 100000,
+        "matched_controls": {
+          "bit_length": false,
+          "range_band": false,
+          "residue_class": false,
+          "stopping_time_bucket": false,
+          "peak_ratio_bucket": false,
+          "first_drop_bucket": false
+        },
         "notes": "Single-label supervised embedding (V1Encoder->64-d->linear head, cross-entropy on range_band). 98.5% test accuracy; 64-d embedding neighbor purity 98.99% -> lift +92.7% (vs raw-metrics k-NN +13.5%, vs v7 self-supervised contrastive +0.23%). Supervision recovers signal the self-supervised contrastive runs destroyed. Loses to raw metrics on peak_ratio_bucket (specializes to magnitude)."
       },
       {
@@ -283,12 +343,20 @@
         "n_folds": 1,
         "n_seeds": 1,
         "n_samples": 100000,
+        "matched_controls": {
+          "bit_length": false,
+          "range_band": false,
+          "residue_class": false,
+          "stopping_time_bucket": false,
+          "peak_ratio_bucket": false,
+          "first_drop_bucket": false
+        },
         "notes": "Multi-task: one shared 64-d embedding predicts range_band+bit_length+peak_ratio_bucket simultaneously (summed cross-entropy). Beats raw-metrics k-NN on ALL THREE labels: range_band +87.99% (raw +13.46%), bit_length +72.01% (raw +29.84%), peak_ratio_bucket +85.13% (raw +55.99%). Accuracies 97-99%. Summed lift +2.45. First embedding that is a general-purpose retrieval vector, not a magnitude specialist."
       }
     ],
     "interpretation": {
-      "signal_type": "supervised embedding recovers structure",
-      "reason": "Self-supervised contrastive (v4-v7) collapsed below the raw-feature baseline: v7 got +0.23% lift on range_band while raw-metrics k-NN already gives +13.9% (k=2). Diagnostics proved the m0-m31 metrics carry overwhelming signal (a 40-epoch supervised MLP hits 95.8% range_band accuracy). v9 single-label supervised embedding reaches +92.8% lift; v10 multi-task supervised embedding beats raw-metrics k-NN on range_band (+88.6%), bit_length (+72.2%) and peak_ratio_bucket (+85.4%) -- the first general-purpose embedding. v11 few-shot prototypical lifts the fine family_id (>=5-member families) from +12.5% to +64.0%. Self-supervised contrastive was the wrong tool once labels are available. (k=2 corrected; see knn_recompute.json.)",
+      "signal_type": "held-out supervised structure with negative controls",
+      "reason": "The v12 family-disjoint evaluation trains on 80% of eligible families and retrieves only against the held-out 20%: direct prototypical learning reaches +82.3% mean lift across three seeds versus +25.1% for raw metrics on the same pool. Row-disjoint coarse evaluation also beats raw metrics for range_band, bit_length, and peak_ratio_bucket. In v13, a cluster-proxy representation fails to beat raw metrics on the real fine-family target (+21.0% versus +24.7%), so that proxy is recorded as a negative control rather than a win",
       "may_promote_confidence": false
     },
     "holdouts": {
@@ -376,8 +444,8 @@
     "unknown_unmatched_percent": 0
   },
   "next_experiment": {
-    "summary": "Fine coalescence_family_id at full granularity: 61,754 classes, 58% singletons. v11 re-clustering recovers 77% of family structure (NMI 0.768) at a learnable ~50-member granularity and few-shot prototypical reaches +64.0% on >=5-member families. Next: train/eval-split on the re-clustered families as the label (non-circularly) for a single general-purpose fine-structure embedding, and add family-disjoint held-out evaluation. Add SHA-256 pinning of feature files and make safe-metrics the default export mode.",
-    "falsification_target": "If a richer feature set cannot lift family_id neighbor purity above the raw-metrics +0.85% baseline, the current family definition is not learnable from trajectory features and the family scheme should be revised."
+    "summary": "Evaluate non-circular feature hypotheses for direct fine-family retrieval under family-disjoint splits, using raw metrics and the failed cluster-proxy representation as mandatory controls. Separately, test richer invariant classes with the existing bounded falsifier before considering formalization.",
+    "falsification_target": "A new representation must beat the raw-metrics baseline on the same family-disjoint pool across multiple seeds. A candidate invariant must survive exhaustive bounded testing before it is considered for formal proof work."
   },
   "public_safety": {
     "sanitized": true,
@@ -393,6 +461,6 @@
     "parity_runs.csv": "24b008ea4d93f1c6a122dbfd5df6935f3c3960f1054b8a1ca0727b56ccafd0d2",
     "residue_transitions_mod32.csv": "8153e9b3f67cff9d82bc814ae5ca79d1d11c2b25aa5ceac2b934a2b9019f5205",
     "families.csv": "96643f7628539f8de29dcbb947c17b7d5299ebb964010662126037c3dd3c5eef",
-    "note": "SHA-256 of the exact input files used by the v9-v12 ML runs (airc1). Pin these for ML-evidence reproducibility. The audit features.bin (1.2B rows, 188GB) is hashed separately and stored in audit.feature_file_sha256."
+    "note": "SHA-256 of the exact input files used by the v9-v12 ML runs on the reference CUDA workstation. Pin these for ML-evidence reproducibility. The audit features.bin (1.2B rows, 188GB) is hashed separately and stored in audit.feature_file_sha256."
   }
 }

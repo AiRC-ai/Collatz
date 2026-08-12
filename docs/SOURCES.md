@@ -59,12 +59,13 @@ The generated table keeps the compatibility header
 `source,n,total_steps,peak_low`, followed by provenance columns:
 `source_kind,source_rank,source_url,retrieved_utc,parser`.
 
-The current canonical public state remains a `range-stable signal`, not a
-source-neighborhood-supported candidate. The source gate reports matched and
-unmatched rows plus a reason-bucket taxonomy. Unknown unmatched rows and any
-true mismatch block confidence promotion. The next stronger gate requires
-complete OEIS coverage plus at least two complete non-OEIS source families:
-Roosendaal, Oliveira e Silva, and Barina.
+The current canonical public state is `source-neighborhood-supported`, not a
+candidate pattern or proof. The snapshot aligns 5,186 of 5,191 source targets;
+the five unmatched entries are classified duplicate source rows, with no
+unknown rows or true mismatches. The source gate requires complete OEIS
+coverage plus at least two complete non-OEIS source families. It reports every
+unmatched row through a reason-bucket taxonomy so unknowns and true mismatches
+cannot be silently promoted.
 
 Large imports should be named with source and retrieval date, for example:
 

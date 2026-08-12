@@ -258,7 +258,7 @@ add_test(NAME readme_snapshot_fixture
 add_test(NAME readme_snapshot_committed_block
     COMMAND "${CMAKE_SOURCE_DIR}/tools/render_readme_snapshot.py"
         "--input" "${CMAKE_SOURCE_DIR}/data/generated/evidence/latest_public_summary.json"
-        "--readme" "${CMAKE_SOURCE_DIR}/README.md"
+        "--readme" "${CMAKE_SOURCE_DIR}/docs/RESEARCH_RECORD.md"
         "--check-readme"
 )
 

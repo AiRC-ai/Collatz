@@ -1,9 +1,10 @@
 # Evidence Contract
 
 `data/generated/evidence/latest_public_summary.json` is the only source of
-truth for public research claims. README text, dashboard evidence cards,
-hypothesis wording, confidence labels, and source-alignment interpretation must
-be generated from that file.
+truth for public research claims. The generated research-record snapshot,
+dashboard evidence cards, hypothesis wording, confidence labels, and
+source-alignment interpretation must come from that file. Any concise overview
+must remain consistent with those canonical values.
 
 Confidence levels are conservative:
 
@@ -22,4 +23,4 @@ Operational telemetry never raises scientific confidence.
 
 `confidence.promotion_blockers` is machine-readable gate state. Public wording
 should explain these blockers instead of inferring confidence from separate
-README text, dashboard telemetry, or private runner status.
+overview text, dashboard telemetry, or private runner status.
